@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Backup</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<header>
+<h1>💾 Backup / Restore</h1>
+</header>
+
+
+<div class="container">
+
+<div class="card">
+
+<h3>📥 Backup घ्या</h3>
+
+<p>
+तुमचा सर्व Data (सभासद, वर्गणी, खर्च) Backup फाइलमध्ये सेव्ह करा.
+</p>
+
+<button onclick="backupData()">
+📥 Download Backup
+</button>
+
+
+<br><br>
+
+
+<h3>📤 Restore करा</h3>
+
+<p>
+जुना Backup परत अॅपमध्ये आणा.
+</p>
+
+<input type="file" id="restoreFile" accept=".json">
+
+<br><br>
+
+<button onclick="restoreData()">
+📤 Restore Backup
+</button>
+
+
+<br><br>
+
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+function backupData(){
+
+
+let backup = {
+
+members:
+JSON.parse(localStorage.getItem("members")) || [],
+
+
+transactions:
+JSON.parse(localStorage.getItem("transactions")) || []
+
+};
+
+
+
+let data = JSON.stringify(backup,null,2);
+
+
+
+let blob = new Blob(
+[data],
+{type:"application/json"}
+);
+
+
+
+let url = URL.createObjectURL(blob);
+
+
+
+let a = document.createElement("a");
+
+a.href = url;
+
+a.download =
+"Morde_Gram_Vikas_Backup_"+new Date().toISOString().split("T")[0]+".json";
+
+
+a.click();
+
+
+alert("Backup यशस्वीरित्या डाउनलोड झाला.");
+
+
+}
+
+
+
+function restoreData(){
+
+
+let file =
+document.getElementById("restoreFile").files[0];
+
+
+if(!file){
+
+alert("कृपया Backup फाइल निवडा.");
+
+return;
+
+}
+
+
+
+let reader = new FileReader();
+
+
+
+reader.onload=function(e){
+
+
+let data =
+JSON.parse(e.target.result);
+
+
+
+localStorage.setItem(
+"members",
+JSON.stringify(data.members || [])
+);
+
+
+
+localStorage.setItem(
+"transactions",
+JSON.stringify(data.transactions || [])
+);
+
+
+
+alert("Backup Restore यशस्वीरित्या झाला.");
+
+
+location.href="index.html";
+
+
+};
+
+
+
+reader.readAsText(file);
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
