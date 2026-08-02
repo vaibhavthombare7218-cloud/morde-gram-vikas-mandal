@@ -2,6 +2,7 @@
 <html lang="mr">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -14,42 +15,49 @@
 
 <body>
 
+
 <header>
+
 <h1>💾 Backup / Restore</h1>
+
 </header>
+
 
 
 <div class="container">
 
+
 <div class="card">
 
-<h3>📥 Backup घ्या</h3>
 
-<p>
-तुमचा सर्व Data (सभासद, वर्गणी, खर्च) Backup फाइलमध्ये सेव्ह करा.
-</p>
+<h3>📤 Backup घ्या</h3>
+
 
 <button onclick="backupData()">
-📥 Download Backup
+💾 Download Backup
 </button>
 
 
 <br><br>
 
 
-<h3>📤 Restore करा</h3>
+<hr>
 
-<p>
-जुना Backup परत अॅपमध्ये आणा.
-</p>
 
-<input type="file" id="restoreFile" accept=".json">
+<h3>📥 Restore करा</h3>
+
+
+<input type="file" id="restoreFile"
+accept=".json">
+
 
 <br><br>
+
 
 <button onclick="restoreData()">
-📤 Restore Backup
+📥 Restore Data
 </button>
+
 
 
 <br><br>
@@ -62,7 +70,9 @@
 
 </div>
 
+
 </div>
+
 
 
 
@@ -72,49 +82,67 @@
 function backupData(){
 
 
+
 let backup = {
+
 
 members:
 JSON.parse(localStorage.getItem("members")) || [],
 
 
 transactions:
-JSON.parse(localStorage.getItem("transactions")) || []
+JSON.parse(localStorage.getItem("transactions")) || [],
+
+
+pending:
+JSON.parse(localStorage.getItem("pending")) || [],
+
+
+meetings:
+JSON.parse(localStorage.getItem("meetings")) || []
 
 };
 
 
 
-let data = JSON.stringify(backup,null,2);
+let data =
+JSON.stringify(backup);
 
 
 
-let blob = new Blob(
-[data],
-{type:"application/json"}
-);
+let blob =
+new Blob([data],
+{type:"application/json"});
 
 
 
-let url = URL.createObjectURL(blob);
+let url =
+URL.createObjectURL(blob);
 
 
 
-let a = document.createElement("a");
+let a =
+document.createElement("a");
 
-a.href = url;
+
+a.href=url;
+
 
 a.download =
-"Morde_Gram_Vikas_Backup_"+new Date().toISOString().split("T")[0]+".json";
+"GramVikas_Backup.json";
 
 
 a.click();
 
 
-alert("Backup यशस्वीरित्या डाउनलोड झाला.");
+
+alert("Backup तयार झाला.");
+
 
 
 }
+
+
 
 
 
@@ -122,12 +150,14 @@ function restoreData(){
 
 
 let file =
-document.getElementById("restoreFile").files[0];
+document.getElementById("restoreFile")
+.files[0];
+
 
 
 if(!file){
 
-alert("कृपया Backup फाइल निवडा.");
+alert("Backup File निवडा.");
 
 return;
 
@@ -135,7 +165,8 @@ return;
 
 
 
-let reader = new FileReader();
+let reader =
+new FileReader();
 
 
 
@@ -161,8 +192,21 @@ JSON.stringify(data.transactions || [])
 
 
 
-alert("Backup Restore यशस्वीरित्या झाला.");
+localStorage.setItem(
+"pending",
+JSON.stringify(data.pending || [])
+);
 
+
+
+localStorage.setItem(
+"meetings",
+JSON.stringify(data.meetings || [])
+);
+
+
+
+alert("Data Restore झाला.");
 
 location.href="index.html";
 
@@ -172,6 +216,7 @@ location.href="index.html";
 
 
 reader.readAsText(file);
+
 
 
 }
