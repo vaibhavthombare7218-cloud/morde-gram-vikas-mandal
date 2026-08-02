@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>सभासद नोंदणी</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>👥 सभासद नोंदणी</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label><b>सभासदाचे नाव</b></label><br><br>
+<input type="text" id="name" placeholder="पूर्ण नाव"><br><br>
+
+<label><b>मोबाईल नंबर</b></label><br><br>
+<input type="tel" id="mobile" placeholder="10 अंकी नंबर"><br><br>
+
+<label><b>पत्ता</b></label><br><br>
+<textarea id="address" placeholder="पत्ता"></textarea><br><br>
+
+<button onclick="saveMember()">💾 Save</button>
+
+<br><br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function saveMember(){
+
+let name=document.getElementById("name").value;
+let mobile=document.getElementById("mobile").value;
+let address=document.getElementById("address").value;
+
+if(name=="" || mobile==""){
+alert("कृपया नाव आणि मोबाईल नंबर भरा.");
+return;
+}
+
+let members=JSON.parse(localStorage.getItem("members")) || [];
+
+members.push({
+name:name,
+mobile:mobile,
+address:address
+});
+
+localStorage.setItem("members",JSON.stringify(members));
+
+alert("सभासद यशस्वीरित्या सेव्ह झाला.");
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>
