@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>बाकी वर्गणी Import</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>📥 बाकी वर्गणी Import</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label>CSV File निवडा</label><br>
+<input type="file" id="file" accept=".csv">
+
+<br><br>
+
+<button onclick="importData()">
+📥 Import करा
+</button>
+
+<br><br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+<input type="file" id="file" accept=".xlsx">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+
+function importData(){
+
+let file = document.getElementById("file").files[0];
+
+if(!file){
+alert("Excel File निवडा");
+return;
+}
+
+let reader = new FileReader();
+
+reader.onload = function(e){
+
+let data = new Uint8Array(e.target.result);
+
+let workbook = XLSX.read(data,{type:"array"});
+
+let sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+let rows = XLSX.utils.sheet_to_json(sheet);
+
+
+let pending = JSON.parse(localStorage.getItem("pending")) || [];
+
+
+rows.forEach(function(row){
+
+pending.push({
+
+member: row["सभासद नाव"],
+year:"2026",
+amount:Number(row["२०२६ पर्यंत बाकी"])
+
+});
+
+});
+
+
+localStorage.setItem(
+"pending",
+JSON.stringify(pending)
+);
+
+
+alert("Excel मधील बाकी रक्कम Import झाली.");
+
+location.href="index.html";
+
+};
+
+
+reader.readAsArrayBuffer(file);
+
+}
+
+</script>
+
+
+
+</body>
+</html>
