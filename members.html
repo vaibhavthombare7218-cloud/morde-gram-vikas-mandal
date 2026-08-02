@@ -114,7 +114,23 @@ alert("कृपया नाव आणि मोबाईल नंबर भ�
 return;
 
 }
+// Duplicate नाव तपासा
+let duplicate = members.findIndex(m =>
+    m.name.trim().toLowerCase() === name.trim().toLowerCase()
+);
 
+// नवीन सभासद Add करताना
+if (edit == "" && duplicate !== -1) {
+    alert("❌ हा सभासद आधीच नोंदवलेला आहे.");
+    return;
+}
+
+// Edit करताना स्वतःचा record सोडून duplicate तपासा
+if (edit != "" && duplicate != -1 && duplicate != edit) {
+    alert("❌ या नावाचा सभासद आधीच नोंदवलेला आहे.");
+    return;
+  }
+  
 if(edit==""){
 
 members.push({
