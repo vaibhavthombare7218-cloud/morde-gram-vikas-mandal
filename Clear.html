@@ -1,0 +1,13 @@
+<button onclick="clearData()">
+🗑️ सर्व डेटा Delete
+</button>
+
+<script>
+function clearData(){
+    if(confirm("संपूर्ण डेटा Delete करायचा आहे का?")){
+        localStorage.clear();
+        alert("सर्व डेटा Delete झाला.");
+        location.reload();
+    }
+}
+</script>
