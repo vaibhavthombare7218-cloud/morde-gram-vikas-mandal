@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meeting Report</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.meeting-card{
+    background:white;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:10px;
+}
+.meeting-card img{
+    width:200px;
+    border:1px solid #ccc;
+}
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+<h1>📋 सभा रिपोर्ट</h1>
+</header>
+
+
+<div class="container">
+
+<div class="card">
+
+<div id="meetingList"></div>
+
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+let meetings =
+JSON.parse(localStorage.getItem("meetings")) || [];
+
+
+let html="";
+
+
+if(meetings.length==0){
+
+html="<h3>कोणतीही सभा नोंद उपलब्ध नाही.</h3>";
+
+}
+
+else{
+
+
+meetings.forEach(function(m,index){
+
+
+html += `
+
+<div class="meeting-card">
+
+
+<h3>📅 सभा ${index+1}</h3>
+
+
+<p>
+<b>तारीख:</b> ${m.date}
+</p>
+
+
+<p>
+<b>ठिकाण:</b> ${m.place}
+</p>
+
+
+<p>
+<b>अध्यक्ष:</b> ${m.chairman}
+</p>
+
+
+<p>
+<b>विषय / अजेंडा:</b><br>
+${m.subject}
+</p>
+
+
+<p>
+<b>उपस्थित संख्या:</b>
+${m.count}
+</p>
+
+
+<p>
+<b>निर्णय / ठराव:</b><br>
+${m.decision}
+</p>
+
+
+${
+m.signature ?
+
+`<p>
+<b>✍️ सही:</b><br>
+<img src="${m.signature}">
+</p>`
+
+:
+
+""
+
+}
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+document.getElementById("meetingList").innerHTML=html;
+
+
+
+</script>
+
+
+</body>
+
+</html>
