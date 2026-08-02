@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>सभासद Profile</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>👤 सभासद Profile</h1>
+
+</header>
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<label>🔍 सभासद शोधा</label><br>
+
+<input type="text"
+id="search"
+placeholder="नाव टाइप करा..."
+onkeyup="searchMember()"
+style="width:100%;padding:10px;">
+
+
+<br><br>
+
+
+<select id="member"
+onchange="loadProfile()"
+style="width:100%;padding:10px;">
+
+</select>
+
+
+<br><br>
+
+
+
+<div id="profile">
+
+</div>
+
+
+
+<br>
+
+
+<button onclick="location.href='index.html'">
+
+🏠 Dashboard
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+let members =
+JSON.parse(localStorage.getItem("members")) || [];
+
+
+let transactions =
+JSON.parse(localStorage.getItem("transactions")) || [];
+
+
+let pending =
+JSON.parse(localStorage.getItem("pending")) || [];
+
+
+
+let select =
+document.getElementById("member");
+
+
+
+// Load Members
+
+function loadMembers(list){
+
+
+select.innerHTML="";
+
+
+list.forEach(function(m){
+
+select.innerHTML +=
+
+`<option value="${m.name}">
+${m.name}
+</option>`;
+
+});
+
+
+if(list.length>0){
+
+loadProfile();
+
+}
+
+
+}
+
+
+
+loadMembers(members);
+
+
+
+
+// Search
+
+function searchMember(){
+
+
+let text =
+document.getElementById("search")
+.value.toLowerCase();
+
+
+
+let result =
+members.filter(m=>
+
+m.name.toLowerCase()
+.includes(text)
+
+);
+
+
+
+loadMembers(result);
+
+
+}
+
+
+
+
+// Profile
+
+function loadProfile(){
+
+
+let name =
+select.value;
+
+
+
+let total=0;
+
+
+let html="";
+
+
+
+// Subscription History
+
+html += "<h3>💳 वर्गणी इतिहास</h3>";
+
+
+
+transactions.forEach(function(t){
+
+
+if(t.member==name &&
+t.category=="subscription"){
+
+
+total += Number(t.amount);
+
+
+
+html += `
+
+<p>
+${t.year} : ₹${t.amount}
+(${t.payment})
+</p>
+
+`;
+
+}
+
+
+});
+
+
+
+// Pending
+
+let p =
+pending.find(x=>x.member==name);
+
+
+let balance =
+p ? p.amount : 0;
+
+
+
+html += `
+
+<hr>
+
+<h3>
+एकूण भरलेली वर्गणी : ₹${total}
+</h3>
+
+
+<h3>
+🔴 बाकी रक्कम : ₹${balance}
+</h3>
+
+
+`;
+
+
+
+document.getElementById("profile")
+.innerHTML=html;
+
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
