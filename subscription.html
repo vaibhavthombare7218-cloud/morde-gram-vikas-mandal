@@ -32,7 +32,16 @@ style="width:100%;padding:10px;">
 <label>रक्कम</label><br>
 <input type="number" id="amount" placeholder="₹" style="width:100%;padding:10px;">
 <br><br>
+<label>पावती क्रमांक</label><br>
+<input type="text" id="receipt" placeholder="उदा. 1001"><br><br>
 
+<label>Payment Mode</label><br>
+<select id="payment">
+    <option value="Cash">Cash</option>
+    <option value="UPI">UPI</option>
+    <option value="Bank">Bank</option>
+</select><br><br>
+    
 <button onclick="saveSubscription()">💾 Save</button>
 <button onclick="location.href='index.html'">🏠 Dashboard</button>
 
@@ -52,41 +61,46 @@ members.forEach(function(m){
 
 function saveSubscription(){
 
-if(
-select.value=="" ||
-document.getElementById("year").value=="" ||
-document.getElementById("amount").value==""
-){
+let member = document.getElementById("member").value;
+let year = document.getElementById("year").value;
+let amount = document.getElementById("amount").value;
+let receipt = document.getElementById("receipt").value;
+let payment = document.getElementById("payment").value;
+
+if(member=="" || year=="" || amount==""){
     alert("सर्व माहिती भरा.");
     return;
 }
 
 let list = JSON.parse(localStorage.getItem("transactions")) || [];
 
+// Duplicate Check
+let exists = list.find(item =>
+    item.category=="subscription" &&
+    item.member==member &&
+    item.year==year
+);
+
+if(exists){
+    alert(member + " यांनी " + year + " ची वार्षिक वर्गणी आधीच भरली आहे.");
+    return;
+}
+
 list.push({
-
-type:"income",
-category:"subscription",
-
-member:select.value,
-
-date:new Date().toISOString().split("T")[0],
-
-year:document.getElementById("year").value,
-
-details:"वार्षिक वर्गणी - " +
-select.value +
-" (" +
-document.getElementById("year").value +
-")",
-
-amount:document.getElementById("amount").value
-
+    type:"income",
+    category:"subscription",
+    member:member,
+    year:year,
+    date:new Date().toISOString().split("T")[0],
+    details:"वार्षिक वर्गणी",
+    receipt:receipt,
+    payment:payment,
+    amount:amount
 });
-  
+
 localStorage.setItem("transactions",JSON.stringify(list));
 
-alert("वर्गणी यशस्वीरित्या सेव्ह झाली.");
+alert("वार्षिक वर्गणी यशस्वीरित्या सेव्ह झाली.");
 
 location.href="reports.html";
 
