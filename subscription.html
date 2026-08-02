@@ -6,148 +6,374 @@
 <title>वर्गणी</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <header>
 <h1>💳 वर्गणी नोंद</h1>
 </header>
 
+
 <div class="container">
 
 <div class="card">
 
+
 <label>🔍 सभासद शोधा</label><br>
+
 <input type="text"
-       id="memberSearch"
-       placeholder="सभासदाचे नाव टाइप करा..."
-       onkeyup="searchMember()"
-       style="width:100%;padding:10px;">
+id="memberSearch"
+placeholder="सभासदाचे नाव टाइप करा..."
+onkeyup="searchMember()"
+style="width:100%;padding:10px;">
+
 <br><br>
+
 
 <label>सभासद</label><br>
-<select id="member" style="width:100%;padding:10px;"></select>
+
+<select id="member"
+style="width:100%;padding:10px;"
+onchange="showPendingAmount()">
+
+</select>
+
 <br><br>
+
+
+<label>📌 जुनी बाकी रक्कम</label><br>
+
+<input type="text"
+id="pendingAmount"
+readonly
+value="₹0"
+style="width:100%;padding:10px;background:#eee;">
+
+<br><br>
+
 
 <label>वर्ष</label><br>
+
 <input type="number"
-       id="year"
-       placeholder="उदा. 2026"
-       min="2020"
-       max="2100"
-       style="width:100%;padding:10px;">
+id="year"
+placeholder="उदा. 2026"
+min="2020"
+max="2100"
+style="width:100%;padding:10px;">
+
 <br><br>
+
 
 <label>रक्कम</label><br>
+
 <input type="number"
-       id="amount"
-       placeholder="₹"
-       style="width:100%;padding:10px;">
+id="amount"
+placeholder="₹"
+style="width:100%;padding:10px;">
+
 <br><br>
+
 
 <label>पावती क्रमांक</label><br>
+
 <input type="text"
-       id="receipt"
-       placeholder="उदा. 1001"
-       style="width:100%;padding:10px;">
+id="receipt"
+placeholder="उदा. 1001"
+style="width:100%;padding:10px;">
+
 <br><br>
+
 
 <label>Payment Mode</label><br>
-<select id="payment" style="width:100%;padding:10px;">
-    <option value="Cash">Cash</option>
-    <option value="UPI">UPI</option>
-    <option value="Bank">Bank</option>
+
+<select id="payment"
+style="width:100%;padding:10px;">
+
+<option value="Cash">Cash</option>
+<option value="UPI">UPI</option>
+<option value="Bank">Bank</option>
+
 </select>
+
+
 <br><br>
 
-<button onclick="saveSubscription()">💾 Save</button>
-<button onclick="location.href='index.html'">🏠 Dashboard</button>
+
+<button onclick="saveSubscription()">
+💾 Save
+</button>
+
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
 
 </div>
 
 </div>
+
+
 
 <script>
 
-// Members Load
-let members = JSON.parse(localStorage.getItem("members")) || [];
-let select = document.getElementById("member");
 
-// Dropdown भरण्यासाठी
+let members =
+JSON.parse(localStorage.getItem("members")) || [];
+
+
+let select =
+document.getElementById("member");
+
+
+
+// Member Load
+
 function loadMembers(list){
-    select.innerHTML = "";
 
-    if(list.length === 0){
-        select.innerHTML = "<option>सभासद सापडला नाही</option>";
-        return;
-    }
+select.innerHTML="";
 
-    list.forEach(function(m){
-        select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
-    });
+
+if(list.length==0){
+
+select.innerHTML =
+"<option>सभासद सापडला नाही</option>";
+
+return;
+
 }
 
-// Search Function
+
+list.forEach(function(m){
+
+select.innerHTML +=
+`<option value="${m.name}">
+${m.name}
+</option>`;
+
+});
+
+
+}
+
+
+// Search
+
 function searchMember(){
-    let text = document.getElementById("memberSearch").value.toLowerCase();
 
-    let filtered = members.filter(function(m){
-        return m.name.toLowerCase().includes(text);
-    });
+let text =
+document.getElementById("memberSearch")
+.value.toLowerCase();
 
-    loadMembers(filtered);
+
+let filtered =
+members.filter(function(m){
+
+return m.name.toLowerCase()
+.includes(text);
+
+});
+
+
+loadMembers(filtered);
+
 }
 
-// प्रथम सर्व सभासद दाखवा
+
+
+// First Load
+
 loadMembers(members);
 
-// Save Subscription
-function saveSubscription(){
 
-    let member = document.getElementById("member").value;
-    let year = document.getElementById("year").value;
-    let amount = document.getElementById("amount").value;
-    let receipt = document.getElementById("receipt").value;
-    let payment = document.getElementById("payment").value;
 
-    if(member=="" || year=="" || amount==""){
-        alert("सर्व माहिती भरा.");
-        return;
-    }
 
-    let list = JSON.parse(localStorage.getItem("transactions")) || [];
+// Pending Show
 
-    // Duplicate Check
-    let exists = list.find(item =>
-        item.category=="subscription" &&
-        item.member==member &&
-        item.year==year
-    );
+function showPendingAmount(){
 
-    if(exists){
-        alert(member + " यांनी " + year + " ची वार्षिक वर्गणी आधीच भरली आहे.");
-        return;
-    }
 
-    list.push({
-        type:"income",
-        category:"subscription",
-        member:member,
-        year:year,
-        date:new Date().toISOString().split("T")[0],
-        details:"वार्षिक वर्गणी",
-        receipt:receipt,
-        payment:payment,
-        amount:amount
-    });
+let member =
+select.value;
 
-    localStorage.setItem("transactions", JSON.stringify(list));
 
-    alert("वार्षिक वर्गणी यशस्वीरित्या सेव्ह झाली.");
+let pending =
+JSON.parse(localStorage.getItem("pending")) || [];
 
-    location.href = "reports.html";
+
+let data =
+pending.find(p=>p.member==member);
+
+
+
+if(data){
+
+document.getElementById("pendingAmount")
+.value="₹"+data.amount;
+
+}else{
+
+document.getElementById("pendingAmount")
+.value="₹0";
+
 }
 
+
+}
+
+
+
+// Save
+
+function saveSubscription(){
+
+
+let member =
+document.getElementById("member").value;
+
+
+let year =
+document.getElementById("year").value;
+
+
+let amount =
+Number(document.getElementById("amount").value);
+
+
+let receipt =
+document.getElementById("receipt").value;
+
+
+let payment =
+document.getElementById("payment").value;
+
+
+
+if(member=="" || year=="" || amount==""){
+
+alert("सर्व माहिती भरा.");
+
+return;
+
+}
+
+
+
+// Pending Check
+
+let pending =
+JSON.parse(localStorage.getItem("pending")) || [];
+
+
+let pIndex =
+pending.findIndex(p=>p.member==member);
+
+
+
+if(pIndex>=0){
+
+
+let oldAmount =
+Number(pending[pIndex].amount);
+
+
+
+if(amount > oldAmount){
+
+alert("भरलेली रक्कम बाकीपेक्षा जास्त आहे.");
+
+return;
+
+}
+
+
+pending[pIndex].amount =
+oldAmount - amount;
+
+
+
+localStorage.setItem(
+"pending",
+JSON.stringify(pending)
+);
+
+
+}
+
+
+
+// Transaction Save
+
+let list =
+JSON.parse(localStorage.getItem("transactions")) || [];
+
+
+
+let exists =
+list.find(item=>
+
+item.category=="subscription" &&
+item.member==member &&
+item.year==year
+
+);
+
+
+
+if(exists){
+
+alert(member+" यांनी "+year+" ची वर्गणी आधीच भरली आहे.");
+
+return;
+
+}
+
+
+
+list.push({
+
+type:"income",
+
+category:"subscription",
+
+member:member,
+
+year:year,
+
+date:new Date()
+.toISOString()
+.split("T")[0],
+
+details:"वार्षिक वर्गणी",
+
+receipt:receipt,
+
+payment:payment,
+
+amount:amount
+
+});
+
+
+
+localStorage.setItem(
+"transactions",
+JSON.stringify(list)
+);
+
+
+
+alert("वार्षिक वर्गणी सेव्ह झाली.");
+
+
+location.href="reports.html";
+
+
+}
+
+
 </script>
+
 
 </body>
 </html>
