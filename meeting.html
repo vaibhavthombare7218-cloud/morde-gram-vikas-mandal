@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>सभा नोंद</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+<h1>📅 सभा नोंद</h1>
+</header>
+
+
+<div class="container">
+
+<div class="card">
+
+
+<label>सभेची तारीख</label><br>
+<input type="date" id="date"
+style="width:100%;padding:10px;">
+<br><br>
+
+
+<label>सभेचे ठिकाण</label><br>
+<input type="text" id="place"
+placeholder="ठिकाण"
+style="width:100%;padding:10px;">
+<br><br>
+
+
+<label>🪑 सभेचे अध्यक्ष</label><br>
+<input type="text" id="chairman"
+placeholder="अध्यक्षाचे नाव"
+style="width:100%;padding:10px;">
+<br><br>
+
+
+<label>📝 सभेचा विषय / अजेंडा</label><br>
+<textarea id="subject"
+placeholder="सभेचा विषय"
+style="width:100%;padding:10px;"></textarea>
+<br><br>
+
+
+<label>👥 उपस्थित सभासदांची नावे</label><br>
+<textarea id="members"
+placeholder="प्रत्येक नाव नवीन ओळीत लिहा"
+onkeyup="countMember()"
+style="width:100%;padding:10px;"></textarea>
+<br><br>
+
+
+<label>एकूण उपस्थित संख्या</label><br>
+<input type="number" id="count"
+readonly
+style="width:100%;padding:10px;">
+<br><br>
+
+
+<label>📌 सभेचे निर्णय / ठराव</label><br>
+<textarea id="decision"
+placeholder="निर्णय लिहा"
+style="width:100%;padding:10px;"></textarea>
+<br><br>
+
+
+<label>✍️ सही केलेली इमेज Upload</label><br>
+<input type="file"
+id="signature"
+accept="image/*"
+onchange="previewImage(event)">
+<br><br>
+
+
+<img id="preview"
+style="width:200px;display:none;border:1px solid #ccc;">
+
+
+<br><br>
+
+
+<button onclick="saveMeeting()">
+💾 Save
+</button>
+
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+let imageData="";
+
+
+// उपस्थित सभासद Count
+
+function countMember(){
+
+let data =
+document.getElementById("members").value.trim();
+
+
+if(data==""){
+
+document.getElementById("count").value=0;
+
+return;
+
+}
+
+
+let names =
+data.split("\n").filter(x=>x.trim()!="");
+
+
+document.getElementById("count").value =
+names.length;
+
+}
+
+
+
+// Image Preview
+
+function previewImage(event){
+
+let file =
+event.target.files[0];
+
+
+let reader =
+new FileReader();
+
+
+reader.onload=function(){
+
+imageData=reader.result;
+
+
+document.getElementById("preview").src=imageData;
+
+document.getElementById("preview").style.display="block";
+
+
+}
+
+
+reader.readAsDataURL(file);
+
+}
+
+
+
+
+// Save Meeting
+
+function saveMeeting(){
+
+
+let meeting = {
+
+date:
+document.getElementById("date").value,
+
+place:
+document.getElementById("place").value,
+
+chairman:
+document.getElementById("chairman").value,
+
+subject:
+document.getElementById("subject").value,
+
+members:
+document.getElementById("members").value,
+
+count:
+document.getElementById("count").value,
+
+decision:
+document.getElementById("decision").value,
+
+signature:imageData
+
+};
+
+
+
+if(meeting.date=="" || meeting.chairman==""){
+
+alert("तारीख आणि अध्यक्षाचे नाव भरा.");
+
+return;
+
+}
+
+
+
+let list =
+JSON.parse(localStorage.getItem("meetings")) || [];
+
+
+list.push(meeting);
+
+
+localStorage.setItem(
+"meetings",
+JSON.stringify(list)
+);
+
+
+
+alert("सभा नोंद सेव्ह झाली.");
+
+
+location.href="index.html";
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
