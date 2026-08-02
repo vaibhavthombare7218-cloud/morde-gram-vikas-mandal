@@ -3,32 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>सभासद नोंदणी</title>
+<title>सभासद</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
-<h1>👥 सभासद नोंदणी</h1>
+<h1>👥 सभासद व्यवस्थापन</h1>
 </header>
 
 <div class="container">
 
 <div class="card">
 
-<label><b>सभासदाचे नाव</b></label><br><br>
+<input type="hidden" id="editIndex">
+
+<label>सभासदाचे नाव</label><br>
 <input type="text" id="name" placeholder="पूर्ण नाव"><br><br>
 
-<label><b>मोबाईल नंबर</b></label><br><br>
-<input type="tel" id="mobile" placeholder="10 अंकी नंबर"><br><br>
+<label>मोबाईल नंबर</label><br>
+<input type="tel" id="mobile" placeholder="मोबाईल नंबर"><br><br>
 
-<label><b>पत्ता</b></label><br><br>
+<label>पत्ता</label><br>
 <textarea id="address" placeholder="पत्ता"></textarea><br><br>
 
 <button onclick="saveMember()">💾 Save</button>
+<button onclick="clearForm()">🆕 New</button>
 
-<br><br>
+</div>
+
+<div class="card">
+
+<h2>📋 सभासद यादी</h2>
+
+<table border="1" width="100%" cellpadding="8">
+
+<thead>
+<tr>
+<th>नाव</th>
+<th>मोबाईल</th>
+<th>✏️</th>
+<th>🗑️</th>
+</tr>
+</thead>
+
+<tbody id="memberTable">
+</tbody>
+
+</table>
+
+<br>
 
 <button onclick="location.href='index.html'">
 🏠 Dashboard
@@ -40,32 +64,130 @@
 
 <script>
 
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
+function loadMembers(){
+
+let html="";
+
+members.forEach(function(m,index){
+
+html += `
+<tr>
+
+<td>${m.name}</td>
+
+<td>${m.mobile}</td>
+
+<td>
+<button onclick="editMember(${index})">
+✏️
+</button>
+</td>
+
+<td>
+<button onclick="deleteMember(${index})">
+🗑️
+</button>
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById("memberTable").innerHTML=html;
+
+}
+
 function saveMember(){
 
 let name=document.getElementById("name").value;
 let mobile=document.getElementById("mobile").value;
 let address=document.getElementById("address").value;
+let edit=document.getElementById("editIndex").value;
 
 if(name=="" || mobile==""){
+
 alert("कृपया नाव आणि मोबाईल नंबर भरा.");
+
 return;
+
 }
 
-let members=JSON.parse(localStorage.getItem("members")) || [];
+if(edit==""){
 
 members.push({
+
 name:name,
+
 mobile:mobile,
+
 address:address
+
 });
+
+}else{
+
+members[edit]={
+
+name:name,
+
+mobile:mobile,
+
+address:address
+
+};
+
+}
 
 localStorage.setItem("members",JSON.stringify(members));
 
-alert("सभासद यशस्वीरित्या सेव्ह झाला.");
+clearForm();
 
-location.reload();
+loadMembers();
 
 }
+
+function editMember(index){
+
+document.getElementById("name").value=members[index].name;
+
+document.getElementById("mobile").value=members[index].mobile;
+
+document.getElementById("address").value=members[index].address;
+
+document.getElementById("editIndex").value=index;
+
+}
+
+function deleteMember(index){
+
+if(confirm("हा सभासद Delete करायचा आहे का?")){
+
+members.splice(index,1);
+
+localStorage.setItem("members",JSON.stringify(members));
+
+loadMembers();
+
+}
+
+}
+
+function clearForm(){
+
+document.getElementById("name").value="";
+
+document.getElementById("mobile").value="";
+
+document.getElementById("address").value="";
+
+document.getElementById("editIndex").value="";
+
+}
+
+loadMembers();
 
 </script>
 
