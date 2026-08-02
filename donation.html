@@ -8,6 +8,7 @@
 <title>देणगी नोंद</title>
 
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 
@@ -20,34 +21,43 @@
 
 <div class="container">
 
+
 <div class="card">
 
 
 <label>देणगीदार नाव</label><br>
+
 <input type="text" id="name"
 placeholder="नाव"
 style="width:100%;padding:10px;">
+
 <br><br>
 
 
 <label>मोबाईल नंबर</label><br>
+
 <input type="text" id="mobile"
 placeholder="मोबाईल नंबर"
 style="width:100%;padding:10px;">
+
 <br><br>
 
 
 <label>रक्कम</label><br>
+
 <input type="number" id="amount"
 placeholder="₹"
 style="width:100%;padding:10px;">
+
 <br><br>
 
 
 <label>पावती क्रमांक</label><br>
+
 <input type="text" id="receipt"
 placeholder="उदा. 1001"
 style="width:100%;padding:10px;">
+
 <br><br>
 
 
@@ -61,6 +71,7 @@ style="width:100%;padding:10px;">
 <option value="Bank">Bank</option>
 
 </select>
+
 
 <br><br>
 
@@ -77,11 +88,67 @@ style="width:100%;padding:10px;">
 
 </div>
 
+
+<br>
+
+
+<div class="card">
+
+
+<h2>📋 देणगी List</h2>
+
+
+<input type="text"
+id="search"
+placeholder="देणगीदार शोधा..."
+onkeyup="loadDonation()"
+style="width:100%;padding:10px;">
+
+
+<br><br>
+
+
+<h3>
+एकूण देणगी :
+<span id="total">₹0</span>
+</h3>
+
+
+
+<table border="1" width="100%" cellspacing="0" cellpadding="8">
+
+
+<thead>
+
+<tr>
+
+<th>तारीख</th>
+<th>नाव</th>
+<th>रक्कम</th>
+<th>Payment</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="donationList">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
 </div>
 
 
 
 <script>
+
 
 
 function saveDonation(){
@@ -133,13 +200,15 @@ member:name,
 
 mobile:mobile,
 
-amount:amount,
+amount:Number(amount),
 
 receipt:receipt,
 
 payment:payment,
 
-date:new Date().toISOString().split("T")[0],
+date:new Date()
+.toISOString()
+.split("T")[0],
 
 details:"देणगी"
 
@@ -155,13 +224,102 @@ JSON.stringify(list)
 
 
 
-alert("देणगी यशस्वीरित्या सेव्ह झाली.");
+alert("देणगी सेव्ह झाली.");
 
 
-location.href="reports.html";
+loadDonation();
+
+
+
+// Clear
+
+document.getElementById("name").value="";
+document.getElementById("mobile").value="";
+document.getElementById("amount").value="";
+document.getElementById("receipt").value="";
 
 
 }
+
+
+
+
+
+function loadDonation(){
+
+
+let list =
+JSON.parse(localStorage.getItem("transactions")) || [];
+
+
+let search =
+document.getElementById("search").value.toLowerCase();
+
+
+
+let html="";
+
+let total=0;
+
+
+
+list.forEach(function(item){
+
+
+if(item.category=="donation"){
+
+
+if(item.member.toLowerCase()
+.includes(search)){
+
+
+
+total += Number(item.amount);
+
+
+
+html += `
+
+<tr>
+
+<td>${item.date}</td>
+
+<td>${item.member}</td>
+
+<td>₹${item.amount}</td>
+
+<td>${item.payment}</td>
+
+
+</tr>
+
+`;
+
+
+}
+
+
+}
+
+
+});
+
+
+
+document.getElementById("donationList")
+.innerHTML=html;
+
+
+document.getElementById("total")
+.innerHTML="₹"+total;
+
+
+}
+
+
+
+loadDonation();
+
 
 
 </script>
