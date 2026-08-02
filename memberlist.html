@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>सभासद यादी</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<h1>👥 सभासद यादी</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<table border="1" width="100%" cellspacing="0" cellpadding="8">
+<thead>
+<tr>
+<th>नाव</th>
+<th>मोबाईल</th>
+<th>पत्ता</th>
+<th>Delete</th>
+</tr>
+</thead>
+
+<tbody id="memberTable"></tbody>
+
+</table>
+
+<br>
+
+<button onclick="location.href='members.html'">➕ नवीन सभासद</button>
+<button onclick="location.href='index.html'">🏠 Dashboard</button>
+
+</div>
+
+</div>
+
+<script>
+
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
+function loadMembers(){
+
+let html="";
+
+members.forEach(function(m,index){
+
+html += `
+<tr>
+<td>${m.name}</td>
+<td>${m.mobile}</td>
+<td>${m.address}</td>
+<td><button onclick="deleteMember(${index})">🗑️</button></td>
+</tr>
+`;
+
+});
+
+document.getElementById("memberTable").innerHTML = html;
+
+}
+
+function deleteMember(index){
+
+if(confirm("हा सभासद Delete करायचा आहे का?")){
+
+members.splice(index,1);
+
+localStorage.setItem("members",JSON.stringify(members));
+
+location.reload();
+
+}
+
+}
+
+loadMembers();
+
+</script>
+
+</body>
+</html>
