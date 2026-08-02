@@ -1,83 +1,244 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
 
 <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body>
 
+
 <header>
-    <h1>🛕 मोर्डे ग्राम विकास मंडळ, मुंबई</h1>
-    <p>जमा - खर्च व्यवस्थापन प्रणाली</p>
+
+<h1>🛕 मोर्डे ग्राम विकास मंडळ, मुंबई</h1>
+
+<p>जमा - खर्च व्यवस्थापन प्रणाली</p>
+
 </header>
+
+
 
 <div class="container">
 
-    <div class="card">
-        <h2>💰 एकूण शिल्लक</h2>
-        <h1 id="balance">₹0</h1>
-    </div>
 
-    <div class="grid">
 
-        <button onclick="location.href='income.html'">
-            ➕ जमा
-        </button>
+<div class="grid">
 
-        <button onclick="location.href='expense.html'">
-            ➖ खर्च
-        </button>
 
-        <button onclick="location.href='memberlist.html'">
-👥 सभासद
-</button>
-<button onclick="location.href='member_profile.html'">
-👤 सभासद Profile
-</button>
-        <button onclick="location.href='donation.html'">
-            🎁 देणगी
-        </button>
+<div class="card">
+<h3>👥 एकूण सभासद</h3>
+<h2 id="members">0</h2>
+</div>
 
-        <button onclick="location.href='subscription.html'">
-            💳 वर्गणी
-        </button>
-       <button onclick="location.href='pending.html'">
-         📋 बाकी वर्गणी
-       </button>
-        <button onclick="location.href='reports.html'">
-            📊 रिपोर्ट
-        </button>
 
-        <button onclick="location.href='meeting.html'">
-            📅 मीटिंग
-        </button>
-        <button onclick="location.href='meeting_report.html'">
-         📋 Meeting Report
-         </button>
-        <button onclick="location.href='backup.html'">
-            📤 Backup
-        </button>
-        <button onclick="location.href='member_import.html'">
-📥 Excel Import
-</button>
-        
-<button onclick="location.href='pending_import.html'">
-📥 बाकी वर्गणी Import
-</button>
-    </div>
+<div class="card">
+<h3>💰 एकूण जमा</h3>
+<h2 id="income">₹0</h2>
+</div>
+
+
+<div class="card">
+<h3>💸 एकूण खर्च</h3>
+<h2 id="expense">₹0</h2>
+</div>
+
+
+<div class="card">
+<h3>📌 शिल्लक</h3>
+<h2 id="balance">₹0</h2>
+</div>
+
+
+<div class="card">
+<h3>🔴 बाकी वर्गणी</h3>
+<h2 id="pending">₹0</h2>
+</div>
+
 
 </div>
 
+
+
+<br>
+
+
+<div class="grid">
+
+
+<button onclick="location.href='income.html'">
+➕ जमा
+</button>
+
+
+<button onclick="location.href='expense.html'">
+➖ खर्च
+</button>
+
+
+<button onclick="location.href='memberlist.html'">
+👥 सभासद
+</button>
+
+
+<button onclick="location.href='member_profile.html'">
+👤 सभासद Profile
+</button>
+
+
+<button onclick="location.href='donation.html'">
+🎁 देणगी
+</button>
+
+
+<button onclick="location.href='subscription.html'">
+💳 वर्गणी
+</button>
+
+
+<button onclick="location.href='pending.html'">
+📋 बाकी वर्गणी
+</button>
+
+
+<button onclick="location.href='reports.html'">
+📊 रिपोर्ट
+</button>
+
+
+<button onclick="location.href='meeting.html'">
+📅 मीटिंग
+</button>
+
+
+<button onclick="location.href='meeting_report.html'">
+📋 Meeting Report
+</button>
+
+
+<button onclick="location.href='backup.html'">
+💾 Backup
+</button>
+
+
+<button onclick="location.href='member_import.html'">
+📥 Excel Import
+</button>
+
+
+<button onclick="location.href='pending_import.html'">
+📥 बाकी Import
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
 <footer>
+
 © 2026 Morde Gram Vikas Mandal Mumbai
+
 </footer>
 
-<script src="app.js"></script>
+
+
+
+<script>
+
+
+// Members Count
+
+let members =
+JSON.parse(localStorage.getItem("members")) || [];
+
+
+document.getElementById("members")
+.innerHTML = members.length;
+
+
+
+
+// Income Expense
+
+let transactions =
+JSON.parse(localStorage.getItem("transactions")) || [];
+
+
+let income=0;
+let expense=0;
+
+
+
+transactions.forEach(function(t){
+
+
+if(t.type=="income"){
+
+income += Number(t.amount);
+
+}else{
+
+expense += Number(t.amount);
+
+}
+
+
+});
+
+
+
+document.getElementById("income")
+.innerHTML="₹"+income;
+
+
+document.getElementById("expense")
+.innerHTML="₹"+expense;
+
+
+document.getElementById("balance")
+.innerHTML="₹"+(income-expense);
+
+
+
+
+
+// Pending
+
+let pending =
+JSON.parse(localStorage.getItem("pending")) || [];
+
+
+let totalPending=0;
+
+
+pending.forEach(function(p){
+
+totalPending += Number(p.amount);
+
+});
+
+
+document.getElementById("pending")
+.innerHTML="₹"+totalPending;
+
+
+
+</script>
+
+
 
 </body>
+
 </html>
