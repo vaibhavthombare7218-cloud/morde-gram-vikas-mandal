@@ -1,211 +1,49 @@
 <!DOCTYPE html>
-<html lang="mr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>सभासद</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>सभासद व्यवस्थापन</title><link rel="stylesheet" href="style.css"></head>
 <body>
-
-<header>
-<h1>👥 सभासद व्यवस्थापन</h1>
-</header>
-
-<div class="container">
-
-<div class="card">
-
+<header><h1>👥 सभासद व्यवस्थापन</h1></header>
+<div class="container"><div class="card">
 <input type="hidden" id="editIndex">
-
-<label>सभासदाचे नाव</label><br>
-<input type="text" id="name" placeholder="पूर्ण नाव"><br><br>
-
-<label>मोबाईल नंबर</label><br>
-<input type="tel" id="mobile" placeholder="मोबाईल नंबर"><br><br>
-
-<label>पत्ता</label><br>
-<textarea id="address" placeholder="पत्ता"></textarea><br><br>
-
+<label>Member ID</label><input id="memberId" readonly>
+<label>सभासदाचे नाव</label><input id="name">
+<label>वाडी</label><input id="wadi">
+<label>मोबाईल</label><input id="mobile">
+<label>पत्ता</label><textarea id="address"></textarea><br>
 <button onclick="saveMember()">💾 Save</button>
 <button onclick="clearForm()">🆕 New</button>
-
 </div>
-
 <div class="card">
-
-<h2>📋 सभासद यादी</h2>
-
-<table border="1" width="100%" cellpadding="8">
-
-<thead>
-<tr>
-<th>नाव</th>
-<th>मोबाईल</th>
-<th>✏️</th>
-<th>🗑️</th>
-</tr>
-</thead>
-
-<tbody id="memberTable">
-</tbody>
-
-</table>
-
-<br>
-
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
-
-</div>
-
-</div>
-
+<input id="search" placeholder="नाव / ID / वाडी" onkeyup="loadMembers()"><br><br>
+<table border="1" width="100%"><thead><tr><th>ID</th><th>नाव</th><th>वाडी</th><th>मोबाईल</th><th>✏️</th><th>🗑️</th></tr></thead><tbody id="memberTable"></tbody></table>
+<br><button onclick="location.href='index.html'">🏠 Dashboard</button>
+</div></div>
 <script>
-
-let members = JSON.parse(localStorage.getItem("members")) || [];
-
+let members=JSON.parse(localStorage.getItem("members"))||[];
+function nextId(){return "MGVM-"+String(members.length+1).padStart(4,"0")}
 function loadMembers(){
-
-let html="";
-
-members.forEach(function(m,index){
-
-html += `
-<tr>
-
-<td>${m.name}</td>
-
-<td>${m.mobile}</td>
-
-<td>
-<button onclick="editMember(${index})">
-✏️
-</button>
-</td>
-
-<td>
-<button onclick="deleteMember(${index})">
-🗑️
-</button>
-</td>
-
-</tr>
-`;
-
-});
-
-document.getElementById("memberTable").innerHTML=html;
-
+ let s=(search.value||"").toLowerCase(),h="";
+ members.forEach((m,i)=>{
+  if((m.memberId||"").toLowerCase().includes(s)||(m.name||"").toLowerCase().includes(s)||(m.wadi||"").toLowerCase().includes(s))
+   h+=`<tr><td>${m.memberId||""}</td><td>${m.name}</td><td>${m.wadi||""}</td><td>${m.mobile||""}</td><td><button onclick="editMember(${i})">✏️</button></td><td><button onclick="deleteMember(${i})">🗑️</button></td></tr>`;
+ });
+ memberTable.innerHTML=h;
 }
-
 function saveMember(){
-
-let name=document.getElementById("name").value;
-let mobile=document.getElementById("mobile").value;
-let address=document.getElementById("address").value;
-let edit=document.getElementById("editIndex").value;
-
-if(name=="" || mobile==""){
-
-alert("कृपया नाव आणि मोबाईल नंबर भरा.");
-
-return;
-
+ let e=editIndex.value,n=name.value.trim(),w=wadi.value.trim(),m=mobile.value.trim(),a=address.value.trim(),id=memberId.value||nextId();
+ if(!n){alert("नाव भरा");return;}
+ let d=members.findIndex((x,i)=>x.name.toLowerCase()==n.toLowerCase()&&String(i)!=e);
+ if(d!=-1){alert("सभासद आधीच आहे");return;}
+ let obj={memberId:id,name:n,wadi:w,mobile:m,address:a};
+ if(e==="") members.push(obj); else members[e]=obj;
+ localStorage.setItem("members",JSON.stringify(members));
+ clearForm();loadMembers();
 }
-// Duplicate नाव तपासा
-let duplicate = members.findIndex(m =>
-    m.name.trim().toLowerCase() === name.trim().toLowerCase()
-);
-
-// नवीन सभासद Add करताना
-if (edit == "" && duplicate !== -1) {
-    alert("❌ हा सभासद आधीच नोंदवलेला आहे.");
-    return;
+function editMember(i){
+ let m=members[i];
+ editIndex.value=i;memberId.value=m.memberId||"";name.value=m.name;wadi.value=m.wadi||"";mobile.value=m.mobile||"";address.value=m.address||"";
 }
-
-// Edit करताना स्वतःचा record सोडून duplicate तपासा
-if (edit != "" && duplicate != -1 && duplicate != edit) {
-    alert("❌ या नावाचा सभासद आधीच नोंदवलेला आहे.");
-    return;
-  }
-  
-if(edit==""){
-
-members.push({
-
-name:name,
-
-mobile:mobile,
-
-address:address
-
-});
-
-}else{
-
-members[edit]={
-
-name:name,
-
-mobile:mobile,
-
-address:address
-
-};
-
-}
-
-localStorage.setItem("members",JSON.stringify(members));
-
-clearForm();
-
-loadMembers();
-
-}
-
-function editMember(index){
-
-document.getElementById("name").value=members[index].name;
-
-document.getElementById("mobile").value=members[index].mobile;
-
-document.getElementById("address").value=members[index].address;
-
-document.getElementById("editIndex").value=index;
-
-}
-
-function deleteMember(index){
-
-if(confirm("हा सभासद Delete करायचा आहे का?")){
-
-members.splice(index,1);
-
-localStorage.setItem("members",JSON.stringify(members));
-
-loadMembers();
-
-}
-
-}
-
-function clearForm(){
-
-document.getElementById("name").value="";
-
-document.getElementById("mobile").value="";
-
-document.getElementById("address").value="";
-
-document.getElementById("editIndex").value="";
-
-}
-
-loadMembers();
-
-</script>
-
-</body>
-</html>
+function deleteMember(i){if(confirm("Delete?")){members.splice(i,1);localStorage.setItem("members",JSON.stringify(members));loadMembers();}}
+function clearForm(){editIndex.value="";memberId.value=nextId();name.value="";wadi.value="";mobile.value="";address.value="";}
+clearForm();loadMembers();
+</script></body></html>
