@@ -1,144 +1,23 @@
-<!DOCTYPE html>
-<html lang="mr">
-
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>बाकी वर्गणी</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-
-<body>
-
-<header>
-<h1>📋 बाकी वर्गणी Report</h1>
-</header>
-
-
-<div class="container">
-
-<div class="card">
-
-
-<label>🔍 सभासद शोधा</label><br>
-
-<input type="text"
-id="search"
-placeholder="नाव टाइप करा..."
-onkeyup="loadPending()"
-style="width:100%;padding:10px;">
-
-<br><br>
-
-
-<table border="1" width="100%" cellspacing="0" cellpadding="8">
-
-<thead>
-
-<tr>
-<th>सभासद नाव</th>
-<th>2026 पर्यंत बाकी</th>
-<th>स्थिती</th>
-</tr>
-
-</thead>
-
-
-<tbody id="pendingTable">
-
-</tbody>
-
-
-</table>
-
-
-<br>
-
-
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
-
-
-</div>
-
-</div>
-
-
-
+<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>बाकी वर्गणी</title><link rel="stylesheet" href="style.css"></head><body>
+<header><h1>📋 बाकी वर्गणी</h1></header>
+<div class="container"><div class="card">
+<input id="search" placeholder="ID / नाव / वाडी" onkeyup="loadPending()"><br><br>
+<h3>एकूण बाकी: ₹<span id="total">0</span> | सभासद: <span id="count">0</span></h3>
+<table border="1" width="100%"><thead><tr><th>ID</th><th>नाव</th><th>वाडी</th><th>बाकी</th><th>स्थिती</th></tr></thead><tbody id="pendingTable"></tbody></table><br>
+<button onclick="location.href='index.html'">🏠 Dashboard</button>
+</div></div>
 <script>
-
-
-let pending =
-JSON.parse(localStorage.getItem("pending")) || [];
-
-
-
+let pending=JSON.parse(localStorage.getItem("pending"))||[];
 function loadPending(){
-
-
-let search =
-document.getElementById("search").value.toLowerCase();
-
-
-let html="";
-
-
-pending.forEach(function(item){
-
-
-if(item.member.toLowerCase().includes(search)){
-
-
-let status =
-Number(item.amount)>0
-? "🔴 बाकी"
-: "🟢 पूर्ण";
-
-
-
-html += `
-
-<tr>
-
-<td>${item.member}</td>
-
-<td>
-₹${item.amount}
-</td>
-
-<td>
-${status}
-</td>
-
-
-</tr>
-
-`;
-
-}
-
+let s=search.value.toLowerCase(),h="",t=0,c=0;
+pending.forEach(p=>{
+ let id=p.memberId||"",w=p.wadi||"",n=p.member||"",a=Number(p.amount)||0;
+ if(id.toLowerCase().includes(s)||n.toLowerCase().includes(s)||w.toLowerCase().includes(s)){
+ c++; t+=a;
+ h+=`<tr><td>${id}</td><td>${n}</td><td>${w}</td><td>₹${a}</td><td>${a>0?"🔴 बाकी":"🟢 पूर्ण"}</td></tr>`;
+ }
 });
-
-
-
-document.getElementById("pendingTable").innerHTML=html;
-
-
+pendingTable.innerHTML=h; total.textContent=t; count.textContent=c;
 }
-
-
-
 loadPending();
-
-
-</script>
-
-
-</body>
-
-</html>
+</script></body></html>
