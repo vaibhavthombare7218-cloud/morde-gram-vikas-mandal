@@ -30,6 +30,14 @@ style="width:100%;padding:12px;"><br><br>
 placeholder="₹"
 style="width:100%;padding:12px;"><br><br>
 
+    if(
+    document.getElementById("date").value=="" ||
+    document.getElementById("details").value=="" ||
+    document.getElementById("amount").value==""
+){
+    alert("कृपया सर्व माहिती भरा.");
+    return;
+}
 <button onclick="saveIncome()">💾 Save</button>
 
 <br><br>
