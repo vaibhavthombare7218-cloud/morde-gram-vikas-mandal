@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>बाकी वर्गणी</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>📋 बाकी वर्गणी Report</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label>🔍 सभासद शोधा</label><br>
+<input type="text" id="search"
+placeholder="नाव टाइप करा..."
+onkeyup="showPending()"
+style="width:100%;padding:10px;">
+<br><br>
+
+<table border="1" width="100%" cellspacing="0" cellpadding="8">
+
+<thead>
+<tr>
+<th>सभासद</th>
+<th>वर्ष</th>
+<th>स्थिती</th>
+</tr>
+</thead>
+
+<tbody id="pendingList">
+</tbody>
+
+</table>
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+let year = new Date().getFullYear();
+
+
+function showPending(){
+
+let search = document.getElementById("search").value.toLowerCase();
+
+let table = document.getElementById("pendingList");
+
+table.innerHTML = "";
+
+
+members.forEach(function(m){
+
+    if(m.name.toLowerCase().includes(search)){
+
+        let paid = transactions.find(function(t){
+
+            return t.category=="subscription" &&
+                   t.member==m.name &&
+                   t.year==year;
+
+        });
+
+
+        let status = paid 
+        ? "🟢 भरली"
+        : "🔴 बाकी";
+
+
+        table.innerHTML += `
+        <tr>
+        <td>${m.name}</td>
+        <td>${year}</td>
+        <td>${status}</td>
+        </tr>
+        `;
+
+    }
+
+});
+
+}
+
+
+// Load Data
+showPending();
+
+
+</script>
+
+</body>
+</html>
