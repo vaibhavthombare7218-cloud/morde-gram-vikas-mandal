@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>रिपोर्ट</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>📊 जमा / खर्च रिपोर्ट</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>एकूण जमा : <span id="income">₹0</span></h3>
+<h3>एकूण खर्च : <span id="expense">₹0</span></h3>
+<h3>शिल्लक : <span id="balance">₹0</span></h3>
+</div>
+
+<div class="card">
+<table border="1" width="100%" cellspacing="0" cellpadding="8">
+
+<thead>
+<tr>
+<th>तारीख</th>
+<th>प्रकार</th>
+<th>तपशील</th>
+<th>रक्कम</th>
+<th>Delete</th>
+</tr>
+</thead>
+
+<tbody id="reportTable">
+</tbody>
+
+</table>
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let list = JSON.parse(localStorage.getItem("transactions")) || [];
+
+let income = 0;
+let expense = 0;
+
+function loadReport(){
+
+let html="";
+
+list.forEach(function(item,index){
+
+if(item.type=="income"){
+income += Number(item.amount);
+}else{
+expense += Number(item.amount);
+}
+
+html += `
+<tr>
+<td>${item.date}</td>
+<td>${item.type=="income" ? "➕ जमा" : "➖ खर्च"}</td>
+<td>${item.details}</td>
+<td>₹${item.amount}</td>
+<td>
+<button onclick="deleteRecord(${index})">
+🗑️
+</button>
+</td>
+</tr>
+`;
+
+});
+
+document.getElementById("reportTable").innerHTML=html;
+
+document.getElementById("income").innerHTML="₹"+income;
+document.getElementById("expense").innerHTML="₹"+expense;
+document.getElementById("balance").innerHTML="₹"+(income-expense);
+
+}
+
+function deleteRecord(index){
+
+if(confirm("ही नोंद Delete करायची आहे का?")){
+
+list.splice(index,1);
+
+localStorage.setItem("transactions",JSON.stringify(list));
+
+location.reload();
+
+}
+
+}
+
+loadReport();
+
+</script>
+
+</body>
+</html>
