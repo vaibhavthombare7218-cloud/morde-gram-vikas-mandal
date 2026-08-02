@@ -1,188 +1,78 @@
 <!DOCTYPE html>
 <html lang="mr">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>सभासद Import</title>
-
 <link rel="stylesheet" href="style.css">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 </head>
-
 <body>
-
-<header>
-<h1>📥 Excel सभासद Import</h1>
-</header>
-
-
+<header><h1>📥 Excel सभासद Import</h1></header>
 <div class="container">
-
 <div class="card">
-
 <h3>Excel File निवडा</h3>
-
-<input type="file" id="file" accept=".xlsx">
-
-<br><br>
-
-<button onclick="importExcel()">
-📥 Import करा
-</button>
-
-
-<br><br>
-
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
-
-
+<input type="file" id="file" accept=".xlsx"><br><br>
+<button onclick="importExcel()">📥 Import करा</button>
+<button onclick="location.href='index.html'">🏠 Dashboard</button>
+<div id="result" style="margin-top:15px;font-weight:bold;"></div>
 </div>
-
 </div>
-
 
 <script>
-
-
 function importExcel(){
+ const file=document.getElementById("file").files[0];
+ if(!file){ alert("कृपया Excel File निवडा."); return; }
 
+ const reader=new FileReader();
+ reader.onload=function(e){
+   const data=new Uint8Array(e.target.result);
+   const wb=XLSX.read(data,{type:"array"});
+   const sheet=wb.Sheets[wb.SheetNames[0]];
+   const rows=XLSX.utils.sheet_to_json(sheet);
 
-let file =
-document.getElementById("file").files[0];
+   let members=JSON.parse(localStorage.getItem("members"))||[];
+   let pending=JSON.parse(localStorage.getItem("pending"))||[];
 
+   let added=0, skipped=0;
 
-if(!file){
+   rows.forEach(row=>{
+      const memberId=row["सभासद क्र."] || ("MGVM-"+String(members.length+1).padStart(4,"0"));
+      const name=(row["सभासद नाव"]||"").toString().trim();
+      const wadi=(row["वाडी"]||"").toString().trim();
+      const mobile=(row["मोबाईल"]||"").toString().trim();
+      const amount=Number(row["२०२६ पर्यंत बाकी"])||0;
 
-alert("कृपया Excel File निवडा.");
+      if(!name){ skipped++; return; }
 
-return;
+      let m=members.find(x=>x.name===name);
+      if(!m){
+        members.push({memberId,name,wadi,mobile});
+        added++;
+      }
 
+      let p=pending.find(x=>x.member===name);
+      if(!p){
+        pending.push({
+          member:name,
+          memberId:memberId,
+          wadi:wadi,
+          year:"2026",
+          amount:amount
+        });
+      }
+   });
+
+   localStorage.setItem("members",JSON.stringify(members));
+   localStorage.setItem("pending",JSON.stringify(pending));
+
+   document.getElementById("result").innerHTML=
+   "✅ Import पूर्ण<br>नवीन सभासद: "+added+"<br>Skip: "+skipped;
+
+   alert("Import यशस्वीरित्या पूर्ण झाला.");
+ };
+ reader.readAsArrayBuffer(file);
 }
-
-
-
-let reader = new FileReader();
-
-
-reader.onload=function(e){
-
-
-let data = new Uint8Array(e.target.result);
-
-
-let workbook =
-XLSX.read(data,{type:"array"});
-
-
-let sheet =
-workbook.Sheets[workbook.SheetNames[0]];
-
-
-let rows =
-XLSX.utils.sheet_to_json(sheet);
-
-
-
-let members =
-JSON.parse(localStorage.getItem("members")) || [];
-
-
-let pending =
-JSON.parse(localStorage.getItem("pending")) || [];
-
-
-
-rows.forEach(function(row){
-
-
-let name =
-row["सभासद नाव"];
-
-
-let amount =
-row["२०२६ पर्यंत बाकी"];
-
-
-
-if(name){
-
-
-// Member Add
-
-let exist =
-members.find(m=>m.name==name);
-
-
-if(!exist){
-
-members.push({
-
-name:name
-
-});
-
-}
-
-
-// Pending Add
-
-pending.push({
-
-member:name,
-
-year:"2026",
-
-amount:Number(amount)||0
-
-});
-
-
-}
-
-
-
-});
-
-
-
-localStorage.setItem(
-"members",
-JSON.stringify(members)
-);
-
-
-localStorage.setItem(
-"pending",
-JSON.stringify(pending)
-);
-
-
-
-alert("सभासद आणि बाकी रक्कम Import झाली.");
-
-
-location.href="index.html";
-
-
-};
-
-
-reader.readAsArrayBuffer(file);
-
-
-}
-
-
-
 </script>
-
-
 </body>
-
 </html>
