@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>खर्च नोंद</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>➖ खर्च नोंद</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label><b>तारीख</b></label><br><br>
+<input type="date" id="date" style="width:100%;padding:12px;"><br><br>
+
+<label><b>तपशील</b></label><br><br>
+<input type="text" id="details"
+placeholder="उदा. वीज बिल / कार्यक्रम खर्च"
+style="width:100%;padding:12px;"><br><br>
+
+<label><b>रक्कम</b></label><br><br>
+<input type="number" id="amount"
+placeholder="₹"
+style="width:100%;padding:12px;"><br><br>
+
+<button onclick="saveExpense()">💾 Save</button>
+
+<br><br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function saveExpense(){
+
+let list=JSON.parse(localStorage.getItem("transactions"))||[];
+
+list.push({
+
+type:"expense",
+
+date:document.getElementById("date").value,
+
+details:document.getElementById("details").value,
+
+amount:document.getElementById("amount").value
+
+});
+
+localStorage.setItem("transactions",JSON.stringify(list));
+
+alert("खर्च यशस्वीरीत्या सेव्ह झाला.");
+
+location.href="index.html";
+
+}
+
+</script>
+
+</body>
+</html>
