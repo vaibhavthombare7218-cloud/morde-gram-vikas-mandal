@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>वर्गणी पावती</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.receipt{
+    background:white;
+    padding:20px;
+    border:2px solid #000;
+    max-width:500px;
+    margin:auto;
+}
+
+.receipt h2{
+    text-align:center;
+}
+
+.line{
+    border-bottom:1px dashed #000;
+    margin:10px 0;
+}
+
+@media print{
+    button{
+        display:none;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>🧾 वर्गणी पावती</h1>
+</header>
+
+
+<div class="container">
+
+<div class="receipt">
+
+<h2>मोर्डे ग्राम विकास मंडळ</h2>
+
+<p style="text-align:center;">
+वार्षिक वर्गणी पावती
+</p>
+
+<div class="line"></div>
+
+<p>
+<b>पावती क्रमांक:</b>
+<span id="receipt"></span>
+</p>
+
+<p>
+<b>सभासद नाव:</b>
+<span id="member"></span>
+</p>
+
+<p>
+<b>वर्ष:</b>
+<span id="year"></span>
+</p>
+
+<p>
+<b>रक्कम:</b>
+₹ <span id="amount"></span>
+</p>
+
+<p>
+<b>Payment Mode:</b>
+<span id="payment"></span>
+</p>
+
+<p>
+<b>दिनांक:</b>
+<span id="date"></span>
+</p>
+
+<div class="line"></div>
+
+<p style="text-align:right;">
+सभासद सही __________
+</p>
+
+
+</div>
+
+<br>
+
+<center>
+<button onclick="window.print()">
+🖨️ Print
+</button>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+</center>
+
+
+</div>
+
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("printReceipt"));
+
+if(data){
+
+document.getElementById("receipt").innerHTML = data.receipt || "-";
+document.getElementById("member").innerHTML = data.member;
+document.getElementById("year").innerHTML = data.year;
+document.getElementById("amount").innerHTML = data.amount;
+document.getElementById("payment").innerHTML = data.payment;
+document.getElementById("date").innerHTML = data.date;
+
+}
+
+</script>
+
+
+</body>
+</html>
