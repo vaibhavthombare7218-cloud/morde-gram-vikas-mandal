@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>वाडीनुसार बाकी रिपोर्ट</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header>
+<h1>🏘️ वाडीनुसार बाकी रिपोर्ट</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label>🔍 वाडी / सभासद शोधा</label><br>
+
+<input type="text"
+id="search"
+placeholder="वाडी किंवा सभासद नाव"
+onkeyup="loadReport()"
+style="width:100%;padding:10px;">
+
+<br><br>
+
+<div id="report"></div>
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+let pending =
+JSON.parse(localStorage.getItem("pending")) || [];
+
+function loadReport(){
+
+let search =
+document.getElementById("search")
+.value.toLowerCase();
+
+let group={};
+
+pending.forEach(function(item){
+
+if(
+(item.wadi || "").toLowerCase().includes(search) ||
+(item.member || "").toLowerCase().includes(search)
+){
+
+let wadi=item.wadi || "वाडी नाही";
+
+if(!group[wadi]){
+
+group[wadi]={
+members:0,
+amount:0,
+list:[]
+};
+
+}
+
+group[wadi].members++;
+
+group[wadi].amount+=Number(item.amount)||0;
+
+group[wadi].list.push(item);
+
+}
+
+});
+
+let html="";
+
+let grandMembers=0;
+let grandAmount=0;
+
+for(let wadi in group){
+
+html+=`
+
+<div class="card">
+
+<h2>🏘️ ${wadi}</h2>
+
+<p>
+<b>👥 सभासद :</b>
+${group[wadi].members}
+</p>
+
+<p>
+<b>💰 बाकी :</b>
+₹${group[wadi].amount}
+</p>
+
+<table border="1"
+width="100%"
+cellpadding="6">
+
+<tr>
+
+<th>सभासद</th>
+
+<th>बाकी</th>
+
+</tr>
+
+`;
+
+group[wadi].list.forEach(function(m){
+
+html+=`
+
+<tr>
+
+<td>${m.member}</td>
+
+<td>₹${m.amount}</td>
+
+</tr>
+
+`;
+
+});
+
+html+=`
+
+</table>
+
+</div>
+
+`;
+
+grandMembers+=group[wadi].members;
+
+grandAmount+=group[wadi].amount;
+
+}
+
+html=`
+
+<div class="card">
+
+<h2>📊 एकूण सारांश</h2>
+
+<p><b>एकूण सभासद :</b> ${grandMembers}</p>
+
+<p><b>एकूण बाकी :</b> ₹${grandAmount}</p>
+
+</div>
+
+`+html;
+
+document.getElementById("report").innerHTML=html;
+
+}
+
+loadReport();
+
+</script>
+
+</body>
+</html>
