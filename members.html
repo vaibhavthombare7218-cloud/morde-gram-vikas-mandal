@@ -1,49 +1,310 @@
 <!DOCTYPE html>
-<html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>सभासद व्यवस्थापन</title><link rel="stylesheet" href="style.css"></head>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>सभासद व्यवस्थापन</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-<header><h1>👥 सभासद व्यवस्थापन</h1></header>
-<div class="container"><div class="card">
+
+<header>
+<h1>👥 सभासद व्यवस्थापन</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
 <input type="hidden" id="editIndex">
-<label>Member ID</label><input id="memberId" readonly>
-<label>सभासदाचे नाव</label><input id="name">
-<label>वाडी</label><input id="wadi">
-<label>मोबाईल</label><input id="mobile">
-<label>पत्ता</label><textarea id="address"></textarea><br>
+
+<label>Member ID</label>
+<input type="text" id="memberId" readonly>
+
+<label>सभासदाचे नाव</label>
+<input type="text" id="name">
+
+<label>वाडी</label>
+<input type="text" id="wadi">
+
+<label>मोबाईल</label>
+<input type="text" id="mobile">
+
+<label>पत्ता</label>
+<textarea id="address"></textarea>
+
+<br><br>
+
 <button onclick="saveMember()">💾 Save</button>
 <button onclick="clearForm()">🆕 New</button>
+
 </div>
+
 <div class="card">
-<input id="search" placeholder="नाव / ID / वाडी" onkeyup="loadMembers()"><br><br>
-<table border="1" width="100%"><thead><tr><th>ID</th><th>नाव</th><th>वाडी</th><th>मोबाईल</th><th>✏️</th><th>🗑️</th></tr></thead><tbody id="memberTable"></tbody></table>
-<br><button onclick="location.href='index.html'">🏠 Dashboard</button>
-</div></div>
+
+<input
+type="text"
+id="search"
+placeholder="Member ID / नाव / वाडी"
+onkeyup="loadMembers()">
+
+<br><br>
+
+<table border="1" width="100%" cellpadding="8">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>नाव</th>
+<th>वाडी</th>
+<th>मोबाईल</th>
+<th>✏️</th>
+<th>🗑️</th>
+
+</tr>
+
+</thead>
+
+<tbody id="memberTable">
+
+</tbody>
+
+</table>
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
 <script>
-let members=JSON.parse(localStorage.getItem("members"))||[];
-function nextId(){return "MGVM-"+String(members.length+1).padStart(4,"0")}
+
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
+function nextId(){
+
+let max=0;
+
+members.forEach(function(m){
+
+if(m.memberId){
+
+let num=parseInt(
+m.memberId.replace("MGVM-","")
+);
+
+if(num>max){
+
+max=num;
+
+}
+
+}
+
+});
+
+return "MGVM-"+String(max+1).padStart(4,"0");
+
+}
+
 function loadMembers(){
- let s=(search.value||"").toLowerCase(),h="";
- members.forEach((m,i)=>{
-  if((m.memberId||"").toLowerCase().includes(s)||(m.name||"").toLowerCase().includes(s)||(m.wadi||"").toLowerCase().includes(s))
-   h+=`<tr><td>${m.memberId||""}</td><td>${m.name}</td><td>${m.wadi||""}</td><td>${m.mobile||""}</td><td><button onclick="editMember(${i})">✏️</button></td><td><button onclick="deleteMember(${i})">🗑️</button></td></tr>`;
- });
- memberTable.innerHTML=h;
+
+let s=document.getElementById("search").value.toLowerCase();
+
+let html="";
+
+members.forEach(function(m,index){
+
+if(
+
+(m.memberId||"").toLowerCase().includes(s) ||
+
+(m.name||"").toLowerCase().includes(s) ||
+
+(m.wadi||"").toLowerCase().includes(s)
+
+){
+
+html+=`
+
+<tr>
+
+<td>${m.memberId}</td>
+
+<td>${m.name}</td>
+
+<td>${m.wadi||""}</td>
+
+<td>${m.mobile||""}</td>
+
+<td>
+
+<button onclick="editMember(${index})">
+
+✏️
+
+</button>
+
+</td>
+
+<td>
+
+<button onclick="deleteMember(${index})">
+
+🗑️
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
 }
+
+});
+
+document.getElementById("memberTable").innerHTML=html;
+
+}
+
 function saveMember(){
- let e=editIndex.value,n=name.value.trim(),w=wadi.value.trim(),m=mobile.value.trim(),a=address.value.trim(),id=memberId.value||nextId();
- if(!n){alert("नाव भरा");return;}
- let d=members.findIndex((x,i)=>x.name.toLowerCase()==n.toLowerCase()&&String(i)!=e);
- if(d!=-1){alert("सभासद आधीच आहे");return;}
- let obj={memberId:id,name:n,wadi:w,mobile:m,address:a};
- if(e==="") members.push(obj); else members[e]=obj;
- localStorage.setItem("members",JSON.stringify(members));
- clearForm();loadMembers();
+
+let edit=document.getElementById("editIndex").value;
+
+let id=document.getElementById("memberId").value || nextId();
+
+let name=document.getElementById("name").value.trim();
+
+let wadi=document.getElementById("wadi").value.trim();
+
+let mobile=document.getElementById("mobile").value.trim();
+
+let address=document.getElementById("address").value.trim();
+
+if(name==""){
+
+alert("सभासदाचे नाव भरा.");
+
+return;
+
 }
-function editMember(i){
- let m=members[i];
- editIndex.value=i;memberId.value=m.memberId||"";name.value=m.name;wadi.value=m.wadi||"";mobile.value=m.mobile||"";address.value=m.address||"";
+
+let duplicate=members.findIndex(function(m,i){
+
+return m.name.trim().toLowerCase()==name.toLowerCase()
+
+&& i!==Number(edit);
+
+});
+
+if(duplicate!=-1){
+
+alert("❌ हा सभासद आधीच नोंदवलेला आहे.");
+
+return;
+
 }
-function deleteMember(i){if(confirm("Delete?")){members.splice(i,1);localStorage.setItem("members",JSON.stringify(members));loadMembers();}}
-function clearForm(){editIndex.value="";memberId.value=nextId();name.value="";wadi.value="";mobile.value="";address.value="";}
-clearForm();loadMembers();
-</script></body></html>
+
+let obj={
+
+memberId:id,
+
+name:name,
+
+wadi:wadi,
+
+mobile:mobile,
+
+address:address
+
+};
+
+if(edit==""){
+
+members.push(obj);
+
+alert("✅ नवीन सभासद सेव्ह झाला.");
+
+}else{
+
+members[Number(edit)]=obj;
+
+alert("✅ सभासद माहिती अपडेट झाली.");
+
+}
+
+localStorage.setItem("members",JSON.stringify(members));
+
+clearForm();
+
+loadMembers();
+
+}
+
+function editMember(index){
+
+let m=members[index];
+
+document.getElementById("editIndex").value=index;
+
+document.getElementById("memberId").value=m.memberId;
+
+document.getElementById("name").value=m.name;
+
+document.getElementById("wadi").value=m.wadi||"";
+
+document.getElementById("mobile").value=m.mobile||"";
+
+document.getElementById("address").value=m.address||"";
+
+}
+
+function deleteMember(index){
+
+if(confirm("हा सभासद Delete करायचा आहे का?")){
+
+members.splice(index,1);
+
+localStorage.setItem("members",JSON.stringify(members));
+
+loadMembers();
+
+clearForm();
+
+}
+
+}
+
+function clearForm(){
+
+document.getElementById("editIndex").value="";
+
+document.getElementById("memberId").value=nextId();
+
+document.getElementById("name").value="";
+
+document.getElementById("wadi").value="";
+
+document.getElementById("mobile").value="";
+
+document.getElementById("address").value="";
+
+}
+
+clearForm();
+
+loadMembers();
+
+</script>
+
+</body>
+</html>
