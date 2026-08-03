@@ -14,4 +14,174 @@ document.getElementById("pending").textContent="₹"+tp;
 document.getElementById("paidMembers").textContent=paid;
 document.getElementById("pendingMembers").textContent=pcnt;
 let s=new Set();members.forEach(m=>{if(m.wadi)s.add(m.wadi)});document.getElementById("wadiCount").textContent=s.size;
+
+<div class="grid">  
+  
+  
+<button onclick="location.href='income.html'">  
+➕ जमा  
+</button>  
+  
+  
+<button onclick="location.href='expense.html'">  
+➖ खर्च  
+</button>  
+  
+  
+<button onclick="location.href='memberlist.html'">  
+👥 सभासद  
+</button>  
+  
+  
+<button onclick="location.href='member_profile.html'">  
+👤 सभासद Profile  
+</button>  
+  
+  
+<button onclick="location.href='donation.html'">  
+🎁 देणगी  
+</button>  
+  
+  
+<button onclick="location.href='subscription.html'">  
+💳 वर्गणी  
+</button>  
+  
+  
+<button onclick="location.href='pending.html'">  
+📋 बाकी वर्गणी  
+</button>  
+  
+<button onclick="location.href='wadi_report.html'">  
+🏘️ वाडीनुसार बाकी  
+</button>  
+    
+<button onclick="location.href='reports.html'">  
+📊 रिपोर्ट  
+</button>  
+  
+  
+<button onclick="location.href='meeting.html'">  
+📅 मीटिंग  
+</button>  
+  
+  
+<button onclick="location.href='meeting_report.html'">  
+📋 Meeting Report  
+</button>  
+  
+  
+<button onclick="location.href='backup.html'">  
+💾 Backup  
+</button>  
+  
+  
+<button onclick="location.href='member_import.html'">  
+📥 Excel Import  
+</button>  
+  
+  
+<button onclick="location.href='pending_import.html'">  
+📥 बाकी Import  
+</button>  
+  
+  <button onclick="location.href='clear.html'">  
+📥 clear data  
+  </button>  
+    
+</div>  
+  
+  
+  
+</div>  
+  
+  
+  
+<footer>  
+  
+© 2026 Morde Gram Vikas Mandal Mumbai  
+  
+</footer>  
+  
+  
+  
+  
+<script>  
+  
+  
+// Members Count  
+  
+let members =  
+JSON.parse(localStorage.getItem("members")) || [];  
+  
+  
+document.getElementById("members")  
+.innerHTML = members.length;  
+  
+  
+  
+  
+// Income Expense  
+  
+let transactions =  
+JSON.parse(localStorage.getItem("transactions")) || [];  
+  
+  
+let income=0;  
+let expense=0;  
+  
+  
+  
+transactions.forEach(function(t){  
+  
+  
+if(t.type=="income"){  
+  
+income += Number(t.amount);  
+  
+}else{  
+  
+expense += Number(t.amount);  
+  
+}  
+  
+  
+});  
+  
+  
+  
+document.getElementById("income")  
+.innerHTML="₹"+income;  
+  
+  
+document.getElementById("expense")  
+.innerHTML="₹"+expense;  
+  
+  
+document.getElementById("balance")  
+.innerHTML="₹"+(income-expense);  
+  
+  
+  
+  
+  
+// Pending  
+  
+let pending =  
+JSON.parse(localStorage.getItem("pending")) || [];  
+  
+  
+let totalPending=0;  
+  
+  
+pending.forEach(function(p){  
+  
+totalPending += Number(p.amount);  
+  
+});  
+  
+  
+document.getElementById("pending")  
+.innerHTML="₹"+totalPending;  
+  
 </script></body></html>
