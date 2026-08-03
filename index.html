@@ -61,11 +61,27 @@
 <h3>🔴 बाकी वर्गणी</h3>
 <h2 id="pending">₹0</h2>
 </div>
-
-
+<div class="card">
+<h3>🏘️ एकूण वाड्या</h3>
+<h2 id="wadiCount">0</h2>
 </div>
 
+<div class="card">
+<h3>✅ पूर्ण वर्गणी</h3>
+<h2 id="paidMembers">0</h2>
+</div>
 
+<div class="card">
+<h3>❌ बाकी सभासद</h3>
+<h2 id="pendingMembers">0</h2>
+</div>
+
+<div class="card">
+<h3>🎁 एकूण देणगी</h3>
+<h2 id="donation">₹0</h2>
+</div>
+
+</div>
 
 <br>
 
@@ -163,7 +179,48 @@
 
 <script>
 
+// एकूण वाड्या
+let wadiSet = new Set();
 
+members.forEach(function(m){
+    if(m.wadi){
+        wadiSet.add(m.wadi);
+    }
+});
+
+document.getElementById("wadiCount").innerHTML = wadiSet.size;
+
+
+// पूर्ण / बाकी सभासद
+let paid = 0;
+let pendingMember = 0;
+
+pending.forEach(function(p){
+
+    if(Number(p.amount) > 0){
+        pendingMember++;
+    }else{
+        paid++;
+    }
+
+});
+
+document.getElementById("paidMembers").innerHTML = paid;
+document.getElementById("pendingMembers").innerHTML = pendingMember;
+
+
+// एकूण देणगी
+let donation = 0;
+
+transactions.forEach(function(t){
+
+    if(t.category=="donation"){
+        donation += Number(t.amount);
+    }
+
+});
+
+document.getElementById("donation").innerHTML = "₹" + donation;
 // Members Count
 
 let members =
