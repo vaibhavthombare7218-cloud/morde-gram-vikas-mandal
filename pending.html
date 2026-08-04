@@ -1,41 +1,140 @@
-<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>बाकी वर्गणी</title><link rel="stylesheet" href="style.css"></head><body>
-<header><h1>📋 बाकी वर्गणी</h1></header>
-<div class="container"><div class="card">
-<input id="search" placeholder="ID / नाव / वाडी" onkeyup="loadPending()"><br><br>
-<h3>एकूण बाकी: ₹<span id="total">0</span> | सभासद: <span id="count">0</span></h3>
-<table border="1" width="100%"><thead><tr><th>ID</th><th>नाव</th><th>वाडी</th><th>बाकी</th><th>स्थिती</th></tr></thead><tbody id="pendingTable"></tbody></table><br>
-<button onclick="location.href='index.html'">🏠 Dashboard</button>
-</div></div>
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>बाकी वर्गणी</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>📋 बाकी वर्गणी</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<input
+id="search"
+placeholder="ID / नाव / वाडी"
+onkeyup="loadPending()">
+
+<br><br>
+
+<h3>
+एकूण बाकी: ₹<span id="total">0</span> |
+सभासद: <span id="count">0</span>
+</h3>
+
+<table border="1" width="100%">
+
+<thead>
+<tr>
+<th>ID</th>
+<th>नाव</th>
+<th>वाडी</th>
+<th>बाकी</th>
+<th>स्थिती</th>
+</tr>
+</thead>
+
+<tbody id="pendingTable">
+</tbody>
+
+</table>
+
+<br>
+
+<button onclick="location.href='index.html'">
+🏠 Dashboard
+</button>
+
+</div>
+
+</div>
+
 <script>
+
 let pending = JSON.parse(localStorage.getItem("pending")) || [];
+
 let members = JSON.parse(localStorage.getItem("members")) || [];
 
 function loadPending(){
 
-let s = search.value.toLowerCase(), h = "", t = 0, c = 0;
+let s = document.getElementById("search").value.toLowerCase();
 
-pending.forEach(p=>{
+let h = "";
 
+let t = 0;
+
+let c = 0;
+
+pending.forEach(function(p){
+
+let id = p.memberId || "";
+
+let member = members.find(function(m){
+return m.memberId === id;
 });
-}
-
-loadPending();
-</script>
- let id = p.memberId || "";
-
-let member = members.find(m => m.memberId === id);
 
 let n = member ? member.name : "";
 
 let w = member ? member.wadi : "";
 
 let a = Number(p.amount) || 0;
- if(id.toLowerCase().includes(s)||n.toLowerCase().includes(s)||w.toLowerCase().includes(s)){
- c++; t+=a;
- h+=`<tr><td>${id}</td><td>${n}</td><td>${w}</td><td>₹${a}</td><td>${a>0?"🔴 बाकी":"🟢 पूर्ण"}</td></tr>`;
- }
-});
-pendingTable.innerHTML=h; total.textContent=t; count.textContent=c;
+
+if(
+
+id.toLowerCase().includes(s) ||
+
+n.toLowerCase().includes(s) ||
+
+w.toLowerCase().includes(s)
+
+){
+
+c++;
+
+t += a;
+
+h += `
+<tr>
+
+<td>${id}</td>
+
+<td>${n}</td>
+
+<td>${w}</td>
+
+<td>₹${a}</td>
+
+<td>
+
+${a>0 ? "🔴 बाकी" : "🟢 पूर्ण"}
+
+</td>
+
+</tr>
+`;
+
 }
+
+});
+
+document.getElementById("pendingTable").innerHTML = h;
+
+document.getElementById("total").textContent = t;
+
+document.getElementById("count").textContent = c;
+
+}
+
 loadPending();
-</script></body></html>
+
+</script>
+
+</body>
+</html>
