@@ -7,11 +7,29 @@
 <button onclick="location.href='index.html'">🏠 Dashboard</button>
 </div></div>
 <script>
-let pending=JSON.parse(localStorage.getItem("pending"))||[];
+let pending = JSON.parse(localStorage.getItem("pending")) || [];
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
 function loadPending(){
-let s=search.value.toLowerCase(),h="",t=0,c=0;
+
+let s = search.value.toLowerCase(), h = "", t = 0, c = 0;
+
 pending.forEach(p=>{
- let id=p.memberId||"",w=p.wadi||"",n=p.member||"",a=Number(p.amount)||0;
+
+});
+}
+
+loadPending();
+</script>
+ let id = p.memberId || "";
+
+let member = members.find(m => m.memberId === id);
+
+let n = member ? member.name : "";
+
+let w = member ? member.wadi : "";
+
+let a = Number(p.amount) || 0;
  if(id.toLowerCase().includes(s)||n.toLowerCase().includes(s)||w.toLowerCase().includes(s)){
  c++; t+=a;
  h+=`<tr><td>${id}</td><td>${n}</td><td>${w}</td><td>₹${a}</td><td>${a>0?"🔴 बाकी":"🟢 पूर्ण"}</td></tr>`;
