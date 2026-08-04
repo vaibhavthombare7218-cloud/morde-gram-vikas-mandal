@@ -16,8 +16,8 @@
 <div class="container">
 
 <div class="card">
-
-<input type="hidden" id="editIndex">
+  
+<input type="hidden" id="editMemberId">
 
 <label>Member ID</label>
 <input type="text" id="memberId" readonly>
@@ -146,7 +146,7 @@ html+=`
 
 <td>
 
-<button onclick="editMember(${index})">
+<button onclick="editMember('${m.memberId}')">
 
 ✏️
 
@@ -155,8 +155,7 @@ html+=`
 </td>
 
 <td>
-
-<button onclick="deleteMember(${index})">
+<button onclick="deleteMember('${m.memberId}')">
 
 🗑️
 
@@ -178,7 +177,7 @@ document.getElementById("memberTable").innerHTML=html;
 
 function saveMember(){
 
-let edit=document.getElementById("editIndex").value;
+let editMemberId = document.getElementById("editMemberId").value;
 
 let id=document.getElementById("memberId").value || nextId();
 
@@ -198,12 +197,11 @@ return;
 
 }
 
-let duplicate=members.findIndex(function(m,i){
-
-return m.name.trim().toLowerCase()==name.toLowerCase()
-
-&& i!==Number(edit);
-
+let duplicate = members.findIndex(function(m){
+    return (
+        m.name.trim().toLowerCase() === name.toLowerCase() &&
+        m.memberId !== editMemberId
+    );
 });
 
 if(duplicate!=-1){
@@ -232,14 +230,16 @@ if(edit==""){
 
 members.push(obj);
 
-alert("✅ नवीन सभासद सेव्ह झाला.");
+let index = members.findIndex(function(m){
+    return m.memberId === editMemberId;
+});
 
+if(index === -1){
+    members.push(obj);
+    alert("✅ नवीन सभासद सेव्ह झाला.");
 }else{
-
-members[Number(edit)]=obj;
-
-alert("✅ सभासद माहिती अपडेट झाली.");
-
+    members[index] = obj;
+    alert("✅ सभासद माहिती अपडेट झाली.");
 }
 
 localStorage.setItem("members",JSON.stringify(members));
@@ -250,11 +250,13 @@ loadMembers();
 
 }
 
-function editMember(index){
+function editMember(memberId){
 
-let m=members[index];
+let m = members.find(function(x){
+    return x.memberId === memberId;
+});
 
-document.getElementById("editIndex").value=index;
+document.getElementById("editMemberId").value = memberId;
 
 document.getElementById("memberId").value=m.memberId;
 
@@ -268,11 +270,15 @@ document.getElementById("address").value=m.address||"";
 
 }
 
-function deleteMember(index){
+function deleteMember(memberId){
 
-if(confirm("हा सभासद Delete करायचा आहे का?")){
+let index = members.findIndex(function(m){
+    return m.memberId === memberId;
+});
 
-members.splice(index,1);
+if(index !== -1){
+    members.splice(index,1);
+}
 
 localStorage.setItem("members",JSON.stringify(members));
 
@@ -286,8 +292,7 @@ clearForm();
 
 function clearForm(){
 
-document.getElementById("editIndex").value="";
-
+document.getElementById("editMemberId").value="";
 document.getElementById("memberId").value=nextId();
 
 document.getElementById("name").value="";
