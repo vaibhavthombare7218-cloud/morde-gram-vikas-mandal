@@ -113,16 +113,28 @@
 
 let data = JSON.parse(localStorage.getItem("printReceipt"));
 
+let members = JSON.parse(localStorage.getItem("members")) || [];
+
 if(data){
 
+let member = members.find(function(m){
+    return m.memberId === data.memberId;
+});
+
 document.getElementById("receipt").innerHTML = data.receipt || "-";
-document.getElementById("member").innerHTML = data.member;
+
+document.getElementById("member").innerHTML =
+member ? member.name : (data.member || "-");
+
 document.getElementById("year").innerHTML = data.year;
+
 document.getElementById("amount").innerHTML = data.amount;
+
 document.getElementById("payment").innerHTML = data.payment;
+
 document.getElementById("date").innerHTML = data.date;
 
-}
+    }
 
 </script>
 
