@@ -56,9 +56,7 @@ let pending=JSON.parse(localStorage.getItem("pending"))||[];
 let tx=JSON.parse(localStorage.getItem("transactions"))||[];
 
 function load(list){
-member.innerHTML="";
-list.forEach((m,i)=>{
-member.innerHTML+=`<option value="${m.name}">${m.name} (${m.wadi||""})</option>`;
+member.innerHTML += `<option value="${m.memberId}">${m.name} (${m.memberId})</option>`;
 });
 memberChanged();
 }
@@ -73,23 +71,44 @@ load(members.filter(m=>
 }
 
 function memberChanged(){
-let m=members.find(x=>x.name===member.value.split(" (")[0]);
-if(!m)return;
-memberId.value=m.memberId||"";
-wadi.value=m.wadi||"";
-let p=pending.find(x=>x.member===m.name);
-document.getElementById("pending").value="₹"+(p?p.amount:0);
-}
+
+let id = member.value;
+
+let m = members.find(x => x.memberId === id);
+
+if(!m) return;
+
+memberId.value = m.memberId;
+wadi.value = m.wadi || "";
+
+let p = pending.find(x => x.memberId === id);
+
+document.getElementById("pending").value = "₹" + (p ? p.amount : 0);
+
+ }
 
 function saveSubscription(){
-let name=member.value.split(" (")[0];
+let id = member.value;
+
+let m = members.find(x => x.memberId === id);
+
+if(!m){
+    alert("सभासद निवडा");
+    return;
+}
+
+let name = m.name;
 let year=document.getElementById("year").value;
 let amt=Number(amount.value);
 if(!amt){alert("रक्कम भरा");return;}
-if(tx.find(t=>t.category=="subscription"&&t.member==name&&t.year==year)){
+if(tx.find(t =>
+    t.category === "subscription" &&
+    t.memberId === id &&
+    t.year == year
+)){
 alert("या वर्षाची वर्गणी आधीच भरली आहे.");return;
 }
-let p=pending.find(x=>x.member===name);
+let p = pending.find(x => x.memberId === id);
 if(p){
  if(amt>p.amount){alert("रक्कम बाकीपेक्षा जास्त आहे.");return;}
  p.amount-=amt;
@@ -97,7 +116,7 @@ if(p){
 }
 tx.push({
 type:"income",category:"subscription",
-member:name,memberId:memberId.value,wadi:wadi.value,
+memberId:id,member:name,wadi:wadi.value,
 year:year,amount:amt,receipt:receipt.value,payment:payment.value,
 date:new Date().toISOString().split("T")[0],
 details:"वार्षिक वर्गणी"
