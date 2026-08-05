@@ -52,7 +52,6 @@ style="width:100%;padding:10px;"></textarea>
 
 <label>एकूण उपस्थित संख्या</label><br>
 <input type="number" id="count"
-readonly
 style="width:100%;padding:10px;">
 <br><br>
 
@@ -100,22 +99,6 @@ style="width:200px;display:none;border:1px solid #ccc;">
 
 let imageData="";
 
-
-// उपस्थित सभासद Count
-
-function countMember(){
-
-let data =
-document.getElementById("members").value.trim();
-
-
-if(data==""){
-
-document.getElementById("count").value=0;
-
-return;
-
-}
 
 
 let names =
