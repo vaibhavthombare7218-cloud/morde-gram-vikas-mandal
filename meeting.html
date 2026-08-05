@@ -63,14 +63,6 @@ style="width:100%;padding:10px;"></textarea>
 <br><br>
 
 
-<label>✍️ सही केलेली इमेज Upload</label><br>
-<input type="file"
-id="signature"
-accept="image/*"
-onchange="previewImage(event)">
-<br><br>
-
-
 <img id="preview"
 style="width:200px;display:none;border:1px solid #ccc;">
 
@@ -97,50 +89,12 @@ style="width:200px;display:none;border:1px solid #ccc;">
 <script>
 
 
-let imageData="";
-
-
-
 let names =
 data.split("\n").filter(x=>x.trim()!="");
 
 
 document.getElementById("count").value =
 names.length;
-
-}
-
-
-
-// Image Preview
-
-function previewImage(event){
-
-let file =
-event.target.files[0];
-
-
-let reader =
-new FileReader();
-
-
-reader.onload=function(){
-
-imageData=reader.result;
-
-
-document.getElementById("preview").src=imageData;
-
-document.getElementById("preview").style.display="block";
-
-
-}
-
-
-reader.readAsDataURL(file);
-
-}
-
 
 
 
@@ -171,8 +125,6 @@ document.getElementById("count").value,
 
 decision:
 document.getElementById("decision").value,
-
-signature:imageData
 
 };
 
