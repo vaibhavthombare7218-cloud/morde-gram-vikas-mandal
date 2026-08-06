@@ -1,368 +1,401 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
 
-<link rel="stylesheet" href="style.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 
-<style>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
-}
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-header{
-    background:#0b6b3a;
-    color:#fff;
-    text-align:center;
-    padding:20px;
-}
-
-.container{
-    width:95%;
-    margin:auto;
-    padding:15px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-    gap:15px;
-}
-
-.card{
-    background:#fff;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
-    text-align:center;
-    padding:15px;
-}
-
-.card h3{
-    margin:0;
-    font-size:16px;
-}
-
-.card h2{
-    color:#0b6b3a;
-    margin-top:10px;
-}
-
-.quick{
-    margin-top:20px;
-}
-
-.quick button,
-.menu button{
-
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    background:#0b6b3a;
-    color:#fff;
-    font-size:15px;
-    cursor:pointer;
-
-}
-
-.quick button:hover,
-.menu button:hover{
-
-background:#09552f;
-
-}
-
-h2.section{
-margin-top:30px;
-text-align:center;
-color:#0b6b3a;
-}
-
-footer{
-margin-top:30px;
-background:#222;
-color:#fff;
-text-align:center;
-padding:15px;
-}
-
-</style>
-
+    <meta name="theme-color" content="#0d6efd">
 </head>
 
 <body>
 
-<header>
+<header class="top-header">
 
-<h1>🛕 मोर्डे ग्राम विकास मंडळ, मुंबई</h1>
+    <div class="logo-box">
+        <img src="assets/logo.png" id="logo" alt="MGVM Logo">
+    </div>
 
-<p>जमा - खर्च व्यवस्थापन प्रणाली</p>
+    <div class="title-box">
+        <h1>मोर्डे ग्राम विकास मंडळ, मुंबई</h1>
+        <p>
+            Member Management & Annual Subscription System
+        </p>
+    </div>
 
 </header>
 
-<div class="container">
+<nav class="main-nav">
 
-<div class="grid">
+<button onclick="location.href='index.html'">
+<i class="fa fa-home"></i><br>
+मुख्यपृष्ठ
+</button>
+
+<button onclick="location.href='members.html'">
+<i class="fa fa-users"></i><br>
+सभासद
+</button>
+
+<button onclick="location.href='subscription.html'">
+<i class="fa fa-money-bill-wave"></i><br>
+वर्गणी
+</button>
+
+<button onclick="location.href='meeting.html'">
+<i class="fa fa-handshake"></i><br>
+सभा
+</button>
+
+<button onclick="location.href='donation.html'">
+<i class="fa fa-heart"></i><br>
+देणगी
+</button>
+
+<button onclick="location.href='income.html'">
+<i class="fa fa-arrow-trend-up"></i><br>
+उत्पन्न
+</button>
+
+<button onclick="location.href='expense.html'">
+<i class="fa fa-arrow-trend-down"></i><br>
+खर्च
+</button>
+
+<button onclick="location.href='reports.html'">
+<i class="fa fa-chart-column"></i><br>
+अहवाल
+</button>
+
+<button onclick="location.href='settings.html'">
+<i class="fa fa-gear"></i><br>
+सेटिंग
+</button>
+
+</nav>
+
+<main class="container">
+
+<h2>
+Dashboard
+</h2>
+
+<div class="dashboard-grid">
 
 <div class="card">
-<h3>👥 एकूण सभासद</h3>
-<h2 id="members">0</h2>
+
+<h3>
+एकूण सभासद
+</h3>
+
+<h1 id="totalMembers">
+0
+</h1>
+
 </div>
 
 <div class="card">
-<h3>🏘️ एकूण वाड्या</h3>
-<h2 id="wadiCount">0</h2>
+
+<h3>
+एकूण वर्गणी
+</h3>
+
+<h1 id="totalSubscription">
+₹0
+</h1>
+
 </div>
 
 <div class="card">
-<h3>💰 एकूण जमा</h3>
-<h2 id="income">₹0</h2>
+
+<h3>
+बाकी वर्गणी
+</h3>
+
+<h1 id="pendingSubscription">
+₹0
+</h1>
+
 </div>
 
 <div class="card">
-<h3>💸 एकूण खर्च</h3>
-<h2 id="expense">₹0</h2>
-</div>
 
-<div class="card">
-<h3>📌 शिल्लक</h3>
-<h2 id="balance">₹0</h2>
-</div>
+<h3>
+एकूण देणगी
+</h3>
 
-<div class="card">
-<h3>🔴 बाकी वर्गणी</h3>
-<h2 id="pending">₹0</h2>
-</div>
-
-<div class="card">
-<h3>✅ पूर्ण वर्गणी</h3>
-<h2 id="paidMembers">0</h2>
-</div>
-
-<div class="card">
-<h3>❌ बाकी सभासद</h3>
-<h2 id="pendingMembers">0</h2>
-</div>
-
-<div class="card">
-<h3>🎁 एकूण देणगी</h3>
-<h2 id="donation">₹0</h2>
-</div>
+<h1 id="totalDonation">
+₹0
+</h1>
 
 </div>
 
-<h2 class="section">⚡ Quick Actions</h2>
+</div>
+<!-- =========================
+     Quick Actions
+========================== -->
 
-<div class="grid quick">
+<section class="quick-actions">
 
-<button onclick="location.href='subscription.html'">💳 वर्गणी</button>
+<h2>⚡ जलद पर्याय</h2>
 
-<button onclick="location.href='income.html'">➕ जमा</button>
+<div class="action-grid">
 
-<button onclick="location.href='expense.html'">➖ खर्च</button>
+<button class="action-btn"
+onclick="location.href='members.html'">
+<i class="fa-solid fa-user-plus"></i>
+<span>नवीन सभासद</span>
+</button>
 
-<button onclick="location.href='memberlist.html'">👥 सभासद</button>
+<button class="action-btn"
+onclick="location.href='subscription.html'">
+<i class="fa-solid fa-indian-rupee-sign"></i>
+<span>वर्गणी भरा</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='donation.html'">
+<i class="fa-solid fa-hand-holding-heart"></i>
+<span>देणगी नोंद</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='meeting.html'">
+<i class="fa-solid fa-users"></i>
+<span>सभा नोंद</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='income.html'">
+<i class="fa-solid fa-arrow-trend-up"></i>
+<span>उत्पन्न</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='expense.html'">
+<i class="fa-solid fa-arrow-trend-down"></i>
+<span>खर्च</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='reports.html'">
+<i class="fa-solid fa-chart-pie"></i>
+<span>अहवाल</span>
+</button>
+
+<button class="action-btn"
+onclick="location.href='backup.html'">
+<i class="fa-solid fa-download"></i>
+<span>बॅकअप</span>
+</button>
 
 </div>
 
-<h2 class="section">📂 सर्व मेनू</h2>
+</section>
 
-<div class="grid menu">
+<!-- =========================
+     Search Section
+========================== -->
 
-<button onclick="location.href='member_profile.html'">👤 सभासद Profile</button>
+<section class="search-box">
 
-<button onclick="location.href='donation.html'">🎁 देणगी</button>
+<h2>🔍 सभासद शोधा</h2>
 
-<button onclick="location.href='pending.html'">📋 बाकी वर्गणी</button>
+<input
+type="text"
+id="memberSearch"
+placeholder="नाव किंवा मोबाईल नंबर टाका..."
+onkeyup="searchMember()">
 
-<button onclick="location.href='wadi_report.html'">🏘️ वाडीनुसार बाकी</button>
-
-<button onclick="location.href='reports.html'">📊 रिपोर्ट</button>
-
-<button onclick="location.href='meeting.html'">📅 मीटिंग</button>
-
-<button onclick="location.href='meeting_report.html'">📋 Meeting Report</button>
-
-<button onclick="location.href='backup.html'">💾 Backup</button>
-
-<button onclick="location.href='member_import.html'">📥 सभासद Import</button>
-
-<button onclick="location.href='pending_import.html'">📥 बाकी Import</button>
-
-<button onclick="location.href='clear.html'">🗑️ Clear Data</button>
+<div id="searchResult">
 
 </div>
+
+</section>
+
+<!-- =========================
+      Wadi Wise Search
+========================== -->
+
+<section class="wadi-search">
+
+<h2>🏡 वाडी नुसार शोध</h2>
+
+<select id="wadiFilter"
+onchange="filterWadi()">
+
+<option value="">सर्व वाड्या</option>
+
+<option>मोर्डेवाडी</option>
+
+<option>सोनारवाडी</option>
+
+<option>भंडारवाडी</option>
+
+<option>गावठाण</option>
+
+<option>देऊळवाडी</option>
+
+<option>पाटीलवाडी</option>
+
+<option>खालची वाडी</option>
+
+<option>वरची वाडी</option>
+
+</select>
+
+<div id="wadiMembers">
+
+</div>
+
+</section>
+
+<!-- =========================
+     Recent Activity
+========================== -->
+
+<section class="recent-box">
+
+<h2>📝 अलीकडील नोंदी</h2>
+
+<div id="recentActivity">
+
+<p>
+अद्याप कोणतीही नोंद उपलब्ध नाही.
+</p>
+
+</div>
+
+    </section>
+<!-- =========================
+     Dashboard Statistics
+========================== -->
+
+<section class="statistics-section">
+
+    <h2>📊 सांख्यिकी</h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <h3>आजची वर्गणी</h3>
+            <h1 id="todaySubscription">₹0</h1>
+        </div>
+
+        <div class="stat-card">
+            <h3>या वर्षाची वर्गणी</h3>
+            <h1 id="yearSubscription">₹0</h1>
+        </div>
+
+        <div class="stat-card">
+            <h3>एकूण उत्पन्न</h3>
+            <h1 id="totalIncome">₹0</h1>
+        </div>
+
+        <div class="stat-card">
+            <h3>एकूण खर्च</h3>
+            <h1 id="totalExpense">₹0</h1>
+        </div>
+
+        <div class="stat-card">
+            <h3>शिल्लक रक्कम</h3>
+            <h1 id="balanceAmount">₹0</h1>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================
+     Pending Subscription
+========================== -->
+
+<section class="pending-section">
+
+    <h2>💰 बाकी वर्गणी</h2>
+
+    <table class="table">
+
+        <thead>
+
+            <tr>
+                <th>सभासद</th>
+                <th>वाडी</th>
+                <th>बाकी</th>
+            </tr>
+
+        </thead>
+
+        <tbody id="pendingTable">
+
+            <tr>
+                <td colspan="3" align="center">
+                    कोणताही डेटा उपलब्ध नाही.
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
+
+<!-- =========================
+     Announcements
+========================== -->
+
+<section class="notice-section">
+
+    <h2>📢 सूचना</h2>
+
+    <div class="notice-card">
+
+        <p>
+            मोर्डे ग्राम विकास मंडळात आपले स्वागत आहे.
+        </p>
+
+        <p>
+            वार्षिक वर्गणी ₹200 वेळेत भरण्याची सर्व सभासदांना विनंती.
+        </p>
+
+    </div>
+
+</section>
+
+<!-- =========================
+     Footer
+========================== -->
+
 <footer>
-© 2026 Morde Gram Vikas Mandal Mumbai
+
+    <p>
+        © 2026 मोर्डे ग्राम विकास मंडळ, मुंबई
+    </p>
+
+    <p>
+        Developed for Digital Member Management System
+    </p>
+
 </footer>
 
-<script>
+<!-- JavaScript -->
 
-// Local Storage Data
-const members = JSON.parse(localStorage.getItem("members")) || [];
-const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-const pending = JSON.parse(localStorage.getItem("pending")) || [];
+<script src="database.js"></script>
+<script src="script.js"></script>
 
-// Dashboard Summary
-let income = 0;
-let expense = 0;
-let donation = 0;
-let totalPending = 0;
-let paidMembers = 0;
-let pendingMembers = 0;
-
-// Members
-document.getElementById("members").innerHTML = members.length;
-
-// Income / Expense / Donation
-transactions.forEach(function(t){
-
-    let amount = Number(t.amount) || 0;
-
-    if(t.type === "income"){
-        income += amount;
-    }else{
-        expense += amount;
-    }
-
-    if(t.category === "donation"){
-        donation += amount;
-    }
-
-});
-
-// Pending
-pending.forEach(function(p){
-
-    let amount = Number(p.amount) || 0;
-
-    totalPending += amount;
-
-    if(amount > 0){
-        pendingMembers++;
-    }else{
-        paidMembers++;
-    }
-
-});
-
-// Wadi Count
-let wadiList = [];
-
-members.forEach(function(m){
-
-    if(m.wadi && !wadiList.includes(m.wadi)){
-        wadiList.push(m.wadi);
-    }
-
-});
-
-// Display
-document.getElementById("wadiCount").innerHTML = wadiList.length;
-
-document.getElementById("income").innerHTML =
-"₹" + income.toLocaleString("en-IN");
-
-document.getElementById("expense").innerHTML =
-"₹" + expense.toLocaleString("en-IN");
-
-document.getElementById("balance").innerHTML =
-"₹" + (income-expense).toLocaleString("en-IN");
-
-document.getElementById("pending").innerHTML =
-"₹" + totalPending.toLocaleString("en-IN");
-
-document.getElementById("donation").innerHTML =
-"₹" + donation.toLocaleString("en-IN");
-
-document.getElementById("paidMembers").innerHTML =
-paidMembers;
-
-document.getElementById("pendingMembers").innerHTML =
-pendingMembers;
-
-// ==========================
-// Premium Dashboard Features
-// ==========================
-
-// चालू वर्ष
-const currentYear = new Date().getFullYear();
-
-// वार्षिक वर्गणी (Settings नसेल तर Default ₹200)
-const annualFee = Number(localStorage.getItem("annualFee")) || 200;
-
-// Collection %
-const expectedAmount = members.length * annualFee;
-const collectedAmount = transactions
-    .filter(t => t.category === "subscription")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-const collectionPercent = expectedAmount > 0
-    ? ((collectedAmount / expectedAmount) * 100).toFixed(1)
-    : 0;
-
-// आजची जमा / खर्च
-const today = new Date().toISOString().split("T")[0];
-
-let todayIncome = 0;
-let todayExpense = 0;
-
-transactions.forEach(t => {
-
-    if (t.date === today) {
-
-        if (t.type === "income") {
-            todayIncome += Number(t.amount);
-        } else {
-            todayExpense += Number(t.amount);
-        }
-
-    }
-
-});
-
-// Dashboard मध्ये नवीन माहिती
-const premium = document.createElement("div");
-
-premium.className = "grid";
-
-premium.innerHTML = `
-
-<div class="card">
-<h3>📅 चालू वर्ष</h3>
-<h2>${currentYear}</h2>
-</div>
-
-<div class="card">
-<h3>💳 वार्षिक वर्गणी</h3>
-<h2>₹${annualFee}</h2>
-</div>
-
-<div class="card">
-<h3>📈 Collection</h3>
-<h2>${collectionPercent}%</h2>
-</div>
-
-<div class="card">
-<h3>💵 आजची जमा</h3>
-<h2>₹${todayIncome}</h2>
-</div>
-
-<div class="card">
-<h3>💸 आजचा खर्च</h3>
-<h2>₹${todayExpense}</h2>
-</div>
-
-`;
-
-document.querySelector(".container").appendChild(premium);
-
-</script>
+</main>
 
 </body>
-</html>
+    </html>
