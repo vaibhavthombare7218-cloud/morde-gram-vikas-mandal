@@ -1,131 +1,877 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>वर्गणी</title>
-<link rel="stylesheet" href="style.css">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>वर्गणी व्यवस्थापन | मोर्डे ग्राम विकास मंडळ</title>
+
+<link rel="stylesheet"
+      href="style.css">
+
+<link rel="preconnect"
+      href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+      rel="stylesheet">
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
 </head>
+
+
 <body>
-<header><h1>💳 वर्गणी नोंद</h1></header>
 
-<div class="container">
-<div class="card">
 
-<label>🔍 शोधा</label>
-<input id="search" onkeyup="filterMembers()" placeholder="ID / नाव / वाडी">
+<!-- =========================================
+     HEADER
+========================================= -->
 
-<label>सभासद</label>
-<select id="member" onchange="memberChanged()"></select>
+<header class="top-header">
 
-<label>Member ID</label>
-<input id="memberId" readonly>
+    <div class="logo-box">
 
-<label>वाडी</label>
-<input id="wadi" readonly>
+        <img
+            src="assets/logo.png"
+            alt="MGVM Logo">
 
-<label>बाकी रक्कम</label>
-<input id="pending" readonly value="₹0">
+    </div>
 
-<label>वर्ष</label>
-<input id="year" type="number" value="2026">
 
-<label>भरलेली रक्कम</label>
-<input id="amount" type="number">
+    <div class="title-box">
 
-<label>पावती क्रमांक</label>
-<input id="receipt">
+        <h1>
+            वर्गणी व्यवस्थापन
+        </h1>
 
-<label>Payment</label>
-<select id="payment">
-<option>Cash</option>
-<option>UPI</option>
-<option>Bank</option>
-</select>
+        <p>
+            मोर्डे ग्राम विकास मंडळ, मुंबई
+        </p>
 
-<br><br>
-<button onclick="saveSubscription()">💾 Save</button>
-<button onclick="location.href='index.html'">🏠 Dashboard</button>
+    </div>
 
-</div>
-</div>
+</header>
 
-<script>
-let members=JSON.parse(localStorage.getItem("members"))||[];
-let pending=JSON.parse(localStorage.getItem("pending"))||[];
-let tx=JSON.parse(localStorage.getItem("transactions"))||[];
 
-function load(list){
-member.innerHTML += `<option value="${m.memberId}">${m.name} (${m.memberId})</option>`;
-});
-memberChanged();
-}
 
-function filterMembers(){
-let s=search.value.toLowerCase();
-load(members.filter(m=>
-(m.name||"").toLowerCase().includes(s)||
-(m.memberId||"").toLowerCase().includes(s)||
-(m.wadi||"").toLowerCase().includes(s)
-));
-}
+<!-- =========================================
+     NAVIGATION
+========================================= -->
 
-function memberChanged(){
+<nav class="main-nav">
 
-let id = member.value;
+    <button
+        onclick="location.href='index.html'">
 
-let m = members.find(x => x.memberId === id);
+        <i class="fa fa-home"></i><br>
 
-if(!m) return;
+        मुख्यपृष्ठ
 
-memberId.value = m.memberId;
-wadi.value = m.wadi || "";
+    </button>
 
-let p = pending.find(x => x.memberId === id);
 
-document.getElementById("pending").value = "₹" + (p ? p.amount : 0);
+    <button
+        onclick="location.href='members.html'">
 
- }
+        <i class="fa fa-users"></i><br>
 
-function saveSubscription(){
-let id = member.value;
+        सभासद
 
-let m = members.find(x => x.memberId === id);
+    </button>
 
-if(!m){
-    alert("सभासद निवडा");
-    return;
-}
 
-let name = m.name;
-let year=document.getElementById("year").value;
-let amt=Number(amount.value);
-if(!amt){alert("रक्कम भरा");return;}
-if(tx.find(t =>
-    t.category === "subscription" &&
-    t.memberId === id &&
-    t.year == year
-)){
-alert("या वर्षाची वर्गणी आधीच भरली आहे.");return;
-}
-let p = pending.find(x => x.memberId === id);
-if(p){
- if(amt>p.amount){alert("रक्कम बाकीपेक्षा जास्त आहे.");return;}
- p.amount-=amt;
- localStorage.setItem("pending",JSON.stringify(pending));
-}
-tx.push({
-type:"income",category:"subscription",
-memberId:id,member:name,wadi:wadi.value,
-year:year,amount:amt,receipt:receipt.value,payment:payment.value,
-date:new Date().toISOString().split("T")[0],
-details:"वार्षिक वर्गणी"
-});
-localStorage.setItem("transactions",JSON.stringify(tx));
-alert("वर्गणी सेव्ह झाली.");
-location.href="reports.html";
-}
-load(members);
-</script>
+    <button
+        onclick="location.href='subscription.html'">
+
+        <i class="fa fa-money-bill-wave"></i><br>
+
+        वर्गणी
+
+    </button>
+
+
+    <button
+        onclick="location.href='reports.html'">
+
+        <i class="fa fa-chart-column"></i><br>
+
+        अहवाल
+
+    </button>
+
+</nav>
+
+
+
+<!-- =========================================
+     MAIN CONTAINER
+========================================= -->
+
+<main class="container">
+
+
+    <!-- =====================================
+         PAGE TITLE
+    ====================================== -->
+
+    <h2 class="section-title">
+
+        💰 वार्षिक वर्गणी नोंद
+
+    </h2>
+
+
+    <!-- =====================================
+         SUBSCRIPTION FORM
+    ====================================== -->
+
+    <div class="form-card">
+
+
+        <form id="subscriptionForm">
+
+
+            <!-- MEMBER SEARCH -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        सभासद शोधा
+                    </label>
+
+                    <input
+                        type="text"
+                        id="memberSearch"
+                        placeholder="सभासदाचे नाव किंवा Member ID टाका"
+                        autocomplete="off">
+
+                    <div
+                        id="memberSuggestions"
+                        class="suggestions-box">
+                    </div>
+
+                </div>
+
+
+                <!-- MEMBER ID -->
+
+                <div>
+
+                    <label>
+                        सभासद आयडी
+                    </label>
+
+                    <input
+                        type="text"
+                        id="subscriptionMemberId"
+                        readonly>
+
+                </div>
+
+            </div>
+
+
+            <!-- MEMBER NAME + WADI -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        सभासद नाव
+                    </label>
+
+                    <input
+                        type="text"
+                        id="subscriptionMemberName"
+                        readonly>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        वाडी
+                    </label>
+
+                    <input
+                        type="text"
+                        id="subscriptionWadi"
+                        readonly>
+
+                </div>
+
+            </div>
+
+
+            <!-- YEAR + ANNUAL AMOUNT -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        वर्गणी वर्ष
+                    </label>
+
+                    <select
+                        id="subscriptionYear"
+                        required>
+
+                        <option value="">
+                            वर्ष निवडा
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        वार्षिक वर्गणी
+                    </label>
+
+                    <input
+                        type="number"
+                        id="annualAmount"
+                        value="200"
+                        min="0"
+                        readonly>
+
+                </div>
+
+            </div>
+
+
+            <!-- PAID + PENDING -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        भरलेली रक्कम
+                    </label>
+
+                    <input
+                        type="number"
+                        id="paidAmount"
+                        min="0"
+                        value="200"
+                        placeholder="रक्कम टाका"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        बाकी रक्कम
+                    </label>
+
+                    <input
+                        type="number"
+                        id="pendingAmount"
+                        value="0"
+                        readonly>
+
+                </div>
+
+            </div>
+
+
+            <!-- RECEIPT + PAYMENT MODE -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        पावती क्रमांक
+                    </label>
+
+                    <input
+                        type="text"
+                        id="receiptNo"
+                        placeholder="उदा. MGVM-REC-0001">
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        पेमेंट पद्धत
+                    </label>
+
+                    <select
+                        id="paymentMode"
+                        required>
+
+                        <option value="">
+                            पद्धत निवडा
+                        </option>
+
+                        <option value="Cash">
+                            रोख
+                        </option>
+
+                        <option value="UPI">
+                            UPI
+                        </option>
+
+                        <option value="Bank Transfer">
+                            Bank Transfer
+                        </option>
+
+                        <option value="Cheque">
+                            Cheque
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div class="form-row">
+
+                <div>
+
+                    <label>
+                        वर्गणी भरल्याची तारीख
+                    </label>
+
+                    <input
+                        type="date"
+                        id="paymentDate"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        नोंद करणारे
+                    </label>
+
+                    <input
+                        type="text"
+                        id="enteredBy"
+                        placeholder="नाव">
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="flex gap-10">
+
+                <button
+                    type="submit"
+                    class="btn btn-success">
+
+                    <i class="fa fa-save"></i>
+
+                    वर्गणी जतन करा
+
+                </button>
+
+
+                <button
+                    type="reset"
+                    class="btn btn-danger"
+                    id="resetSubscriptionBtn">
+
+                    <i class="fa fa-refresh"></i>
+
+                    रीसेट
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================
+         END OF PART 1A
+    ====================================== -->
+
+ <!-- =========================================
+         MEMBER SUBSCRIPTION SUMMARY
+    ========================================== -->
+
+    <section class="statistics-section">
+
+        <h2 class="section-title">
+            📊 सभासद वर्गणी स्थिती
+        </h2>
+
+
+        <div class="stats-grid">
+
+
+            <!-- TOTAL ANNUAL -->
+
+            <div class="stat-card">
+
+                <h3>
+                    वार्षिक वर्गणी
+                </h3>
+
+                <h1 id="summaryAnnualAmount">
+                    ₹0
+                </h1>
+
+            </div>
+
+
+            <!-- PAID -->
+
+            <div class="stat-card">
+
+                <h3>
+                    भरलेली वर्गणी
+                </h3>
+
+                <h1 id="summaryPaidAmount">
+                    ₹0
+                </h1>
+
+            </div>
+
+
+            <!-- PENDING -->
+
+            <div class="stat-card">
+
+                <h3>
+                    बाकी वर्गणी
+                </h3>
+
+                <h1 id="summaryPendingAmount">
+                    ₹0
+                </h1>
+
+            </div>
+
+
+            <!-- TOTAL TRANSACTIONS -->
+
+            <div class="stat-card">
+
+                <h3>
+                    एकूण नोंदी
+                </h3>
+
+                <h1 id="summaryTransactionCount">
+                    0
+                </h1>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         YEAR-WISE SUBSCRIPTION STATUS
+    ========================================== -->
+
+    <section class="pending-section">
+
+        <h2 class="section-title">
+            📅 वर्षनिहाय वर्गणी
+        </h2>
+
+
+        <div class="table-responsive">
+
+            <table class="table"
+                   id="yearSubscriptionTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            वर्ष
+                        </th>
+
+                        <th>
+                            वार्षिक रक्कम
+                        </th>
+
+                        <th>
+                            भरलेली रक्कम
+                        </th>
+
+                        <th>
+                            बाकी
+                        </th>
+
+                        <th>
+                            स्थिती
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="yearSubscriptionBody">
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            align="center">
+
+                            सभासद निवडल्यानंतर
+                            वर्षनिहाय माहिती येथे दिसेल.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         ALL SUBSCRIPTION TRANSACTIONS
+    ========================================== -->
+
+    <section class="pending-section">
+
+        <h2 class="section-title">
+            🧾 वर्गणी नोंदी
+        </h2>
+
+
+        <!-- SEARCH -->
+
+        <div class="form-row">
+
+            <div>
+
+                <label>
+                    नोंद शोधा
+                </label>
+
+                <input
+                    type="text"
+                    id="subscriptionSearch"
+                    placeholder="नाव, Member ID किंवा पावती क्रमांक...">
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    वर्ष
+                </label>
+
+                <select id="transactionYearFilter">
+
+                    <option value="">
+                        सर्व वर्षे
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- TRANSACTION TABLE -->
+
+        <div class="table-responsive">
+
+            <table
+                class="table"
+                id="subscriptionTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            तारीख
+                        </th>
+
+                        <th>
+                            Member ID
+                        </th>
+
+                        <th>
+                            सभासद
+                        </th>
+
+                        <th>
+                            वर्ष
+                        </th>
+
+                        <th>
+                            रक्कम
+                        </th>
+
+                        <th>
+                            पेमेंट
+                        </th>
+
+                        <th>
+                            पावती
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="subscriptionTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            align="center">
+
+                            अद्याप कोणतीही
+                            वर्गणी नोंद उपलब्ध नाही.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         RECEIPT PREVIEW MODAL
+    ========================================== -->
+
+    <div
+        id="receiptModal"
+        class="modal">
+
+        <div
+            class="modal-content"
+            style="max-width:600px;">
+
+            <span
+                class="close"
+                id="closeReceiptModal">
+
+                &times;
+
+            </span>
+
+
+            <div id="receiptContent">
+
+                <h2 style="text-align:center;">
+
+                    मोर्डे ग्राम विकास मंडळ, मुंबई
+
+                </h2>
+
+
+                <p style="text-align:center;">
+
+                    वार्षिक वर्गणी पावती
+
+                </p>
+
+
+                <hr>
+
+
+                <p>
+                    <strong>पावती क्र.:</strong>
+                    <span id="receiptPreviewNo">-</span>
+                </p>
+
+
+                <p>
+                    <strong>Member ID:</strong>
+                    <span id="receiptPreviewMemberId">-</span>
+                </p>
+
+
+                <p>
+                    <strong>सभासद:</strong>
+                    <span id="receiptPreviewName">-</span>
+                </p>
+
+
+                <p>
+                    <strong>वाडी:</strong>
+                    <span id="receiptPreviewWadi">-</span>
+                </p>
+
+
+                <p>
+                    <strong>वर्ष:</strong>
+                    <span id="receiptPreviewYear">-</span>
+                </p>
+
+
+                <p>
+                    <strong>रक्कम:</strong>
+                    ₹<span id="receiptPreviewAmount">0</span>
+                </p>
+
+
+                <p>
+                    <strong>पेमेंट पद्धत:</strong>
+                    <span id="receiptPreviewMode">-</span>
+                </p>
+
+
+                <p>
+                    <strong>तारीख:</strong>
+                    <span id="receiptPreviewDate">-</span>
+                </p>
+
+
+                <hr>
+
+
+                <p style="text-align:center;">
+
+                    धन्यवाद!
+
+                </p>
+
+            </div>
+
+
+            <div
+                class="flex gap-10"
+                style="margin-top:20px;">
+
+                <button
+                    class="btn btn-primary"
+                    id="printReceiptBtn">
+
+                    <i class="fa fa-print"></i>
+
+                    पावती Print
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         TOAST MESSAGE
+    ========================================== -->
+
+    <div
+        id="subscriptionToast"
+        class="toast">
+
+        वर्गणी यशस्वीरित्या जतन झाली.
+
+    </div>
+
+
+
+    <!-- =========================================
+         LOADING
+    ========================================== -->
+
+    <div
+        class="loader"
+        id="subscriptionLoader">
+
+        <div class="spinner"></div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        <p>
+            © 2026 मोर्डे ग्राम विकास मंडळ, मुंबई
+        </p>
+
+        <p>
+            Digital Member Management System
+        </p>
+
+    </footer>
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+    <script src="database.js"></script>
+
+    <script src="subscription.js"></script>
+
+
+</main>
+
 </body>
-</html>
+
+ </html>
