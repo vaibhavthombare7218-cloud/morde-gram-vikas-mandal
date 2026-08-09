@@ -1911,3 +1911,862 @@ function showMemberLoader(
 console.log(
     "MGVM Members Excel Import module loaded."
 );
+
+/* =========================================================
+   members.js - Part 5
+   Excel Export + Print List
+   मोर्डे ग्राम विकास मंडळ, मुंबई
+========================================================= */
+
+
+/* =========================================================
+   EXPORT BUTTON
+========================================================= */
+
+const exportBtn =
+    document.getElementById(
+        "exportBtn"
+    );
+
+
+if (exportBtn) {
+
+    exportBtn.addEventListener(
+        "click",
+        exportMembersToExcel
+    );
+
+}
+
+
+/* =========================================================
+   PRINT BUTTON
+========================================================= */
+
+const printBtn =
+    document.getElementById(
+        "printBtn"
+    );
+
+
+if (printBtn) {
+
+    printBtn.addEventListener(
+        "click",
+        printMemberList
+    );
+
+}
+
+
+/* =========================================================
+   EXCEL EXPORT
+========================================================= */
+
+function exportMembersToExcel() {
+
+    try {
+
+        /*
+           नवीनतम Members data घ्या
+        */
+
+        members =
+            JSON.parse(
+                localStorage.getItem(
+                    "mgvm_members"
+                )
+            ) || [];
+
+
+        if (!members.length) {
+
+            alert(
+                "Export करण्यासाठी कोणताही सभासद उपलब्ध नाही."
+            );
+
+            return;
+
+        }
+
+
+        /* =====================================
+           Excel Data
+        ===================================== */
+
+        const excelData =
+            members.map(
+                function(member) {
+
+                    let pending = 0;
+
+
+                    /*
+                       Member pending उपलब्ध असल्यास
+                       ते वापरायचे
+                    */
+
+                    if (
+                        Number(
+                            member.subscriptionPending
+                        ) > 0
+                    ) {
+
+                        pending =
+                            Number(
+                                member.subscriptionPending
+                            );
+
+                    }
+
+
+                    return {
+
+                        "Member ID":
+                            member.id || "",
+
+                        "नाव":
+                            member.name || "",
+
+                        "मोबाईल":
+                            member.mobile || "",
+
+                        "वाडी":
+                            member.wadi || "",
+
+                        "जन्मतारीख":
+                            member.dob || "",
+
+                        "पत्ता":
+                            member.address || "",
+
+                        "बाकी वर्गणी":
+                            pending
+
+                    };
+
+                }
+            );
+
+
+        /* =====================================
+           Create Worksheet
+        ===================================== */
+
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                excelData
+            );
+
+
+        /* =====================================
+           Column Width
+        ===================================== */
+
+        worksheet["!cols"] = [
+
+            {
+                wch: 15
+            },
+
+            {
+                wch: 25
+            },
+
+            {
+                wch: 15
+            },
+
+            {
+                wch: 25
+            },
+
+            {
+                wch: 15
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 15
+            }
+
+        ];
+
+
+        /* =====================================
+           Create Workbook
+        ===================================== */
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "सभासद यादी"
+        );
+
+
+        /* =====================================
+           File Name
+        ===================================== */
+
+        const today =
+            new Date();
+
+
+        const yyyy =
+            today.getFullYear();
+
+
+        const mm =
+            String(
+                today.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const dd =
+            String(
+                today.getDate()
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        const fileName =
+            "MGVM_Members_" +
+            yyyy +
+            "-" +
+            mm +
+            "-" +
+            dd +
+            ".xlsx";
+
+
+        /* =====================================
+           Download
+        ===================================== */
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+
+        showMemberToast(
+            "सभासद यादी Excel मध्ये Export झाली."
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Excel Export Error:",
+            error
+        );
+
+
+        alert(
+            "Excel Export करताना समस्या आली."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PRINT MEMBER LIST
+========================================================= */
+
+function printMemberList() {
+
+    members =
+        JSON.parse(
+            localStorage.getItem(
+                "mgvm_members"
+            )
+        ) || [];
+
+
+    if (!members.length) {
+
+        alert(
+            "Print करण्यासाठी कोणताही सभासद उपलब्ध नाही."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================
+       Current Filter
+    ===================================== */
+
+    const searchText =
+        document.getElementById(
+            "searchMember"
+        );
+
+
+    const wadiSelect =
+        document.getElementById(
+            "wadiFilter"
+        );
+
+
+    const search =
+        searchText
+        ?
+        searchText.value
+            .trim()
+            .toLowerCase()
+        :
+        "";
+
+
+    const selectedWadi =
+        wadiSelect
+        ?
+        wadiSelect.value
+        :
+        "";
+
+
+    let printMembers =
+        members.filter(
+            function(member) {
+
+                const name =
+                    String(
+                        member.name || ""
+                    )
+                    .toLowerCase();
+
+
+                const mobile =
+                    String(
+                        member.mobile || ""
+                    )
+                    .toLowerCase();
+
+
+                const id =
+                    String(
+                        member.id || ""
+                    )
+                    .toLowerCase();
+
+
+                const searchMatch =
+                    !search ||
+                    name.includes(search) ||
+                    mobile.includes(search) ||
+                    id.includes(search);
+
+
+                const wadiMatch =
+                    !selectedWadi ||
+                    member.wadi ===
+                    selectedWadi;
+
+
+                return (
+                    searchMatch &&
+                    wadiMatch
+                );
+
+            }
+        );
+
+
+    if (!printMembers.length) {
+
+        alert(
+            "Print करण्यासाठी matching सभासद उपलब्ध नाहीत."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================
+       Create Print Window
+    ===================================== */
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Print window उघडता आली नाही. Browser popup permission तपासा."
+        );
+
+        return;
+
+    }
+
+
+    let rows = "";
+
+
+    printMembers.forEach(
+        function(member, index) {
+
+            let pending = 0;
+
+
+            if (
+                Number(
+                    member.subscriptionPending
+                ) > 0
+            ) {
+
+                pending =
+                    Number(
+                        member.subscriptionPending
+                    );
+
+            }
+
+
+            rows += `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.id
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.name
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.wadi
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.mobile
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.dob
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapePrintHTML(
+                            member.address
+                        )}
+                    </td>
+
+                    <td>
+                        ₹${Number(
+                            pending
+                        ).toLocaleString(
+                            "en-IN"
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    /* =====================================
+       Print HTML
+    ===================================== */
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html lang="mr">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                सभासद यादी
+            </title>
+
+
+            <style>
+
+                body {
+
+                    font-family:
+                        "Noto Sans Devanagari",
+                        Arial,
+                        sans-serif;
+
+                    padding:
+                        20px;
+
+                    color:
+                        #000;
+
+                }
+
+
+                h1 {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        5px;
+
+                }
+
+
+                h2 {
+
+                    text-align:
+                        center;
+
+                    margin-top:
+                        0;
+
+                    font-size:
+                        18px;
+
+                    font-weight:
+                        normal;
+
+                }
+
+
+                .info {
+
+                    text-align:
+                        center;
+
+                    margin-bottom:
+                        20px;
+
+                    font-size:
+                        14px;
+
+                }
+
+
+                table {
+
+                    width:
+                        100%;
+
+                    border-collapse:
+                        collapse;
+
+                    font-size:
+                        12px;
+
+                }
+
+
+                th,
+                td {
+
+                    border:
+                        1px solid #000;
+
+                    padding:
+                        6px;
+
+                    text-align:
+                        left;
+
+                }
+
+
+                th {
+
+                    font-weight:
+                        bold;
+
+                    background:
+                        #f2f2f2;
+
+                }
+
+
+                .footer {
+
+                    margin-top:
+                        20px;
+
+                    text-align:
+                        center;
+
+                    font-size:
+                        12px;
+
+                }
+
+
+                @media print {
+
+                    body {
+
+                        padding:
+                            5px;
+
+                    }
+
+
+                    @page {
+
+                        size:
+                            landscape;
+
+                        margin:
+                            10mm;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <h1>
+                मोर्डे ग्राम विकास मंडळ, मुंबई
+            </h1>
+
+            <h2>
+                सभासद यादी
+            </h2>
+
+
+            <div class="info">
+
+                एकूण सभासद:
+                <strong>
+                    ${printMembers.length}
+                </strong>
+
+                &nbsp;&nbsp; | &nbsp;&nbsp;
+
+                तारीख:
+                <strong>
+                    ${new Date()
+                        .toLocaleDateString(
+                            "mr-IN"
+                        )}
+                </strong>
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            क्र.
+                        </th>
+
+                        <th>
+                            Member ID
+                        </th>
+
+                        <th>
+                            नाव
+                        </th>
+
+                        <th>
+                            वाडी
+                        </th>
+
+                        <th>
+                            मोबाईल
+                        </th>
+
+                        <th>
+                            जन्मतारीख
+                        </th>
+
+                        <th>
+                            पत्ता
+                        </th>
+
+                        <th>
+                            बाकी
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+
+            <div class="footer">
+
+                © 2026
+                मोर्डे ग्राम विकास मंडळ, मुंबई
+
+            </div>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    /* =====================================
+       Start Print
+    ===================================== */
+
+    printWindow.focus();
+
+
+    setTimeout(
+        function() {
+
+            printWindow.print();
+
+        },
+        500
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE PRINT HTML
+========================================================= */
+
+function escapePrintHTML(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showMemberToast(
+    message
+) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    if (!toast) {
+
+        alert(message);
+
+        return;
+
+    }
+
+
+    toast.innerText =
+        message;
+
+
+    toast.style.display =
+        "block";
+
+
+    setTimeout(
+        function() {
+
+            toast.style.display =
+                "none";
+
+        },
+        2500
+    );
+
+}
+
+
+/* =========================================================
+   MEMBERS.JS PART 5 LOADED
+========================================================= */
+
+console.log(
+    "MGVM Members Excel Export + Print module loaded."
+);
