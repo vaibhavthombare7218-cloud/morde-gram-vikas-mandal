@@ -1016,10 +1016,17 @@ document.addEventListener(
 
     }
 );
+
 /* =========================================================
-   members.js - Part 4
+   members.js - Part 4 UPDATED
    Excel / CSV Import
-   मोर्डे ग्राम विकास मंडळ, मुंबई
+   Includes:
+   Name
+   Mobile
+   Wadi
+   DOB
+   Address
+   Pending Subscription
 ========================================================= */
 
 
@@ -1106,7 +1113,7 @@ async function handleExcelImport(event) {
         ) {
 
             alert(
-                "कृपया फक्त Excel (.xlsx/.xls) किंवा CSV file निवडा."
+                "कृपया Excel (.xlsx/.xls) किंवा CSV file निवडा."
             );
 
             return;
@@ -1114,9 +1121,9 @@ async function handleExcelImport(event) {
         }
 
 
-        /* =========================================
-           Read File
-        ========================================= */
+        /* =================================================
+           Read Excel
+        ================================================= */
 
         const data =
             await readExcelFile(file);
@@ -1124,11 +1131,11 @@ async function handleExcelImport(event) {
 
         if (
             !data ||
-            !data.length
+            data.length === 0
         ) {
 
             alert(
-                "Excel file मध्ये कोणताही data उपलब्ध नाही."
+                "Excel file मध्ये data उपलब्ध नाही."
             );
 
             return;
@@ -1136,9 +1143,9 @@ async function handleExcelImport(event) {
         }
 
 
-        /* =========================================
-           Process Rows
-        ========================================= */
+        /* =================================================
+           Counters
+        ================================================= */
 
         let importedCount = 0;
 
@@ -1146,6 +1153,10 @@ async function handleExcelImport(event) {
 
         let invalidCount = 0;
 
+
+        /* =================================================
+           Process Every Row
+        ================================================= */
 
         for (
             let i = 0;
@@ -1156,6 +1167,10 @@ async function handleExcelImport(event) {
             const row =
                 data[i];
 
+
+            /* =============================================
+               NAME
+            ============================================= */
 
             const name =
                 getExcelValue(
@@ -1170,6 +1185,10 @@ async function handleExcelImport(event) {
                 );
 
 
+            /* =============================================
+               MOBILE
+            ============================================= */
+
             const mobileNumber =
                 getExcelValue(
                     row,
@@ -1183,6 +1202,10 @@ async function handleExcelImport(event) {
                 );
 
 
+            /* =============================================
+               WADI
+            ============================================= */
+
             const wadiName =
                 getExcelValue(
                     row,
@@ -1193,6 +1216,10 @@ async function handleExcelImport(event) {
                     ]
                 );
 
+
+            /* =============================================
+               DOB
+            ============================================= */
 
             const birthDate =
                 getExcelValue(
@@ -1207,6 +1234,10 @@ async function handleExcelImport(event) {
                 );
 
 
+            /* =============================================
+               ADDRESS
+            ============================================= */
+
             const memberAddress =
                 getExcelValue(
                     row,
@@ -1218,14 +1249,32 @@ async function handleExcelImport(event) {
                 );
 
 
-            /* =====================================
-               Name Required
-            ===================================== */
+            /* =============================================
+               PENDING SUBSCRIPTION
+            ============================================= */
+
+            const pendingAmount =
+                getExcelValue(
+                    row,
+                    [
+                        "बाकी वर्गणी",
+                        "बाकी",
+                        "वर्गणी बाकी",
+                        "Pending",
+                        "Pending Amount",
+                        "Subscription Pending",
+                        "subscriptionPending"
+                    ]
+                );
+
+
+            /* =============================================
+               NAME REQUIRED
+            ============================================= */
 
             if (
                 !name ||
-                String(name)
-                    .trim() === ""
+                String(name).trim() === ""
             ) {
 
                 invalidCount++;
@@ -1234,6 +1283,10 @@ async function handleExcelImport(event) {
 
             }
 
+
+            /* =============================================
+               CLEAN VALUES
+            ============================================= */
 
             const cleanName =
                 String(name)
@@ -1261,9 +1314,25 @@ async function handleExcelImport(event) {
                 .trim();
 
 
-            /* =====================================
-               Duplicate Name Check
-            ===================================== */
+            /* =============================================
+               CLEAN PENDING AMOUNT
+
+               Accepts:
+               1500
+               1,500
+               ₹1500
+               ₹1,500
+            ============================================= */
+
+            const cleanPending =
+                parsePendingAmount(
+                    pendingAmount
+                );
+
+
+            /* =============================================
+               DUPLICATE NAME CHECK
+            ============================================= */
 
             const duplicateName =
                 members.some(
@@ -1295,9 +1364,9 @@ async function handleExcelImport(event) {
             }
 
 
-            /* =====================================
-               Duplicate Mobile Check
-            ===================================== */
+            /* =============================================
+               DUPLICATE MOBILE CHECK
+            ============================================= */
 
             if (
                 cleanMobile !== ""
@@ -1333,9 +1402,9 @@ async function handleExcelImport(event) {
             }
 
 
-            /* =====================================
-               Generate Member ID
-            ===================================== */
+            /* =============================================
+               GENERATE MEMBER ID
+            ============================================= */
 
             let newMemberId;
 
@@ -1352,25 +1421,18 @@ async function handleExcelImport(event) {
             else {
 
                 /*
-                   Fallback
+                   Fallback ID
                 */
 
                 newMemberId =
-                    "MGVM-" +
-                    String(
-                        members.length + 1
-                    )
-                    .padStart(
-                        4,
-                        "0"
-                    );
+                    generateImportMemberId();
 
             }
 
 
-            /* =====================================
-               Member Object
-            ===================================== */
+            /* =============================================
+               MEMBER OBJECT
+            ============================================= */
 
             const newMember = {
 
@@ -1397,8 +1459,13 @@ async function handleExcelImport(event) {
                 photo:
                     "",
 
+                /*
+                   Excel मधील बाकी वर्गणी
+                   येथे save होईल
+                */
+
                 subscriptionPending:
-                    0,
+                    cleanPending,
 
                 createdDate:
                     new Date()
@@ -1409,9 +1476,9 @@ async function handleExcelImport(event) {
             };
 
 
-            /* =====================================
-               Add Member
-            ===================================== */
+            /* =============================================
+               ADD MEMBER
+            ============================================= */
 
             members.push(
                 newMember
@@ -1423,16 +1490,16 @@ async function handleExcelImport(event) {
         }
 
 
-        /* =========================================
-           Save Data
-        ========================================= */
+        /* =================================================
+           SAVE
+        ================================================= */
 
         saveMembers();
 
 
-        /* =========================================
-           Refresh List
-        ========================================= */
+        /* =================================================
+           REFRESH MEMBER LIST
+        ================================================= */
 
         if (
             typeof displayMembers ===
@@ -1444,9 +1511,9 @@ async function handleExcelImport(event) {
         }
 
 
-        /* =========================================
-           Generate New Member ID
-        ========================================= */
+        /* =================================================
+           NEW MEMBER ID
+        ================================================= */
 
         if (
             typeof generateMemberId ===
@@ -1458,9 +1525,9 @@ async function handleExcelImport(event) {
         }
 
 
-        /* =========================================
-           Result Message
-        ========================================= */
+        /* =================================================
+           RESULT
+        ================================================= */
 
         let message =
             "Excel Import पूर्ण झाला.\n\n";
@@ -1489,13 +1556,13 @@ async function handleExcelImport(event) {
     catch (error) {
 
         console.error(
-            "Excel Import Error:",
+            "MGVM Excel Import Error:",
             error
         );
 
 
         alert(
-            "Excel Import करताना error आला.\n" +
+            "Excel Import करताना error आला.\n\n" +
             "कृपया Excel headings तपासा."
         );
 
@@ -1506,7 +1573,7 @@ async function handleExcelImport(event) {
 
 
         /*
-           Same file पुन्हा select करता यावी
+           Same file पुन्हा select करता येईल
         */
 
         event.target.value = "";
@@ -1540,6 +1607,7 @@ function readExcelFile(file) {
                                 {
                                     type:
                                         "array",
+
                                     cellDates:
                                         true
                                 }
@@ -1618,9 +1686,7 @@ function getExcelValue(
 
 
     const rowKeys =
-        Object.keys(
-            row
-        );
+        Object.keys(row);
 
 
     for (
@@ -1688,6 +1754,96 @@ function normalizeExcelHeader(
         /_/g,
         ""
     );
+
+}
+
+
+/* =========================================================
+   PARSE PENDING AMOUNT
+========================================================= */
+
+function parsePendingAmount(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return 0;
+
+    }
+
+
+    /*
+       Excel number असल्यास
+    */
+
+    if (
+        typeof value === "number"
+    ) {
+
+        return (
+            isNaN(value)
+            ?
+            0
+            :
+            Number(value)
+        );
+
+    }
+
+
+    /*
+       Text:
+       ₹1,500
+       1,500
+       ₹1500
+       1500
+    */
+
+    let text =
+        String(value)
+            .trim();
+
+
+    text =
+        text.replace(
+            /₹/g,
+            ""
+        );
+
+
+    text =
+        text.replace(
+            /,/g,
+            ""
+        );
+
+
+    text =
+        text.replace(
+            /\s/g,
+            ""
+        );
+
+
+    const amount =
+        Number(text);
+
+
+    if (
+        isNaN(amount)
+    ) {
+
+        return 0;
+
+    }
+
+
+    return amount;
 
 }
 
@@ -1868,50 +2024,48 @@ function normalizeExcelDate(
 
 
 /* =========================================================
-   LOADER
+   FALLBACK MEMBER ID
 ========================================================= */
 
-function showMemberLoader(
-    show
-) {
+function generateImportMemberId() {
 
-    const loader =
-        document.getElementById(
-            "loader"
-        );
+    let maxNumber = 0;
 
 
-    if (!loader) {
+    members.forEach(
+        function(member) {
 
-        return;
-
-    }
-
-
-    if (show) {
-
-        loader.style.display =
-            "flex";
-
-    }
-    else {
-
-        loader.style.display =
-            "none";
-
-    }
-
-}
+            const id =
+                String(
+                    member.id || ""
+                );
 
 
-/* =========================================================
-   IMPORT COMPLETE
-========================================================= */
+            const match =
+                id.match(
+                    /MGVM-(\d+)/i
+                );
 
-console.log(
-    "MGVM Members Excel Import module loaded."
-);
 
+            if (match) {
+
+                const number =
+                    parseInt(
+                        match[1],
+                        10
+                    );
+
+
+                if (
+                    number > maxNumber
+                ) {
+
+                    maxNumber =
+                        number;
+
+                }
+
+ 
 /* =========================================================
    members.js - Part 5
    Excel Export + Print List
