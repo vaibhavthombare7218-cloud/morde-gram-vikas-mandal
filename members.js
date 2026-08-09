@@ -1016,3 +1016,898 @@ document.addEventListener(
 
     }
 );
+/* =========================================================
+   members.js - Part 4
+   Excel / CSV Import
+   मोर्डे ग्राम विकास मंडळ, मुंबई
+========================================================= */
+
+
+/* =========================================================
+   EXCEL IMPORT ELEMENTS
+========================================================= */
+
+const importBtn =
+    document.getElementById("importBtn");
+
+const excelFile =
+    document.getElementById("excelFile");
+
+
+/* =========================================================
+   IMPORT BUTTON
+========================================================= */
+
+if (importBtn) {
+
+    importBtn.addEventListener(
+        "click",
+        function () {
+
+            if (excelFile) {
+
+                excelFile.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FILE SELECTED
+========================================================= */
+
+if (excelFile) {
+
+    excelFile.addEventListener(
+        "change",
+        handleExcelImport
+    );
+
+}
+
+
+/* =========================================================
+   HANDLE EXCEL IMPORT
+========================================================= */
+
+async function handleExcelImport(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) {
+
+        return;
+
+    }
+
+
+    try {
+
+        showMemberLoader(true);
+
+
+        const extension =
+            file.name
+                .split(".")
+                .pop()
+                .toLowerCase();
+
+
+        if (
+            extension !== "xlsx" &&
+            extension !== "xls" &&
+            extension !== "csv"
+        ) {
+
+            alert(
+                "कृपया फक्त Excel (.xlsx/.xls) किंवा CSV file निवडा."
+            );
+
+            return;
+
+        }
+
+
+        /* =========================================
+           Read File
+        ========================================= */
+
+        const data =
+            await readExcelFile(file);
+
+
+        if (
+            !data ||
+            !data.length
+        ) {
+
+            alert(
+                "Excel file मध्ये कोणताही data उपलब्ध नाही."
+            );
+
+            return;
+
+        }
+
+
+        /* =========================================
+           Process Rows
+        ========================================= */
+
+        let importedCount = 0;
+
+        let duplicateCount = 0;
+
+        let invalidCount = 0;
+
+
+        for (
+            let i = 0;
+            i < data.length;
+            i++
+        ) {
+
+            const row =
+                data[i];
+
+
+            const name =
+                getExcelValue(
+                    row,
+                    [
+                        "नाव",
+                        "सभासद नाव",
+                        "Name",
+                        "Member Name",
+                        "memberName"
+                    ]
+                );
+
+
+            const mobileNumber =
+                getExcelValue(
+                    row,
+                    [
+                        "मोबाईल",
+                        "मोबाईल नंबर",
+                        "Mobile",
+                        "Mobile Number",
+                        "mobile"
+                    ]
+                );
+
+
+            const wadiName =
+                getExcelValue(
+                    row,
+                    [
+                        "वाडी",
+                        "Wadi",
+                        "wadi"
+                    ]
+                );
+
+
+            const birthDate =
+                getExcelValue(
+                    row,
+                    [
+                        "जन्मतारीख",
+                        "DOB",
+                        "Date of Birth",
+                        "Birth Date",
+                        "dob"
+                    ]
+                );
+
+
+            const memberAddress =
+                getExcelValue(
+                    row,
+                    [
+                        "पत्ता",
+                        "Address",
+                        "address"
+                    ]
+                );
+
+
+            /* =====================================
+               Name Required
+            ===================================== */
+
+            if (
+                !name ||
+                String(name)
+                    .trim() === ""
+            ) {
+
+                invalidCount++;
+
+                continue;
+
+            }
+
+
+            const cleanName =
+                String(name)
+                    .trim();
+
+
+            const cleanMobile =
+                String(
+                    mobileNumber || ""
+                )
+                .trim();
+
+
+            const cleanWadi =
+                String(
+                    wadiName || ""
+                )
+                .trim();
+
+
+            const cleanAddress =
+                String(
+                    memberAddress || ""
+                )
+                .trim();
+
+
+            /* =====================================
+               Duplicate Name Check
+            ===================================== */
+
+            const duplicateName =
+                members.some(
+                    function(member) {
+
+                        return (
+                            String(
+                                member.name || ""
+                            )
+                            .trim()
+                            .toLowerCase()
+                            ===
+                            cleanName
+                                .toLowerCase()
+                        );
+
+                    }
+                );
+
+
+            if (
+                duplicateName
+            ) {
+
+                duplicateCount++;
+
+                continue;
+
+            }
+
+
+            /* =====================================
+               Duplicate Mobile Check
+            ===================================== */
+
+            if (
+                cleanMobile !== ""
+            ) {
+
+                const duplicateMobile =
+                    members.some(
+                        function(member) {
+
+                            return (
+                                String(
+                                    member.mobile || ""
+                                )
+                                .trim()
+                                ===
+                                cleanMobile
+                            );
+
+                        }
+                    );
+
+
+                if (
+                    duplicateMobile
+                ) {
+
+                    duplicateCount++;
+
+                    continue;
+
+                }
+
+            }
+
+
+            /* =====================================
+               Generate Member ID
+            ===================================== */
+
+            let newMemberId;
+
+
+            if (
+                typeof generateMGVMMemberId ===
+                "function"
+            ) {
+
+                newMemberId =
+                    generateMGVMMemberId();
+
+            }
+            else {
+
+                /*
+                   Fallback
+                */
+
+                newMemberId =
+                    "MGVM-" +
+                    String(
+                        members.length + 1
+                    )
+                    .padStart(
+                        4,
+                        "0"
+                    );
+
+            }
+
+
+            /* =====================================
+               Member Object
+            ===================================== */
+
+            const newMember = {
+
+                id:
+                    newMemberId,
+
+                name:
+                    cleanName,
+
+                mobile:
+                    cleanMobile,
+
+                wadi:
+                    cleanWadi,
+
+                dob:
+                    normalizeExcelDate(
+                        birthDate
+                    ),
+
+                address:
+                    cleanAddress,
+
+                photo:
+                    "",
+
+                subscriptionPending:
+                    0,
+
+                createdDate:
+                    new Date()
+                        .toLocaleDateString(
+                            "mr-IN"
+                        )
+
+            };
+
+
+            /* =====================================
+               Add Member
+            ===================================== */
+
+            members.push(
+                newMember
+            );
+
+
+            importedCount++;
+
+        }
+
+
+        /* =========================================
+           Save Data
+        ========================================= */
+
+        saveMembers();
+
+
+        /* =========================================
+           Refresh List
+        ========================================= */
+
+        if (
+            typeof displayMembers ===
+            "function"
+        ) {
+
+            displayMembers();
+
+        }
+
+
+        /* =========================================
+           Generate New Member ID
+        ========================================= */
+
+        if (
+            typeof generateMemberId ===
+            "function"
+        ) {
+
+            generateMemberId();
+
+        }
+
+
+        /* =========================================
+           Result Message
+        ========================================= */
+
+        let message =
+            "Excel Import पूर्ण झाला.\n\n";
+
+
+        message +=
+            "✅ नवीन सभासद: " +
+            importedCount +
+            "\n";
+
+
+        message +=
+            "⚠️ Duplicate: " +
+            duplicateCount +
+            "\n";
+
+
+        message +=
+            "❌ Invalid: " +
+            invalidCount;
+
+
+        alert(message);
+
+    }
+    catch (error) {
+
+        console.error(
+            "Excel Import Error:",
+            error
+        );
+
+
+        alert(
+            "Excel Import करताना error आला.\n" +
+            "कृपया Excel headings तपासा."
+        );
+
+    }
+    finally {
+
+        showMemberLoader(false);
+
+
+        /*
+           Same file पुन्हा select करता यावी
+        */
+
+        event.target.value = "";
+
+    }
+
+}
+
+
+/* =========================================================
+   READ EXCEL FILE
+========================================================= */
+
+function readExcelFile(file) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function(event) {
+
+                    try {
+
+                        const workbook =
+                            XLSX.read(
+                                event.target.result,
+                                {
+                                    type:
+                                        "array",
+                                    cellDates:
+                                        true
+                                }
+                            );
+
+
+                        const firstSheet =
+                            workbook.Sheets[
+                                workbook.SheetNames[0]
+                            ];
+
+
+                        const jsonData =
+                            XLSX.utils.sheet_to_json(
+                                firstSheet,
+                                {
+                                    defval:
+                                        ""
+                                }
+                            );
+
+
+                        resolve(
+                            jsonData
+                        );
+
+                    }
+                    catch (error) {
+
+                        reject(
+                            error
+                        );
+
+                    }
+
+                };
+
+
+            reader.onerror =
+                function(error) {
+
+                    reject(
+                        error
+                    );
+
+                };
+
+
+            reader.readAsArrayBuffer(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   GET EXCEL VALUE
+========================================================= */
+
+function getExcelValue(
+    row,
+    possibleNames
+) {
+
+    if (
+        !row ||
+        !possibleNames
+    ) {
+
+        return "";
+
+    }
+
+
+    const rowKeys =
+        Object.keys(
+            row
+        );
+
+
+    for (
+        let i = 0;
+        i < possibleNames.length;
+        i++
+    ) {
+
+        const wanted =
+            normalizeExcelHeader(
+                possibleNames[i]
+            );
+
+
+        for (
+            let j = 0;
+            j < rowKeys.length;
+            j++
+        ) {
+
+            const actual =
+                normalizeExcelHeader(
+                    rowKeys[j]
+                );
+
+
+            if (
+                actual === wanted
+            ) {
+
+                return row[
+                    rowKeys[j]
+                ];
+
+            }
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   NORMALIZE EXCEL HEADER
+========================================================= */
+
+function normalizeExcelHeader(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .trim()
+    .toLowerCase()
+    .replace(
+        /\s+/g,
+        ""
+    )
+    .replace(
+        /_/g,
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   NORMALIZE EXCEL DATE
+========================================================= */
+
+function normalizeExcelDate(
+    value
+) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    /* =====================================
+       JavaScript Date
+    ===================================== */
+
+    if (
+        value instanceof Date &&
+        !isNaN(
+            value.getTime()
+        )
+    ) {
+
+        const yyyy =
+            value.getFullYear();
+
+
+        const mm =
+            String(
+                value.getMonth() + 1
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        const dd =
+            String(
+                value.getDate()
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        return (
+            yyyy +
+            "-" +
+            mm +
+            "-" +
+            dd
+        );
+
+    }
+
+
+    const text =
+        String(
+            value
+        )
+        .trim();
+
+
+    /* =====================================
+       YYYY-MM-DD
+    ===================================== */
+
+    if (
+        /^\d{4}-\d{1,2}-\d{1,2}$/
+            .test(text)
+    ) {
+
+        const parts =
+            text.split("-");
+
+
+        return (
+            parts[0] +
+            "-" +
+            String(
+                parts[1]
+            ).padStart(
+                2,
+                "0"
+            ) +
+            "-" +
+            String(
+                parts[2]
+            ).padStart(
+                2,
+                "0"
+            )
+        );
+
+    }
+
+
+    /* =====================================
+       DD/MM/YYYY
+    ===================================== */
+
+    if (
+        /^\d{1,2}\/\d{1,2}\/\d{4}$/
+            .test(text)
+    ) {
+
+        const parts =
+            text.split("/");
+
+
+        return (
+            parts[2] +
+            "-" +
+            String(
+                parts[1]
+            ).padStart(
+                2,
+                "0"
+            ) +
+            "-" +
+            String(
+                parts[0]
+            ).padStart(
+                2,
+                "0"
+            )
+        );
+
+    }
+
+
+    /* =====================================
+       DD-MM-YYYY
+    ===================================== */
+
+    if (
+        /^\d{1,2}-\d{1,2}-\d{4}$/
+            .test(text)
+    ) {
+
+        const parts =
+            text.split("-");
+
+
+        return (
+            parts[2] +
+            "-" +
+            String(
+                parts[1]
+            ).padStart(
+                2,
+                "0"
+            ) +
+            "-" +
+            String(
+                parts[0]
+            ).padStart(
+                2,
+                "0"
+            )
+        );
+
+    }
+
+
+    return text;
+
+}
+
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+function showMemberLoader(
+    show
+) {
+
+    const loader =
+        document.getElementById(
+            "loader"
+        );
+
+
+    if (!loader) {
+
+        return;
+
+    }
+
+
+    if (show) {
+
+        loader.style.display =
+            "flex";
+
+    }
+    else {
+
+        loader.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   IMPORT COMPLETE
+========================================================= */
+
+console.log(
+    "MGVM Members Excel Import module loaded."
+);
