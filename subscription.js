@@ -1,24 +1,113 @@
 /* =========================================================
-   subscription.js - Part 1
-   Initialization + Members + Years + Member Search
+   subscription.js - COMPLETE FINAL VERSION
    मोर्डे ग्राम विकास मंडळ, मुंबई
+
+   Features:
+   1. Member Search
+   2. Member Select
+   3. Member ID / Wadi Auto Fill
+   4. Annual Subscription ₹200
+   5. Pending Amount
+   6. Partial Payment
+   7. Receipt Number
+   8. Payment Mode
+   9. Payment Date
+   10. Save Subscription
+   11. Update Member Pending Amount
+   12. Transaction List
+   13. Year Filter
+   14. Delete Transaction
+   15. Dashboard Sync
 ========================================================= */
 
 
 /* =========================================================
-   LOCAL STORAGE
+   GLOBAL DATA
 ========================================================= */
 
-let members =
-    JSON.parse(
-        localStorage.getItem("mgvm_members")
-    ) || [];
+let members = [];
+
+let subscriptions = [];
+
+let selectedMember = null;
+
+const DEFAULT_ANNUAL_AMOUNT = 200;
 
 
-let subscriptions =
-    JSON.parse(
-        localStorage.getItem("mgvm_subscriptions")
-    ) || [];
+/* =========================================================
+   LOAD LOCAL STORAGE
+========================================================= */
+
+function loadSubscriptionData() {
+
+    try {
+
+        members =
+            JSON.parse(
+                localStorage.getItem("mgvm_members")
+            ) || [];
+
+    } catch (error) {
+
+        console.error(
+            "Members Load Error:",
+            error
+        );
+
+        members = [];
+
+    }
+
+
+    try {
+
+        subscriptions =
+            JSON.parse(
+                localStorage.getItem(
+                    "mgvm_subscriptions"
+                )
+            ) || [];
+
+    } catch (error) {
+
+        console.error(
+            "Subscriptions Load Error:",
+            error
+        );
+
+        subscriptions = [];
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE MEMBERS
+========================================================= */
+
+function saveMembers() {
+
+    localStorage.setItem(
+        "mgvm_members",
+        JSON.stringify(members)
+    );
+
+}
+
+
+/* =========================================================
+   SAVE SUBSCRIPTIONS
+========================================================= */
+
+function saveSubscriptions() {
+
+    localStorage.setItem(
+        "mgvm_subscriptions",
+        JSON.stringify(subscriptions)
+    );
+
+}
 
 
 /* =========================================================
@@ -30,97 +119,70 @@ const subscriptionForm =
         "subscriptionForm"
     );
 
-
 const memberSearchInput =
     document.getElementById(
         "memberSearch"
     );
-
 
 const memberSuggestions =
     document.getElementById(
         "memberSuggestions"
     );
 
-
 const subscriptionMemberId =
     document.getElementById(
         "subscriptionMemberId"
     );
-
 
 const subscriptionMemberName =
     document.getElementById(
         "subscriptionMemberName"
     );
 
-
 const subscriptionWadi =
     document.getElementById(
         "subscriptionWadi"
     );
-
 
 const subscriptionYear =
     document.getElementById(
         "subscriptionYear"
     );
 
-
 const annualAmount =
     document.getElementById(
         "annualAmount"
     );
-
 
 const paidAmount =
     document.getElementById(
         "paidAmount"
     );
 
-
 const pendingAmount =
     document.getElementById(
         "pendingAmount"
     );
-
 
 const receiptNo =
     document.getElementById(
         "receiptNo"
     );
 
-
 const paymentMode =
     document.getElementById(
         "paymentMode"
     );
-
 
 const paymentDate =
     document.getElementById(
         "paymentDate"
     );
 
-
 const enteredBy =
     document.getElementById(
         "enteredBy"
     );
-
-
-/* =========================================================
-   CURRENT SELECTED MEMBER
-========================================================= */
-
-let selectedMember = null;
-
-
-/* =========================================================
-   DEFAULT ANNUAL SUBSCRIPTION
-========================================================= */
-
-const DEFAULT_ANNUAL_AMOUNT = 200;
 
 
 /* =========================================================
@@ -132,7 +194,7 @@ const currentYear =
 
 
 /* =========================================================
-   YEAR FORMAT
+   FINANCIAL YEAR
 ========================================================= */
 
 function getFinancialYear(year) {
@@ -147,7 +209,7 @@ function getFinancialYear(year) {
 
 
 /* =========================================================
-   GENERATE YEAR OPTIONS
+   LOAD YEAR OPTIONS
 ========================================================= */
 
 function loadSubscriptionYears() {
@@ -156,17 +218,13 @@ function loadSubscriptionYears() {
 
 
     subscriptionYear.innerHTML = `
+
         <option value="">
             वर्ष निवडा
         </option>
+
     `;
 
-
-    /*
-       मागील 5 वर्षे
-       + चालू वर्ष
-       + पुढील 2 वर्षे
-    */
 
     for (
         let year = currentYear - 5;
@@ -198,7 +256,7 @@ function loadSubscriptionYears() {
 
 
 /* =========================================================
-   TRANSACTION YEAR FILTER
+   LOAD TRANSACTION YEAR FILTER
 ========================================================= */
 
 function loadTransactionYears() {
@@ -213,9 +271,11 @@ function loadTransactionYears() {
 
 
     filter.innerHTML = `
+
         <option value="">
             सर्व वर्षे
         </option>
+
     `;
 
 
@@ -227,10 +287,14 @@ function loadTransactionYears() {
 
             if (
                 item.year &&
-                !years.includes(item.year)
+                !years.includes(
+                    item.year
+                )
             ) {
 
-                years.push(item.year);
+                years.push(
+                    item.year
+                );
 
             }
 
@@ -285,13 +349,19 @@ function setTodayDate() {
     const mm =
         String(
             today.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     const dd =
         String(
             today.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     paymentDate.value =
@@ -317,150 +387,265 @@ function setDefaultAnnualAmount() {
 
 
 /* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeSubscriptionHTML(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
    MEMBER SEARCH
 ========================================================= */
 
-if (memberSearchInput) {
+function searchSubscriptionMembers() {
 
-    memberSearchInput.addEventListener(
-        "input",
-        function () {
+    /*
+       Always reload latest member data.
+       त्यामुळे members.html वर नवीन member save
+       केल्यानंतर subscription page ला data मिळेल.
+    */
 
-            const keyword =
-                memberSearchInput.value
+    loadSubscriptionData();
+
+
+    if (
+        !memberSearchInput ||
+        !memberSuggestions
+    ) {
+
+        return;
+
+    }
+
+
+    const keyword =
+        String(
+            memberSearchInput.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    memberSuggestions.innerHTML =
+        "";
+
+
+    if (!keyword) {
+
+        memberSuggestions.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    const results =
+        members.filter(
+            function (member) {
+
+                const name =
+                    String(
+                        member.name || ""
+                    )
                     .trim()
                     .toLowerCase();
 
 
-            if (!memberSuggestions) return;
+                const id =
+                    String(
+                        member.id || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
-            memberSuggestions.innerHTML =
-                "";
+                const mobile =
+                    String(
+                        member.mobile || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
-            if (!keyword) {
-
-                memberSuggestions.style.display =
-                    "none";
-
-                return;
-
-            }
+                const wadi =
+                    String(
+                        member.wadi || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
-            const results =
-                members.filter(
-                    function (member) {
+                return (
 
-                        const name =
-                            String(
-                                member.name || ""
-                            ).toLowerCase();
+                    name.includes(
+                        keyword
+                    ) ||
 
+                    id.includes(
+                        keyword
+                    ) ||
 
-                        const id =
-                            String(
-                                member.id || ""
-                            ).toLowerCase();
+                    mobile.includes(
+                        keyword
+                    ) ||
 
+                    wadi.includes(
+                        keyword
+                    )
 
-                        const mobile =
-                            String(
-                                member.mobile || ""
-                            ).toLowerCase();
-
-
-                        return (
-                            name.includes(keyword) ||
-                            id.includes(keyword) ||
-                            mobile.includes(keyword)
-                        );
-
-                    }
-                ).slice(0, 10);
-
-
-            if (!results.length) {
-
-                memberSuggestions.innerHTML = `
-                    <div class="suggestion-item">
-                        सभासद सापडला नाही.
-                    </div>
-                `;
-
-                memberSuggestions.style.display =
-                    "block";
-
-                return;
+                );
 
             }
+        )
+        .slice(
+            0,
+            15
+        );
 
 
-            results.forEach(
-                function (member) {
+    if (!results.length) {
 
-                    const item =
-                        document.createElement(
-                            "div"
-                        );
+        memberSuggestions.innerHTML = `
 
+            <div class="suggestion-item">
 
-                    item.className =
-                        "suggestion-item";
+                <i class="fa fa-user-slash"></i>
 
+                सभासद सापडला नाही.
 
-                    item.innerHTML = `
+            </div>
 
-                        <strong>
-                            ${escapeSubscriptionHTML(
-                                member.name
-                            )}
-                        </strong>
+        `;
 
-                        <br>
+        memberSuggestions.style.display =
+            "block";
 
-                        <small>
-                            ${escapeSubscriptionHTML(
-                                member.id || ""
-                            )}
-                            |
-                            ${escapeSubscriptionHTML(
-                                member.wadi || ""
-                            )}
-                            |
-                            ${escapeSubscriptionHTML(
-                                member.mobile || ""
-                            )}
-                        </small>
+        return;
 
-                    `;
+    }
 
 
-                    item.addEventListener(
-                        "click",
-                        function () {
+    results.forEach(
+        function (member) {
 
-                            selectMember(
-                                member
-                            );
-
-                        }
-                    );
+            const item =
+                document.createElement(
+                    "div"
+                );
 
 
-                    memberSuggestions.appendChild(
-                        item
+            item.className =
+                "suggestion-item";
+
+
+            item.innerHTML = `
+
+                <div>
+
+                    <strong>
+
+                        <i class="fa fa-user"></i>
+
+                        ${escapeSubscriptionHTML(
+                            member.name
+                        )}
+
+                    </strong>
+
+                    <br>
+
+                    <small>
+
+                        ID:
+                        ${escapeSubscriptionHTML(
+                            member.id
+                        )}
+
+                        &nbsp; | &nbsp;
+
+                        वाडी:
+                        ${escapeSubscriptionHTML(
+                            member.wadi
+                        )}
+
+                        &nbsp; | &nbsp;
+
+                        मोबाईल:
+                        ${escapeSubscriptionHTML(
+                            member.mobile
+                        )}
+
+                    </small>
+
+                </div>
+
+            `;
+
+
+            item.addEventListener(
+                "click",
+                function () {
+
+                    selectSubscriptionMember(
+                        member
                     );
 
                 }
             );
 
 
-            memberSuggestions.style.display =
-                "block";
+            memberSuggestions.appendChild(
+                item
+            );
 
         }
+    );
+
+
+    memberSuggestions.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   MEMBER SEARCH EVENT
+========================================================= */
+
+if (memberSearchInput) {
+
+    memberSearchInput.addEventListener(
+        "input",
+        searchSubscriptionMembers
     );
 
 }
@@ -470,26 +655,44 @@ if (memberSearchInput) {
    SELECT MEMBER
 ========================================================= */
 
-function selectMember(member) {
+function selectSubscriptionMember(
+    member
+) {
 
     selectedMember =
         member;
 
 
-    subscriptionMemberId.value =
-        member.id || "";
+    if (subscriptionMemberId) {
+
+        subscriptionMemberId.value =
+            member.id || "";
+
+    }
 
 
-    subscriptionMemberName.value =
-        member.name || "";
+    if (subscriptionMemberName) {
+
+        subscriptionMemberName.value =
+            member.name || "";
+
+    }
 
 
-    subscriptionWadi.value =
-        member.wadi || "";
+    if (subscriptionWadi) {
+
+        subscriptionWadi.value =
+            member.wadi || "";
+
+    }
 
 
-    memberSearchInput.value =
-        member.name || "";
+    if (memberSearchInput) {
+
+        memberSearchInput.value =
+            member.name || "";
+
+    }
 
 
     if (memberSuggestions) {
@@ -505,51 +708,27 @@ function selectMember(member) {
 
     updateMemberSubscriptionSummary();
 
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeSubscriptionHTML(value) {
-
-    return String(value || "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    updatePendingAmount();
 
 }
 
 
 /* =========================================================
-   FIND MEMBER BY ID
+   FIND MEMBER
 ========================================================= */
 
 function findMemberById(id) {
+
+    loadSubscriptionData();
+
 
     return members.find(
         function (member) {
 
             return (
-                String(member.id) ===
+                String(
+                    member.id
+                ) ===
                 String(id)
             );
 
@@ -560,7 +739,7 @@ function findMemberById(id) {
 
 
 /* =========================================================
-   CALCULATE MEMBER YEAR PAYMENT
+   GET YEAR PAYMENT
 ========================================================= */
 
 function getMemberYearPayment(
@@ -573,15 +752,26 @@ function getMemberYearPayment(
             function (item) {
 
                 return (
-                    String(item.memberId) ===
-                    String(memberId) &&
-                    item.year === year
+
+                    String(
+                        item.memberId
+                    ) ===
+                    String(
+                        memberId
+                    ) &&
+
+                    item.year ===
+                    year
+
                 );
 
             }
         )
         .reduce(
-            function (total, item) {
+            function (
+                total,
+                item
+            ) {
 
                 return (
                     total +
@@ -633,30 +823,32 @@ function calculatePendingAmount() {
 
     const paidNow =
         Number(
-            paidAmount.value || 0
+            paidAmount ?
+            paidAmount.value :
+            0
         );
 
 
-    const totalPaid =
-        alreadyPaid +
-        paidNow;
-
-
-    const pending =
-        DEFAULT_ANNUAL_AMOUNT -
-        totalPaid;
+    const annual =
+        Number(
+            annualAmount ?
+            annualAmount.value :
+            DEFAULT_ANNUAL_AMOUNT
+        );
 
 
     return Math.max(
         0,
-        pending
+        annual -
+        alreadyPaid -
+        paidNow
     );
 
 }
 
 
 /* =========================================================
-   UPDATE PENDING AMOUNT
+   UPDATE PENDING
 ========================================================= */
 
 function updatePendingAmount() {
@@ -666,6 +858,92 @@ function updatePendingAmount() {
 
     pendingAmount.value =
         calculatePendingAmount();
+
+}
+
+
+/* =========================================================
+   MEMBER SUBSCRIPTION SUMMARY
+========================================================= */
+
+function updateMemberSubscriptionSummary() {
+
+    if (!selectedMember) return;
+
+
+    const summary =
+        document.getElementById(
+            "memberSubscriptionSummary"
+        );
+
+
+    if (!summary) return;
+
+
+    const year =
+        subscriptionYear ?
+        subscriptionYear.value :
+        "";
+
+
+    if (!year) {
+
+        summary.innerHTML = "";
+
+        return;
+
+    }
+
+
+    const alreadyPaid =
+        getMemberYearPayment(
+            selectedMember.id,
+            year
+        );
+
+
+    const pending =
+        Math.max(
+            0,
+            DEFAULT_ANNUAL_AMOUNT -
+            alreadyPaid
+        );
+
+
+    summary.innerHTML = `
+
+        <div class="subscription-summary">
+
+            <strong>
+                ${escapeSubscriptionHTML(
+                    selectedMember.name
+                )}
+            </strong>
+
+            <div>
+                वर्ष: ${escapeSubscriptionHTML(
+                    year
+                )}
+            </div>
+
+            <div>
+                वार्षिक वर्गणी:
+                ₹${DEFAULT_ANNUAL_AMOUNT}
+            </div>
+
+            <div>
+                आधी भरलेली:
+                ₹${alreadyPaid}
+            </div>
+
+            <div>
+                बाकी:
+                ₹${pending}
+            </div>
+
+        </div>
+
+    `;
 
 }
 
@@ -709,46 +987,6 @@ if (paidAmount) {
 
 
 /* =========================================================
-   LOAD DEFAULT SETTINGS
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        loadSubscriptionYears();
-
-        loadTransactionYears();
-
-        setTodayDate();
-
-        setDefaultAnnualAmount();
-
-        updatePendingAmount();
-
-    }
-);
-/* =========================================================
-   subscription.js - Part 2
-   Save Subscription + Validation + Receipt Number
-========================================================= */
-
-
-/* =========================================================
-   SAVE LOCAL STORAGE
-========================================================= */
-
-function saveSubscriptions() {
-
-    localStorage.setItem(
-        "mgvm_subscriptions",
-        JSON.stringify(subscriptions)
-    );
-
-}
-
-
-/* =========================================================
    GENERATE RECEIPT NUMBER
 ========================================================= */
 
@@ -764,8 +1002,12 @@ function generateReceiptNumber() {
 
 
             const match =
-                String(item.receiptNo)
-                    .match(/MGVM-REC-(\d+)/i);
+                String(
+                    item.receiptNo
+                )
+                .match(
+                    /MGVM-REC-(\d+)/i
+                );
 
 
             if (match) {
@@ -777,9 +1019,13 @@ function generateReceiptNumber() {
                     );
 
 
-                if (number > maxNumber) {
+                if (
+                    number >
+                    maxNumber
+                ) {
 
-                    maxNumber = number;
+                    maxNumber =
+                        number;
 
                 }
 
@@ -791,49 +1037,13 @@ function generateReceiptNumber() {
 
     return (
         "MGVM-REC-" +
-        String(maxNumber + 1)
-            .padStart(4, "0")
-    );
-
-}
-
-
-/* =========================================================
-   CHECK EXISTING PAYMENT
-========================================================= */
-
-function getExistingYearPayment(
-    memberId,
-    year
-) {
-
-    return subscriptions
-        .filter(
-            function (item) {
-
-                return (
-                    String(item.memberId) ===
-                    String(memberId) &&
-
-                    item.year ===
-                    year
-                );
-
-            }
+        String(
+            maxNumber + 1
+        ).padStart(
+            4,
+            "0"
         )
-        .reduce(
-            function (total, item) {
-
-                return (
-                    total +
-                    Number(
-                        item.paidAmount || 0
-                    )
-                );
-
-            },
-            0
-        );
+    );
 
 }
 
@@ -851,9 +1061,32 @@ if (subscriptionForm) {
             event.preventDefault();
 
 
-            /* =====================================
-               MEMBER VALIDATION
-            ===================================== */
+            loadSubscriptionData();
+
+
+            /* MEMBER */
+
+            if (!selectedMember) {
+
+                /*
+                   Search box मधून member select नसेल
+                   तर ID वरून शोधण्याचा प्रयत्न.
+                */
+
+                if (
+                    subscriptionMemberId &&
+                    subscriptionMemberId.value
+                ) {
+
+                    selectedMember =
+                        findMemberById(
+                            subscriptionMemberId.value
+                        );
+
+                }
+
+            }
+
 
             if (!selectedMember) {
 
@@ -866,25 +1099,12 @@ if (subscriptionForm) {
             }
 
 
-            if (
-                !subscriptionMemberId.value
-            ) {
-
-                alert(
-                    "सभासद आयडी उपलब्ध नाही."
-                );
-
-                return;
-
-            }
-
-
-            /* =====================================
-               YEAR VALIDATION
-            ===================================== */
+            /* YEAR */
 
             const year =
-                subscriptionYear.value;
+                subscriptionYear ?
+                subscriptionYear.value :
+                "";
 
 
             if (!year) {
@@ -898,11 +1118,12 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               PAYMENT MODE VALIDATION
-            ===================================== */
+            /* PAYMENT MODE */
 
-            if (!paymentMode.value) {
+            if (
+                paymentMode &&
+                !paymentMode.value
+            ) {
 
                 alert(
                     "कृपया पेमेंट पद्धत निवडा."
@@ -913,11 +1134,12 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               PAYMENT DATE VALIDATION
-            ===================================== */
+            /* PAYMENT DATE */
 
-            if (!paymentDate.value) {
+            if (
+                paymentDate &&
+                !paymentDate.value
+            ) {
 
                 alert(
                     "कृपया पेमेंट तारीख निवडा."
@@ -928,18 +1150,20 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               PAID AMOUNT
-            ===================================== */
+            /* AMOUNT */
 
             const amount =
                 Number(
-                    paidAmount.value || 0
+                    paidAmount ?
+                    paidAmount.value :
+                    0
                 );
 
 
             if (
-                !Number.isFinite(amount) ||
+                !Number.isFinite(
+                    amount
+                ) ||
                 amount <= 0
             ) {
 
@@ -952,57 +1176,45 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               ANNUAL AMOUNT
-            ===================================== */
+            /* ANNUAL */
 
             const annual =
                 Number(
-                    annualAmount.value ||
+                    annualAmount ?
+                    annualAmount.value :
                     DEFAULT_ANNUAL_AMOUNT
                 );
 
 
-            /* =====================================
-               EXISTING PAYMENT
-            ===================================== */
+            /* ALREADY PAID */
 
             const alreadyPaid =
-                getExistingYearPayment(
+                getMemberYearPayment(
                     selectedMember.id,
                     year
                 );
 
 
-            /* =====================================
-               TOTAL AFTER THIS PAYMENT
-            ===================================== */
-
-            const totalAfterPayment =
-                alreadyPaid +
-                amount;
-
-
-            /* =====================================
-               OVERPAYMENT CHECK
-            ===================================== */
+            /* OVER PAYMENT */
 
             if (
-                totalAfterPayment >
+                alreadyPaid +
+                amount >
                 annual
             ) {
 
                 const remaining =
                     Math.max(
                         0,
-                        annual - alreadyPaid
+                        annual -
+                        alreadyPaid
                     );
 
 
                 alert(
-                    "या वर्षासाठी जास्तीत जास्त ₹" +
+                    "या वर्षासाठी फक्त ₹" +
                     remaining +
-                    " भरता येतील."
+                    " बाकी आहे."
                 );
 
                 return;
@@ -1010,12 +1222,12 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               RECEIPT NUMBER
-            ===================================== */
+            /* RECEIPT */
 
             let finalReceiptNo =
-                receiptNo.value.trim();
+                receiptNo ?
+                receiptNo.value.trim() :
+                "";
 
 
             if (!finalReceiptNo) {
@@ -1026,9 +1238,7 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               DUPLICATE RECEIPT CHECK
-            ===================================== */
+            /* DUPLICATE RECEIPT */
 
             const receiptExists =
                 subscriptions.some(
@@ -1037,10 +1247,12 @@ if (subscriptionForm) {
                         return (
                             String(
                                 item.receiptNo
-                            ).toLowerCase() ===
+                            )
+                            .toLowerCase() ===
                             String(
                                 finalReceiptNo
-                            ).toLowerCase()
+                            )
+                            .toLowerCase()
                         );
 
                     }
@@ -1050,7 +1262,7 @@ if (subscriptionForm) {
             if (receiptExists) {
 
                 alert(
-                    "हा पावती क्रमांक आधीच वापरला आहे."
+                    "हा Receipt Number आधीपासून वापरलेला आहे."
                 );
 
                 return;
@@ -1058,11 +1270,11 @@ if (subscriptionForm) {
             }
 
 
-            /* =====================================
-               CREATE SUBSCRIPTION OBJECT
-            ===================================== */
+            /* =================================================
+               CREATE TRANSACTION
+            ================================================= */
 
-            const subscription = {
+            const transaction = {
 
                 id:
                     "SUB-" +
@@ -1090,20 +1302,27 @@ if (subscriptionForm) {
                     Math.max(
                         0,
                         annual -
-                        totalAfterPayment
+                        alreadyPaid -
+                        amount
                     ),
 
                 receiptNo:
                     finalReceiptNo,
 
                 paymentMode:
-                    paymentMode.value,
+                    paymentMode ?
+                    paymentMode.value :
+                    "",
 
                 paymentDate:
-                    paymentDate.value,
+                    paymentDate ?
+                    paymentDate.value :
+                    "",
 
                 enteredBy:
-                    enteredBy.value.trim(),
+                    enteredBy ?
+                    enteredBy.value.trim() :
+                    "",
 
                 createdAt:
                     new Date().toISOString()
@@ -1111,80 +1330,167 @@ if (subscriptionForm) {
             };
 
 
-            /* =====================================
-               SAVE
-            ===================================== */
+            /* SAVE TRANSACTION */
 
             subscriptions.push(
-                subscription
+                transaction
             );
-
 
             saveSubscriptions();
 
 
-            /* =====================================
+            /* =================================================
                UPDATE MEMBER PENDING
-            ===================================== */
+            ================================================= */
 
-            updateMemberPendingAmount(
-                selectedMember.id
-            );
+            const memberIndex =
+                members.findIndex(
+                    function (member) {
 
+                        return (
+                            String(
+                                member.id
+                            ) ===
+                            String(
+                                selectedMember.id
+                            )
+                        );
 
-            /* =====================================
-               REFRESH
-            ===================================== */
-
-            updatePendingAmount();
-
-            updateMemberSubscriptionSummary();
-
-            displaySubscriptions();
-
-            displayYearWiseStatus();
-
-            loadTransactionYears();
+                    }
+                );
 
 
-            /* =====================================
-               RECEIPT
-            ===================================== */
+            if (
+                memberIndex !== -1
+            ) {
 
-            showReceipt(
-                subscription
-            );
+                /*
+                   Existing member total pending
+                   update करण्यासाठी yearly data
+                   पुन्हा calculate केला जातो.
+                */
+
+                let totalPending = 0;
 
 
-            /* =====================================
-               TOAST
-            ===================================== */
+                /*
+                   Member च्या आधीच्या
+                   subscriptionPending ला
+                   direct overwrite न करता,
+                   current saved subscriptions
+                   वरून current year pending ठेवतो.
+                */
+
+                const memberTransactions =
+                    subscriptions.filter(
+                        function (item) {
+
+                            return (
+                                String(
+                                    item.memberId
+                                ) ===
+                                String(
+                                    selectedMember.id
+                                )
+                            );
+
+                        }
+                    );
+
+
+                /*
+                   सर्व transaction years
+                   calculate करा.
+                */
+
+                const yearMap = {};
+
+
+                memberTransactions.forEach(
+                    function (item) {
+
+                        if (
+                            !yearMap[
+                                item.year
+                            ]
+                        ) {
+
+                            yearMap[
+                                item.year
+                            ] = 0;
+
+                        }
+
+
+                        yearMap[
+                            item.year
+                        ] +=
+                            Number(
+                                item.paidAmount || 0
+                            );
+
+                    }
+                );
+
+
+                Object.keys(
+                    yearMap
+                ).forEach(
+                    function (paymentYear) {
+
+                        const paid =
+                            yearMap[
+                                paymentYear
+                            ];
+
+
+                        const pending =
+                            Math.max(
+                                0,
+                                DEFAULT_ANNUAL_AMOUNT -
+                                paid
+                            );
+
+
+                        totalPending +=
+                            pending;
+
+                    }
+                );
+
+
+                members[
+                    memberIndex
+                ].subscriptionPending =
+                    totalPending;
+
+
+                saveMembers();
+
+            }
+
+
+            /* =================================================
+               SUCCESS
+            ================================================= */
 
             showSubscriptionToast(
                 "वर्गणी यशस्वीरित्या जतन झाली."
             );
 
 
-            /* =====================================
-               RESET PAYMENT FIELDS
-            ===================================== */
+            /* REFRESH */
 
-            paidAmount.value =
-                Math.max(
-                    0,
-                    annual -
-                    totalAfterPayment
-                ) === 0
-                    ? 0
-                    : Math.max(
-                        0,
-                        annual -
-                        totalAfterPayment
-                    );
+            loadSubscriptionData();
+
+            loadTransactionYears();
+
+            displaySubscriptionTransactions();
 
 
-            receiptNo.value = "";
+            /* RESET */
 
+            resetSubscriptionForm();
 
         }
     );
@@ -1193,1474 +1499,69 @@ if (subscriptionForm) {
 
 
 /* =========================================================
-   UPDATE MEMBER PENDING AMOUNT
+   RESET FORM
 ========================================================= */
 
-function updateMemberPendingAmount(
-    memberId
-) {
+function resetSubscriptionForm() {
 
-    const member =
-        findMemberById(
-            memberId
-        );
+    selectedMember = null;
 
 
-    if (!member) return;
+    if (subscriptionForm) {
 
-
-    let totalPending = 0;
-
-
-    /*
-       सर्व नोंदी तपासून
-       प्रत्येक वर्षाची बाकी रक्कम
-       मोजली जाते.
-    */
-
-    const memberYears = [];
-
-
-    subscriptions
-        .filter(
-            function (item) {
-
-                return (
-                    String(item.memberId) ===
-                    String(memberId)
-                );
-
-            }
-        )
-        .forEach(
-            function (item) {
-
-                if (
-                    !memberYears.includes(
-                        item.year
-                    )
-                ) {
-
-                    memberYears.push(
-                        item.year
-                    );
-
-                }
-
-            }
-        );
-
-
-    memberYears.forEach(
-        function (year) {
-
-            const paid =
-                getExistingYearPayment(
-                    memberId,
-                    year
-                );
-
-
-            const pending =
-                Math.max(
-                    0,
-                    DEFAULT_ANNUAL_AMOUNT -
-                    paid
-                );
-
-
-            totalPending +=
-                pending;
-
-        }
-    );
-
-
-    member.subscriptionPending =
-        totalPending;
-
-
-    localStorage.setItem(
-        "mgvm_members",
-        JSON.stringify(members)
-    );
-
-}
-/* =========================================================
-   subscription.js - Part 3
-   Transaction List + Year Wise Status
-========================================================= */
-
-
-/* =========================================================
-   DISPLAY SUBSCRIPTIONS
-========================================================= */
-
-function displaySubscriptions(list = subscriptions) {
-
-    const tableBody =
-        document.getElementById(
-            "subscriptionTableBody"
-        );
-
-    if (!tableBody) return;
-
-
-    tableBody.innerHTML = "";
-
-
-    if (!list.length) {
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" align="center">
-                    अद्याप कोणतीही वर्गणी नोंद उपलब्ध नाही.
-                </td>
-            </tr>
-        `;
-
-        return;
+        subscriptionForm.reset();
 
     }
 
 
-    list.forEach(
-        function (item) {
+    if (memberSearchInput) {
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${formatSubscriptionDate(
-                        item.paymentDate
-                    )}
-                </td>
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        item.memberId
-                    )}
-                </td>
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        item.memberName
-                    )}
-                </td>
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        item.year
-                    )}
-                </td>
-
-                <td>
-                    ₹${Number(
-                        item.paidAmount || 0
-                    ).toLocaleString("en-IN")}
-                </td>
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        item.paymentMode
-                    )}
-                </td>
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        item.receiptNo
-                    )}
-                </td>
-
-                <td>
-
-                    <button
-                        class="btn btn-primary"
-                        onclick="viewReceipt('${item.id}')">
-
-                        <i class="fa fa-receipt"></i>
-
-                    </button>
-
-                    <button
-                        class="btn btn-danger"
-                        onclick="deleteSubscription('${item.id}')">
-
-                        <i class="fa fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            `;
-
-
-            tableBody.appendChild(
-                row
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   DATE FORMAT
-========================================================= */
-
-function formatSubscriptionDate(dateValue) {
-
-    if (!dateValue) return "-";
-
-
-    const parts =
-        String(dateValue).split("-");
-
-
-    if (parts.length !== 3) {
-
-        return dateValue;
+        memberSearchInput.value =
+            "";
 
     }
 
 
-    return (
-        parts[2] +
-        "/" +
-        parts[1] +
-        "/" +
-        parts[0]
-    );
+    if (memberSuggestions) {
 
-}
+        memberSuggestions.innerHTML =
+            "";
 
-
-/* =========================================================
-   YEAR-WISE STATUS
-========================================================= */
-
-function displayYearWiseStatus() {
-
-    const body =
-        document.getElementById(
-            "yearSubscriptionBody"
-        );
-
-
-    if (!body) return;
-
-
-    body.innerHTML = "";
-
-
-    if (!selectedMember) {
-
-        body.innerHTML = `
-            <tr>
-                <td colspan="5" align="center">
-                    सभासद निवडल्यानंतर
-                    वर्षनिहाय माहिती येथे दिसेल.
-                </td>
-            </tr>
-        `;
-
-        return;
+        memberSuggestions.style.display =
+            "none";
 
     }
 
 
-    /*
-       सदस्यासाठी उपलब्ध वर्षे
-    */
+    if (subscriptionMemberId) {
 
-    const years = [];
-
-
-    subscriptions
-        .filter(
-            function (item) {
-
-                return (
-                    String(item.memberId) ===
-                    String(selectedMember.id)
-                );
-
-            }
-        )
-        .forEach(
-            function (item) {
-
-                if (
-                    item.year &&
-                    !years.includes(item.year)
-                ) {
-
-                    years.push(item.year);
-
-                }
-
-            }
-        );
-
-
-    /*
-       चालू वर्ष देखील दाखवा
-    */
-
-    const selectedYear =
-        subscriptionYear.value;
-
-
-    if (
-        selectedYear &&
-        !years.includes(selectedYear)
-    ) {
-
-        years.push(
-            selectedYear
-        );
+        subscriptionMemberId.value =
+            "";
 
     }
 
 
-    years.sort();
+    if (subscriptionMemberName) {
 
-
-    if (!years.length) {
-
-        body.innerHTML = `
-            <tr>
-                <td colspan="5" align="center">
-                    अद्याप वर्गणी नोंद उपलब्ध नाही.
-                </td>
-            </tr>
-        `;
-
-        return;
+        subscriptionMemberName.value =
+            "";
 
     }
 
 
-    years.forEach(
-        function (year) {
+    if (subscriptionWadi) {
 
-            const paid =
-                getExistingYearPayment(
-                    selectedMember.id,
-                    year
-                );
-
-
-            const annual =
-                DEFAULT_ANNUAL_AMOUNT;
-
-
-            const pending =
-                Math.max(
-                    0,
-                    annual - paid
-                );
-
-
-            let status = "";
-
-
-            if (pending === 0) {
-
-                status =
-                    `<span class="status-paid">
-                        पूर्ण भरले
-                    </span>`;
-
-            }
-            else if (paid > 0) {
-
-                status =
-                    `<span class="status-partial">
-                        अंशतः भरले
-                    </span>`;
-
-            }
-            else {
-
-                status =
-                    `<span class="status-pending">
-                        बाकी
-                    </span>`;
-
-            }
-
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeSubscriptionHTML(
-                        year
-                    )}
-                </td>
-
-                <td>
-                    ₹${annual.toLocaleString(
-                        "en-IN"
-                    )}
-                </td>
-
-                <td>
-                    ₹${paid.toLocaleString(
-                        "en-IN"
-                    )}
-                </td>
-
-                <td>
-                    ₹${pending.toLocaleString(
-                        "en-IN"
-                    )}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-            `;
-
-
-            body.appendChild(
-                row
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE SUMMARY CARDS
-========================================================= */
-
-function updateMemberSubscriptionSummary() {
-
-    const annualCard =
-        document.getElementById(
-            "summaryAnnualAmount"
-        );
-
-
-    const paidCard =
-        document.getElementById(
-            "summaryPaidAmount"
-        );
-
-
-    const pendingCard =
-        document.getElementById(
-            "summaryPendingAmount"
-        );
-
-
-    const transactionCard =
-        document.getElementById(
-            "summaryTransactionCount"
-        );
-
-
-    if (
-        !annualCard ||
-        !paidCard ||
-        !pendingCard ||
-        !transactionCard
-    ) {
-
-        return;
+        subscriptionWadi.value =
+            "";
 
     }
 
 
-    if (!selectedMember) {
+    setDefaultAnnualAmount();
 
-        annualCard.innerText =
-            "₹0";
+    setTodayDate();
 
-        paidCard.innerText =
-            "₹0";
-
-        pendingCard.innerText =
-            "₹0";
-
-        transactionCard.innerText =
-            "0";
-
-        return;
-
-    }
-
-
-    const memberTransactions =
-        subscriptions.filter(
-            function (item) {
-
-                return (
-                    String(item.memberId) ===
-                    String(selectedMember.id)
-                );
-
-            }
-        );
-
-
-    const paid =
-        memberTransactions.reduce(
-            function (total, item) {
-
-                return (
-                    total +
-                    Number(
-                        item.paidAmount || 0
-                    )
-                );
-
-            },
-            0
-        );
-
-
-    /*
-       प्रत्येक नोंद वेगळ्या वर्षाची
-       असू शकते.
-    */
-
-    const uniqueYears = [];
-
-
-    memberTransactions.forEach(
-        function (item) {
-
-            if (
-                item.year &&
-                !uniqueYears.includes(
-                    item.year
-                )
-            ) {
-
-                uniqueYears.push(
-                    item.year
-                );
-
-            }
-
-        }
-    );
-
-
-    const selectedYear =
-        subscriptionYear.value;
-
-
-    if (
-        selectedYear &&
-        !uniqueYears.includes(
-            selectedYear
-        )
-    ) {
-
-        uniqueYears.push(
-            selectedYear
-        );
-
-    }
-
-
-    const annualTotal =
-        uniqueYears.length *
-        DEFAULT_ANNUAL_AMOUNT;
-
-
-    const pending =
-        Math.max(
-            0,
-            annualTotal - paid
-        );
-
-
-    annualCard.innerText =
-        "₹" +
-        annualTotal.toLocaleString(
-            "en-IN"
-        );
-
-
-    paidCard.innerText =
-        "₹" +
-        paid.toLocaleString(
-            "en-IN"
-        );
-
-
-    pendingCard.innerText =
-        "₹" +
-        pending.toLocaleString(
-            "en-IN"
-        );
-
-
-    transactionCard.innerText =
-        memberTransactions.length;
-
-
-    displayYearWiseStatus();
-
-}
-
-
-/* =========================================================
-   DELETE SUBSCRIPTION
-========================================================= */
-
-function deleteSubscription(id) {
-
-    const index =
-        subscriptions.findIndex(
-            function (item) {
-
-                return (
-                    String(item.id) ===
-                    String(id)
-                );
-
-            }
-        );
-
-
-    if (index === -1) {
-
-        alert(
-            "वर्गणी नोंद सापडली नाही."
-        );
-
-        return;
-
-    }
-
-
-    const item =
-        subscriptions[index];
-
-
-    const confirmDelete =
-        confirm(
-            "ही वर्गणी नोंद Delete करायची आहे का?\n\n" +
-            "सभासद: " +
-            item.memberName +
-            "\n" +
-            "वर्ष: " +
-            item.year +
-            "\n" +
-            "रक्कम: ₹" +
-            item.paidAmount
-        );
-
-
-    if (!confirmDelete) return;
-
-
-    subscriptions.splice(
-        index,
-        1
-    );
-
-
-    saveSubscriptions();
-
-
-    /*
-       Member pending पुन्हा calculate
-    */
-
-    updateAllMemberPendingAmounts();
-
-
-    displaySubscriptions();
-
-
-    updateMemberSubscriptionSummary();
-
-
-    displayYearWiseStatus();
-
-
-    loadTransactionYears();
-
-
-    showSubscriptionToast(
-        "वर्गणी नोंद Delete झाली."
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE ALL MEMBER PENDING AMOUNTS
-========================================================= */
-
-function updateAllMemberPendingAmounts() {
-
-    members.forEach(
-        function (member) {
-
-            let totalPending = 0;
-
-
-            const memberYears = [];
-
-
-            subscriptions
-                .filter(
-                    function (item) {
-
-                        return (
-                            String(
-                                item.memberId
-                            ) ===
-                            String(
-                                member.id
-                            )
-                        );
-
-                    }
-                )
-                .forEach(
-                    function (item) {
-
-                        if (
-                            item.year &&
-                            !memberYears.includes(
-                                item.year
-                            )
-                        ) {
-
-                            memberYears.push(
-                                item.year
-                            );
-
-                        }
-
-                    }
-                );
-
-
-            memberYears.forEach(
-                function (year) {
-
-                    const paid =
-                        getExistingYearPayment(
-                            member.id,
-                            year
-                        );
-
-
-                    totalPending +=
-                        Math.max(
-                            0,
-                            DEFAULT_ANNUAL_AMOUNT -
-                            paid
-                        );
-
-                }
-            );
-
-
-            member.subscriptionPending =
-                totalPending;
-
-        }
-    );
-
-
-    localStorage.setItem(
-        "mgvm_members",
-        JSON.stringify(members)
-    );
-
-}
-
-
-/* =========================================================
-   INITIAL DISPLAY
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        displaySubscriptions();
-
-        displayYearWiseStatus();
-
-        updateMemberSubscriptionSummary();
-
-    }
-);
-
-आता Part 4 मध्ये "Receipt Preview", "Print Receipt", "Search/Year Filter" आणि "Toast" functions जोडायच्या आहेत. त्या जोडल्यावर "subscription.js" पूर्ण होईल.
-
-/* =========================================================
-   subscription.js - Part 4
-   Receipt + Search + Year Filter + Toast
-========================================================= */
-
-
-/* =========================================================
-   SHOW RECEIPT
-========================================================= */
-
-function showReceipt(subscription) {
-
-    const modal =
-        document.getElementById(
-            "receiptModal"
-        );
-
-    if (!modal) return;
-
-
-    document.getElementById(
-        "receiptPreviewNo"
-    ).innerText =
-        subscription.receiptNo || "-";
-
-
-    document.getElementById(
-        "receiptPreviewMemberId"
-    ).innerText =
-        subscription.memberId || "-";
-
-
-    document.getElementById(
-        "receiptPreviewName"
-    ).innerText =
-        subscription.memberName || "-";
-
-
-    document.getElementById(
-        "receiptPreviewWadi"
-    ).innerText =
-        subscription.wadi || "-";
-
-
-    document.getElementById(
-        "receiptPreviewYear"
-    ).innerText =
-        subscription.year || "-";
-
-
-    document.getElementById(
-        "receiptPreviewAmount"
-    ).innerText =
-        Number(
-            subscription.paidAmount || 0
-        ).toLocaleString(
-            "en-IN"
-        );
-
-
-    document.getElementById(
-        "receiptPreviewMode"
-    ).innerText =
-        subscription.paymentMode || "-";
-
-
-    document.getElementById(
-        "receiptPreviewDate"
-    ).innerText =
-        formatSubscriptionDate(
-            subscription.paymentDate
-        );
-
-
-    modal.style.display =
-        "block";
-
-
-    window.currentReceipt =
-        subscription;
-
-}
-
-
-/* =========================================================
-   VIEW RECEIPT
-========================================================= */
-
-function viewReceipt(id) {
-
-    const subscription =
-        subscriptions.find(
-            function (item) {
-
-                return (
-                    String(item.id) ===
-                    String(id)
-                );
-
-            }
-        );
-
-
-    if (!subscription) {
-
-        alert(
-            "पावती नोंद सापडली नाही."
-        );
-
-        return;
-
-    }
-
-
-    showReceipt(
-        subscription
-    );
-
-}
-
-
-/* =========================================================
-   CLOSE RECEIPT MODAL
-========================================================= */
-
-const closeReceiptModal =
-    document.getElementById(
-        "closeReceiptModal"
-    );
-
-
-if (closeReceiptModal) {
-
-    closeReceiptModal.addEventListener(
-        "click",
-        function () {
-
-            const modal =
-                document.getElementById(
-                    "receiptModal"
-                );
-
-
-            if (modal) {
-
-                modal.style.display =
-                    "none";
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CLOSE MODAL ON OUTSIDE CLICK
-========================================================= */
-
-window.addEventListener(
-    "click",
-    function (event) {
-
-        const modal =
-            document.getElementById(
-                "receiptModal"
-            );
-
-
-        if (
-            modal &&
-            event.target === modal
-        ) {
-
-            modal.style.display =
-                "none";
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   PRINT RECEIPT
-========================================================= */
-
-const printReceiptBtn =
-    document.getElementById(
-        "printReceiptBtn"
-    );
-
-
-if (printReceiptBtn) {
-
-    printReceiptBtn.addEventListener(
-        "click",
-        function () {
-
-            if (
-                !window.currentReceipt
-            ) {
-
-                alert(
-                    "प्रथम पावती निवडा."
-                );
-
-                return;
-
-            }
-
-
-            printSubscriptionReceipt(
-                window.currentReceipt
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   PRINT SUBSCRIPTION RECEIPT
-========================================================= */
-
-function printSubscriptionReceipt(
-    subscription
-) {
-
-    const printWindow =
-        window.open(
-            "",
-            "_blank"
-        );
-
-
-    if (!printWindow) {
-
-        alert(
-            "Popup Blocker मुळे पावती Print करता आली नाही."
-        );
-
-        return;
-
-    }
-
-
-    const amount =
-        Number(
-            subscription.paidAmount || 0
-        ).toLocaleString(
-            "en-IN"
-        );
-
-
-    const date =
-        formatSubscriptionDate(
-            subscription.paymentDate
-        );
-
-
-    printWindow.document.write(`
-
-        <!DOCTYPE html>
-
-        <html lang="mr">
-
-        <head>
-
-            <meta charset="UTF-8">
-
-            <title>
-                वर्गणी पावती
-            </title>
-
-
-            <style>
-
-                body {
-
-                    font-family:
-                    "Noto Sans Devanagari",
-                    Arial,
-                    sans-serif;
-
-                    margin: 0;
-
-                    padding: 20px;
-
-                    background: #fff;
-
-                }
-
-
-                .receipt {
-
-                    max-width: 600px;
-
-                    margin: auto;
-
-                    border:
-                    2px solid #333;
-
-                    padding: 25px;
-
-                    border-radius: 10px;
-
-                }
-
-
-                h1,
-                h2,
-                p {
-
-                    text-align: center;
-
-                }
-
-
-                .line {
-
-                    border-bottom:
-                    1px solid #333;
-
-                    margin: 15px 0;
-
-                }
-
-
-                .details {
-
-                    margin-top: 20px;
-
-                }
-
-
-                .details p {
-
-                    text-align: left;
-
-                    margin: 10px 0;
-
-                }
-
-
-                .amount {
-
-                    font-size: 24px;
-
-                    font-weight: bold;
-
-                    text-align: center;
-
-                    margin: 20px 0;
-
-                }
-
-
-                .footer {
-
-                    margin-top: 30px;
-
-                    text-align: center;
-
-                }
-
-
-                @media print {
-
-                    body {
-
-                        padding: 0;
-
-                    }
-
-                    .receipt {
-
-                        border:
-                        2px solid #000;
-
-                    }
-
-                }
-
-            </style>
-
-        </head>
-
-
-        <body>
-
-
-            <div class="receipt">
-
-                <h1>
-                    मोर्डे ग्राम विकास मंडळ, मुंबई
-                </h1>
-
-
-                <h2>
-                    वार्षिक वर्गणी पावती
-                </h2>
-
-
-                <div class="line"></div>
-
-
-                <div class="details">
-
-                    <p>
-                        <strong>
-                            पावती क्रमांक:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.receiptNo
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            Member ID:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.memberId
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            सभासद नाव:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.memberName
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            वाडी:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.wadi
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            वर्गणी वर्ष:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.year
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            पेमेंट पद्धत:
-                        </strong>
-
-                        ${escapeSubscriptionHTML(
-                            subscription.paymentMode
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            तारीख:
-                        </strong>
-
-                        ${date}
-                    </p>
-
-                </div>
-
-
-                <div class="line"></div>
-
-
-                <div class="amount">
-
-                    भरलेली रक्कम:
-                    ₹${amount}
-
-                </div>
-
-
-                <div class="footer">
-
-                    <p>
-                        धन्यवाद!
-                    </p>
-
-                    <p>
-                        मोर्डे ग्राम विकास मंडळ, मुंबई
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <script>
-
-                window.onload =
-                function() {
-
-                    window.print();
-
-                };
-
-            <\/script>
-
-
-        </body>
-
-        </html>
-
-    `);
-
-
-    printWindow.document.close();
-
-}
-
-
-/* =========================================================
-   SUBSCRIPTION SEARCH
-========================================================= */
-
-const subscriptionSearch =
-    document.getElementById(
-        "subscriptionSearch"
-    );
-
-
-if (subscriptionSearch) {
-
-    subscriptionSearch.addEventListener(
-        "input",
-        filterSubscriptionTable
-    );
-
-}
-
-
-/* =========================================================
-   YEAR FILTER
-========================================================= */
-
-const transactionYearFilter =
-    document.getElementById(
-        "transactionYearFilter"
-    );
-
-
-if (transactionYearFilter) {
-
-    transactionYearFilter.addEventListener(
-        "change",
-        filterSubscriptionTable
-    );
-
-}
-
-
-/* =========================================================
-   FILTER TRANSACTIONS
-========================================================= */
-
-function filterSubscriptionTable() {
-
-    const keyword =
-        subscriptionSearch
-            ? subscriptionSearch.value
-                .trim()
-                .toLowerCase()
-            : "";
-
-
-    const selectedYear =
-        transactionYearFilter
-            ? transactionYearFilter.value
-            : "";
-
-
-    const filtered =
-        subscriptions.filter(
-            function (item) {
-
-                const searchableText = [
-
-                    item.memberId,
-
-                    item.memberName,
-
-                    item.receiptNo,
-
-                    item.wadi,
-
-                    item.paymentMode,
-
-                    item.year
-
-                ]
-                .join(" ")
-                .toLowerCase();
-
-
-                const matchesSearch =
-                    !keyword ||
-                    searchableText.includes(
-                        keyword
-                    );
-
-
-                const matchesYear =
-                    !selectedYear ||
-                    item.year ===
-                    selectedYear;
-
-
-                return (
-                    matchesSearch &&
-                    matchesYear
-                );
-
-            }
-        );
-
-
-    displaySubscriptions(
-        filtered
-    );
+    updatePendingAmount();
 
 }
 
@@ -2675,7 +1576,7 @@ function showSubscriptionToast(
 
     const toast =
         document.getElementById(
-            "subscriptionToast"
+            "toast"
         );
 
 
@@ -2688,7 +1589,7 @@ function showSubscriptionToast(
     }
 
 
-    toast.innerText =
+    toast.innerHTML =
         message;
 
 
@@ -2710,93 +1611,164 @@ function showSubscriptionToast(
 
 
 /* =========================================================
-   RESET FORM
+   DISPLAY TRANSACTIONS
 ========================================================= */
 
-const resetSubscriptionBtn =
-    document.getElementById(
-        "resetSubscriptionBtn"
-    );
+function displaySubscriptionTransactions(
+    filterYear = ""
+) {
+
+    const tableBody =
+        document.getElementById(
+            "subscriptionTableBody"
+        );
 
 
-if (resetSubscriptionBtn) {
-
-    resetSubscriptionBtn.addEventListener(
-        "click",
-        function () {
-
-            setTimeout(
-                function () {
-
-                    selectedMember =
-                        null;
+    if (!tableBody) return;
 
 
-                    if (
-                        subscriptionMemberId
-                    ) {
-
-                        subscriptionMemberId.value =
-                            "";
-
-                    }
+    loadSubscriptionData();
 
 
-                    if (
-                        subscriptionMemberName
-                    ) {
-
-                        subscriptionMemberName.value =
-                            "";
-
-                    }
+    let data =
+        [...subscriptions];
 
 
-                    if (
-                        subscriptionWadi
-                    ) {
+    if (filterYear) {
 
-                        subscriptionWadi.value =
-                            "";
+        data =
+            data.filter(
+                function (item) {
 
-                    }
+                    return (
+                        item.year ===
+                        filterYear
+                    );
 
+                }
+            );
 
-                    if (
-                        memberSearchInput
-                    ) {
-
-                        memberSearchInput.value =
-                            "";
-
-                    }
+    }
 
 
-                    if (
-                        memberSuggestions
-                    ) {
-
-                        memberSuggestions.innerHTML =
-                            "";
-
-                        memberSuggestions.style.display =
-                            "none";
-
-                    }
+    data.reverse();
 
 
-                    setDefaultAnnualAmount();
+    if (!data.length) {
 
-                    setTodayDate();
+        tableBody.innerHTML = `
 
-                    updatePendingAmount();
+            <tr>
 
-                    updateMemberSubscriptionSummary();
+                <td
+                    colspan="10"
+                    style="text-align:center;"
+                >
 
-                    displayYearWiseStatus();
+                    अद्याप कोणतीही वर्गणी नोंद उपलब्ध नाही.
 
-                },
-                0
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tableBody.innerHTML =
+        "";
+
+
+    data.forEach(
+        function (
+            item,
+            index
+        ) {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+                    ${escapeSubscriptionHTML(
+                        item.receiptNo
+                    )}
+                </td>
+
+                <td>
+                    ${escapeSubscriptionHTML(
+                        item.memberName
+                    )}
+                </td>
+
+                <td>
+                    ${escapeSubscriptionHTML(
+                        item.wadi
+                    )}
+                </td>
+
+                <td>
+                    ${escapeSubscriptionHTML(
+                        item.year
+                    )}
+                </td>
+
+                <td>
+                    ₹${Number(
+                        item.annualAmount || 0
+                    )}
+                </td>
+
+                <td>
+                    ₹${Number(
+                        item.paidAmount || 0
+                    )}
+                </td>
+
+                <td>
+                    ₹${Number(
+                        item.pendingAmount || 0
+                    )}
+                </td>
+
+                <td>
+                    ${escapeSubscriptionHTML(
+                        item.paymentMode
+                    )}
+                </td>
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        onclick="deleteSubscription('${escapeSubscriptionHTML(
+                            item.id
+                        )}')"
+                    >
+
+                        <i class="fa fa-trash"></i>
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(
+                row
             );
 
         }
@@ -2806,18 +1778,432 @@ if (resetSubscriptionBtn) {
 
 
 /* =========================================================
-   FINAL PAGE LOAD
+   YEAR FILTER EVENT
+========================================================= */
+
+const transactionYearFilter =
+    document.getElementById(
+        "transactionYearFilter"
+    );
+
+
+if (transactionYearFilter) {
+
+    transactionYearFilter.addEventListener(
+        "change",
+        function () {
+
+            displaySubscriptionTransactions(
+                this.value
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DELETE SUBSCRIPTION
+========================================================= */
+
+function deleteSubscription(
+    transactionId
+) {
+
+    loadSubscriptionData();
+
+
+    const transaction =
+        subscriptions.find(
+            function (item) {
+
+                return (
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        transactionId
+                    )
+                );
+
+            }
+        );
+
+
+    if (!transaction) {
+
+        alert(
+            "नोंद सापडली नाही."
+        );
+
+        return;
+
+    }
+
+
+    const confirmDelete =
+        confirm(
+            "ही वर्गणी नोंद Delete करायची आहे का?"
+        );
+
+
+    if (!confirmDelete) {
+
+        return;
+
+    }
+
+
+    subscriptions =
+        subscriptions.filter(
+            function (item) {
+
+                return (
+                    String(
+                        item.id
+                    ) !==
+                    String(
+                        transactionId
+                    )
+                );
+
+            }
+        );
+
+
+    saveSubscriptions();
+
+
+    /*
+       Recalculate member pending
+    */
+
+    const memberIndex =
+        members.findIndex(
+            function (member) {
+
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        transaction.memberId
+                    )
+                );
+
+            }
+        );
+
+
+    if (
+        memberIndex !== -1
+    ) {
+
+        const memberTransactions =
+            subscriptions.filter(
+                function (item) {
+
+                    return (
+                        String(
+                            item.memberId
+                        ) ===
+                        String(
+                            transaction.memberId
+                        )
+                    );
+
+                }
+            );
+
+
+        const yearMap = {};
+
+
+        memberTransactions.forEach(
+            function (item) {
+
+                if (
+                    !yearMap[
+                        item.year
+                    ]
+                ) {
+
+                    yearMap[
+                        item.year
+                    ] = 0;
+
+                }
+
+
+                yearMap[
+                    item.year
+                ] +=
+                    Number(
+                        item.paidAmount || 0
+                    );
+
+            }
+        );
+
+
+        let totalPending = 0;
+
+
+        Object.keys(
+            yearMap
+        ).forEach(
+            function (year) {
+
+                totalPending +=
+                    Math.max(
+                        0,
+                        DEFAULT_ANNUAL_AMOUNT -
+                        yearMap[year]
+                    );
+
+            }
+        );
+
+
+        members[
+            memberIndex
+        ].subscriptionPending =
+            totalPending;
+
+
+        saveMembers();
+
+    }
+
+
+    loadTransactionYears();
+
+    displaySubscriptionTransactions();
+
+    showSubscriptionToast(
+        "वर्गणी नोंद Delete झाली."
+    );
+
+}
+
+
+/* =========================================================
+   DASHBOARD UPDATE
+========================================================= */
+
+function updateSubscriptionDashboard() {
+
+    loadSubscriptionData();
+
+
+    const totalSubscription =
+        subscriptions.reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.paidAmount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const element =
+        document.getElementById(
+            "totalSubscription"
+        );
+
+
+    if (element) {
+
+        element.innerText =
+            "₹" +
+            totalSubscription;
+
+    }
+
+
+    /*
+       Current year collection
+    */
+
+    const currentFinancialYear =
+        getFinancialYear(
+            currentYear
+        );
+
+
+    const yearTotal =
+        subscriptions
+        .filter(
+            function (item) {
+
+                return (
+                    item.year ===
+                    currentFinancialYear
+                );
+
+            }
+        )
+        .reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.paidAmount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const yearElement =
+        document.getElementById(
+            "yearSubscription"
+        );
+
+
+    if (yearElement) {
+
+        yearElement.innerText =
+            "₹" +
+            yearTotal;
+
+    }
+
+
+    /*
+       Today's collection
+    */
+
+    const today =
+        new Date()
+        .toISOString()
+        .slice(
+            0,
+            10
+        );
+
+
+    const todayTotal =
+        subscriptions
+        .filter(
+            function (item) {
+
+                return (
+                    item.paymentDate ===
+                    today
+                );
+
+            }
+        )
+        .reduce(
+            function (
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.paidAmount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const todayElement =
+        document.getElementById(
+            "todaySubscription"
+        );
+
+
+    if (todayElement) {
+
+        todayElement.innerText =
+            "₹" +
+            todayTotal;
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE SEARCH WHEN CLICK OUTSIDE
+========================================================= */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            !memberSearchInput ||
+            !memberSuggestions
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.target !==
+            memberSearchInput &&
+            !memberSuggestions.contains(
+                event.target
+            )
+        ) {
+
+            memberSuggestions.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   PAGE INITIALIZATION
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-        displaySubscriptions();
+        loadSubscriptionData();
+
+        loadSubscriptionYears();
 
         loadTransactionYears();
 
-        updateMemberSubscriptionSummary();
+        setTodayDate();
+
+        setDefaultAnnualAmount();
+
+        displaySubscriptionTransactions();
+
+        updateSubscriptionDashboard();
+
+        updatePendingAmount();
 
     }
 );
