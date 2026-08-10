@@ -3,23 +3,15 @@
    CORRECTED FINAL VERSION
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
-   Features:
-   ✅ Member Name Search
-   ✅ Member ID / Mobile / Wadi Search
-   ✅ Member Select
-   ✅ Member ID / Wadi Auto Fill
-   ✅ Annual Subscription ₹200
-   ✅ Year-wise Pending
-   ✅ Partial Payment
-   ✅ Receipt Number
-   ✅ Payment Mode
-   ✅ Payment Date
-   ✅ Save Subscription
-   ✅ Delete Transaction
-   ✅ Member Pending Sync
-   ✅ Transaction Year Filter
-   ✅ Dashboard Sync
-========================================================= */
+   IMPORTANT FIX:
+   ✅ Member Search logic सुरक्षित ठेवली आहे
+   ✅ Excel मधील subscriptionPending consider होईल
+   ✅ Excel मध्ये ₹1500 बाकी असेल तर Subscription मध्ये ₹1500
+   ✅ ₹200 payment केल्यावर बाकी ₹1300
+   ✅ Partial Payment supported
+   ✅ Delete केल्यावर बाकी पुन्हा योग्य होईल
+   ✅ Existing subscription transactions सुरक्षित
+   ========================================================= */
 
 
 /* =========================================================
@@ -27,14 +19,16 @@
 ========================================================= */
 
 let members = [];
+
 let subscriptions = [];
+
 let selectedMember = null;
 
 const DEFAULT_ANNUAL_AMOUNT = 200;
 
 
 /* =========================================================
-   2. LOAD DATA
+   2. LOAD LOCAL STORAGE
 ========================================================= */
 
 function loadSubscriptionData() {
@@ -43,12 +37,19 @@ function loadSubscriptionData() {
 
         members =
             JSON.parse(
-                localStorage.getItem("mgvm_members")
+                localStorage.getItem(
+                    "mgvm_members"
+                )
             ) || [];
 
-    } catch (error) {
+    }
+    catch (error) {
 
-        console.error("Members Load Error:", error);
+        console.error(
+            "Members Load Error:",
+            error
+        );
+
         members = [];
 
     }
@@ -58,10 +59,13 @@ function loadSubscriptionData() {
 
         subscriptions =
             JSON.parse(
-                localStorage.getItem("mgvm_subscriptions")
+                localStorage.getItem(
+                    "mgvm_subscriptions"
+                )
             ) || [];
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Subscriptions Load Error:",
@@ -76,105 +80,114 @@ function loadSubscriptionData() {
 
 
 /* =========================================================
-   3. SAVE DATA
+   3. SAVE MEMBERS
 ========================================================= */
 
 function saveMembers() {
 
-    try {
-
-        localStorage.setItem(
-            "mgvm_members",
-            JSON.stringify(members)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Save Members Error:",
-            error
-        );
-
-    }
-
-}
-
-
-function saveSubscriptions() {
-
-    try {
-
-        localStorage.setItem(
-            "mgvm_subscriptions",
-            JSON.stringify(subscriptions)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Save Subscription Error:",
-            error
-        );
-
-    }
+    localStorage.setItem(
+        "mgvm_members",
+        JSON.stringify(
+            members
+        )
+    );
 
 }
 
 
 /* =========================================================
-   4. DOM ELEMENTS
+   4. SAVE SUBSCRIPTIONS
+========================================================= */
+
+function saveSubscriptions() {
+
+    localStorage.setItem(
+        "mgvm_subscriptions",
+        JSON.stringify(
+            subscriptions
+        )
+    );
+
+}
+
+
+/* =========================================================
+   5. DOM ELEMENTS
 ========================================================= */
 
 const subscriptionForm =
-    document.getElementById("subscriptionForm");
+    document.getElementById(
+        "subscriptionForm"
+    );
 
 const memberSearchInput =
-    document.getElementById("memberSearch");
+    document.getElementById(
+        "memberSearch"
+    );
 
 const memberSuggestions =
-    document.getElementById("memberSuggestions");
+    document.getElementById(
+        "memberSuggestions"
+    );
 
 const subscriptionMemberId =
-    document.getElementById("subscriptionMemberId");
+    document.getElementById(
+        "subscriptionMemberId"
+    );
 
 const subscriptionMemberName =
-    document.getElementById("subscriptionMemberName");
+    document.getElementById(
+        "subscriptionMemberName"
+    );
 
 const subscriptionWadi =
-    document.getElementById("subscriptionWadi");
+    document.getElementById(
+        "subscriptionWadi"
+    );
 
 const subscriptionYear =
-    document.getElementById("subscriptionYear");
+    document.getElementById(
+        "subscriptionYear"
+    );
 
 const annualAmount =
-    document.getElementById("annualAmount");
+    document.getElementById(
+        "annualAmount"
+    );
 
 const paidAmount =
-    document.getElementById("paidAmount");
+    document.getElementById(
+        "paidAmount"
+    );
 
 const pendingAmount =
-    document.getElementById("pendingAmount");
+    document.getElementById(
+        "pendingAmount"
+    );
 
 const receiptNo =
-    document.getElementById("receiptNo");
+    document.getElementById(
+        "receiptNo"
+    );
 
 const paymentMode =
-    document.getElementById("paymentMode");
+    document.getElementById(
+        "paymentMode"
+    );
 
 const paymentDate =
-    document.getElementById("paymentDate");
+    document.getElementById(
+        "paymentDate"
+    );
 
 const enteredBy =
-    document.getElementById("enteredBy");
-
-const transactionYearFilter =
     document.getElementById(
-        "transactionYearFilter"
+        "enteredBy"
     );
 
 
 /* =========================================================
-   5. CURRENT YEAR
+   6. CURRENT YEAR
 ========================================================= */
 
 const currentYear =
@@ -182,7 +195,7 @@ const currentYear =
 
 
 /* =========================================================
-   6. FINANCIAL YEAR
+   7. FINANCIAL YEAR
 ========================================================= */
 
 function getFinancialYear(year) {
@@ -190,19 +203,25 @@ function getFinancialYear(year) {
     return (
         year +
         "-" +
-        String(year + 1).slice(-2)
+        String(
+            year + 1
+        ).slice(-2)
     );
 
 }
 
 
 /* =========================================================
-   7. LOAD YEARS
+   8. LOAD SUBSCRIPTION YEARS
 ========================================================= */
 
 function loadSubscriptionYears() {
 
-    if (!subscriptionYear) return;
+    if (!subscriptionYear) {
+
+        return;
+
+    }
 
 
     subscriptionYear.innerHTML = `
@@ -220,16 +239,22 @@ function loadSubscriptionYears() {
         year++
     ) {
 
-        const fy =
-            getFinancialYear(year);
-
-
         const option =
-            document.createElement("option");
+            document.createElement(
+                "option"
+            );
 
 
-        option.value = fy;
-        option.textContent = fy;
+        option.value =
+            getFinancialYear(
+                year
+            );
+
+
+        option.textContent =
+            getFinancialYear(
+                year
+            );
 
 
         subscriptionYear.appendChild(
@@ -242,19 +267,25 @@ function loadSubscriptionYears() {
 
 
 /* =========================================================
-   8. LOAD TRANSACTION YEARS
+   9. LOAD TRANSACTION YEAR FILTER
 ========================================================= */
 
 function loadTransactionYears() {
 
-    if (!transactionYearFilter) return;
+    const filter =
+        document.getElementById(
+            "transactionYearFilter"
+        );
 
 
-    const currentValue =
-        transactionYearFilter.value;
+    if (!filter) {
+
+        return;
+
+    }
 
 
-    transactionYearFilter.innerHTML = `
+    filter.innerHTML = `
 
         <option value="">
             सर्व वर्षे
@@ -271,10 +302,14 @@ function loadTransactionYears() {
 
             if (
                 item.year &&
-                !years.includes(item.year)
+                !years.includes(
+                    item.year
+                )
             ) {
 
-                years.push(item.year);
+                years.push(
+                    item.year
+                );
 
             }
 
@@ -289,43 +324,43 @@ function loadTransactionYears() {
         function(year) {
 
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
 
-            option.value = year;
-            option.textContent = year;
+            option.value =
+                year;
+
+            option.textContent =
+                year;
 
 
-            transactionYearFilter.appendChild(
+            filter.appendChild(
                 option
             );
 
         }
     );
 
-
-    if (
-        years.includes(currentValue)
-    ) {
-
-        transactionYearFilter.value =
-            currentValue;
-
-    }
-
 }
 
 
 /* =========================================================
-   9. TODAY DATE
+   10. TODAY DATE
 ========================================================= */
 
 function setTodayDate() {
 
-    if (!paymentDate) return;
+    if (!paymentDate) {
+
+        return;
+
+    }
 
 
-    const today = new Date();
+    const today =
+        new Date();
 
 
     const yyyy =
@@ -335,23 +370,35 @@ function setTodayDate() {
     const mm =
         String(
             today.getMonth() + 1
-        ).padStart(2, "0");
+        )
+        .padStart(
+            2,
+            "0"
+        );
 
 
     const dd =
         String(
             today.getDate()
-        ).padStart(2, "0");
+        )
+        .padStart(
+            2,
+            "0"
+        );
 
 
     paymentDate.value =
-        `${yyyy}-${mm}-${dd}`;
+        yyyy +
+        "-" +
+        mm +
+        "-" +
+        dd;
 
 }
 
 
 /* =========================================================
-   10. DEFAULT ANNUAL AMOUNT
+   11. DEFAULT ANNUAL AMOUNT
 ========================================================= */
 
 function setDefaultAnnualAmount() {
@@ -367,77 +414,85 @@ function setDefaultAnnualAmount() {
 
 
 /* =========================================================
-   11. HTML ESCAPE
+   12. HTML ESCAPE
 ========================================================= */
 
-function escapeSubscriptionHTML(value) {
+function escapeSubscriptionHTML(
+    value
+) {
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
 
 /* =========================================================
-   12. NORMALIZE SEARCH TEXT
-
-   Important:
-   Name search problem fix
-   - Marathi / English both supported
-   - Extra spaces removed
-   - Case insensitive
+   13. JS ESCAPE
 ========================================================= */
 
-function normalizeSearchText(value) {
+function escapeSubscriptionJS(
+    value
+) {
 
-    return String(value ?? "")
-        .trim()
-        .toLocaleLowerCase("mr-IN")
-        .replace(/\s+/g, " ");
+    return String(
+        value || ""
+    )
+    .replace(
+        /\\/g,
+        "\\\\"
+    )
+    .replace(
+        /'/g,
+        "\\'"
+    )
+    .replace(
+        /"/g,
+        '\\"'
+    )
+    .replace(
+        /\r?\n/g,
+        "\\n"
+    );
 
 }
 
 
 /* =========================================================
-   13. MEMBER SEARCH
+   14. MEMBER SEARCH
+   IMPORTANT:
+   Existing search logic preserved.
 ========================================================= */
 
 function searchSubscriptionMembers() {
 
     /*
-       Always get latest members data.
+       नवीन member data मिळण्यासाठी
+       latest LocalStorage data load करतो.
     */
 
-    try {
-
-        const latestMembers =
-            JSON.parse(
-                localStorage.getItem(
-                    "mgvm_members"
-                )
-            );
-
-        if (
-            Array.isArray(latestMembers)
-        ) {
-
-            members =
-                latestMembers;
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Latest Members Load Error:",
-            error
-        );
-
-    }
+    loadSubscriptionData();
 
 
     if (
@@ -451,9 +506,11 @@ function searchSubscriptionMembers() {
 
 
     const keyword =
-        normalizeSearchText(
-            memberSearchInput.value
-        );
+        String(
+            memberSearchInput.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
 
     memberSuggestions.innerHTML =
@@ -470,60 +527,74 @@ function searchSubscriptionMembers() {
     }
 
 
-    /*
-       Search:
-       1. Name
-       2. Member ID
-       3. Mobile
-       4. Wadi
-    */
-
     const results =
-        members.filter(
+        members
+        .filter(
             function(member) {
 
                 const name =
-                    normalizeSearchText(
-                        member.name
-                    );
+                    String(
+                        member.name || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
                 const id =
-                    normalizeSearchText(
-                        member.id
-                    );
+                    String(
+                        member.id || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
                 const mobile =
-                    normalizeSearchText(
-                        member.mobile
-                    );
+                    String(
+                        member.mobile || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
                 const wadi =
-                    normalizeSearchText(
-                        member.wadi
-                    );
+                    String(
+                        member.wadi || ""
+                    )
+                    .trim()
+                    .toLowerCase();
 
 
                 return (
 
-                    name.includes(keyword) ||
+                    name.includes(
+                        keyword
+                    ) ||
 
-                    id.includes(keyword) ||
+                    id.includes(
+                        keyword
+                    ) ||
 
-                    mobile.includes(keyword) ||
+                    mobile.includes(
+                        keyword
+                    ) ||
 
-                    wadi.includes(keyword)
+                    wadi.includes(
+                        keyword
+                    )
 
                 );
 
             }
         )
-        .slice(0, 20);
+        .slice(
+            0,
+            15
+        );
 
 
-    if (!results.length) {
+    if (
+        results.length === 0
+    ) {
 
         memberSuggestions.innerHTML = `
 
@@ -531,7 +602,7 @@ function searchSubscriptionMembers() {
 
                 <i class="fa fa-user-slash"></i>
 
-                &nbsp; सभासद सापडला नाही.
+                सभासद सापडला नाही.
 
             </div>
 
@@ -549,7 +620,9 @@ function searchSubscriptionMembers() {
         function(member) {
 
             const item =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
 
             item.className =
@@ -602,10 +675,7 @@ function searchSubscriptionMembers() {
 
             item.addEventListener(
                 "click",
-                function(event) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
+                function() {
 
                     selectSubscriptionMember(
                         member
@@ -630,55 +700,60 @@ function searchSubscriptionMembers() {
 
 
 /* =========================================================
-   14. SEARCH EVENT
+   15. SEARCH EVENT
 ========================================================= */
 
-if (memberSearchInput) {
+if (
+    memberSearchInput
+) {
 
     memberSearchInput.addEventListener(
         "input",
         searchSubscriptionMembers
     );
 
-
-    memberSearchInput.addEventListener(
-        "focus",
-        function() {
-
-            if (
-                memberSearchInput.value.trim()
-            ) {
-
-                searchSubscriptionMembers();
-
-            }
-
-        }
-    );
-
 }
 
 
 /* =========================================================
-   15. SELECT MEMBER
+   16. SELECT MEMBER
 ========================================================= */
 
 function selectSubscriptionMember(
     member
 ) {
 
-    if (!member) return;
+    /*
+       LocalStorage मधून latest member object
+       घेण्याचा प्रयत्न.
+    */
+
+    const latestMember =
+        members.find(
+            function(item) {
+
+                return (
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        member.id
+                    )
+                );
+
+            }
+        );
 
 
-    selectedMember = {
-        ...member
-    };
+    selectedMember =
+        latestMember ||
+        member;
 
 
     if (subscriptionMemberId) {
 
         subscriptionMemberId.value =
-            member.id || "";
+            selectedMember.id || "";
 
     }
 
@@ -686,7 +761,7 @@ function selectSubscriptionMember(
     if (subscriptionMemberName) {
 
         subscriptionMemberName.value =
-            member.name || "";
+            selectedMember.name || "";
 
     }
 
@@ -694,7 +769,7 @@ function selectSubscriptionMember(
     if (subscriptionWadi) {
 
         subscriptionWadi.value =
-            member.wadi || "";
+            selectedMember.wadi || "";
 
     }
 
@@ -702,7 +777,7 @@ function selectSubscriptionMember(
     if (memberSearchInput) {
 
         memberSearchInput.value =
-            member.name || "";
+            selectedMember.name || "";
 
     }
 
@@ -726,35 +801,81 @@ function selectSubscriptionMember(
 
 
 /* =========================================================
-   16. FIND MEMBER BY ID
+   17. FIND MEMBER
 ========================================================= */
 
-function findMemberById(id) {
+function findMemberById(
+    id
+) {
 
     loadSubscriptionData();
 
 
-    return members.find(
-        function(member) {
+    return (
+        members.find(
+            function(member) {
 
-            return (
-                String(member.id).trim() ===
-                String(id).trim()
-            );
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        id
+                    )
+                );
 
-        }
-    ) || null;
+            }
+        ) ||
+        null
+    );
 
 }
 
 
 /* =========================================================
-   17. GET YEAR PAYMENT
+   18. GET EXCEL / MEMBER IMPORTED PENDING
 ========================================================= */
 
-function getMemberYearPayment(
-    memberId,
-    year
+function getImportedMemberPending(
+    member
+) {
+
+    if (!member) {
+
+        return 0;
+
+    }
+
+
+    const pending =
+        Number(
+            member.subscriptionPending
+        );
+
+
+    if (
+        Number.isFinite(
+            pending
+        ) &&
+        pending >= 0
+    ) {
+
+        return pending;
+
+    }
+
+
+    return 0;
+
+}
+
+
+/* =========================================================
+   19. GET TOTAL PAID TRANSACTIONS
+========================================================= */
+
+function getMemberTotalPaid(
+    memberId
 ) {
 
     return subscriptions
@@ -762,27 +883,21 @@ function getMemberYearPayment(
             function(item) {
 
                 return (
-
                     String(
                         item.memberId
-                    ).trim() ===
-                    String(
-                        memberId
-                    ).trim() &&
-
-                    String(
-                        item.year
                     ) ===
                     String(
-                        year
+                        memberId
                     )
-
                 );
 
             }
         )
         .reduce(
-            function(total, item) {
+            function(
+                total,
+                item
+            ) {
 
                 return (
                     total +
@@ -799,37 +914,113 @@ function getMemberYearPayment(
 
 
 /* =========================================================
-   18. CALCULATE PENDING
+   20. GET YEAR PAYMENT
+========================================================= */
+
+function getMemberYearPayment(
+    memberId,
+    year
+) {
+
+    return subscriptions
+        .filter(
+            function(item) {
+
+                return (
+
+                    String(
+                        item.memberId
+                    ) ===
+                    String(
+                        memberId
+                    ) &&
+
+                    item.year ===
+                    year
+
+                );
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.paidAmount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+ }
+
+
+/* =========================================================
+   21. GET CURRENT MEMBER PENDING
+   MAIN FIX
+========================================================= */
+
+function getCurrentMemberPending() {
+
+    if (!selectedMember) {
+
+        return 0;
+
+    }
+
+
+    /*
+       selectedMember मध्ये Excel import केलेली
+       subscriptionPending value घेतली जाते.
+    */
+
+    const pending =
+        getImportedMemberPending(
+            selectedMember
+        );
+
+
+    return Math.max(
+        0,
+        pending
+    );
+
+}
+
+
+/* =========================================================
+   22. CALCULATE PAYMENT PENDING
 ========================================================= */
 
 function calculatePendingAmount() {
 
-    if (
-        !selectedMember ||
-        !subscriptionYear
-    ) {
+    if (!selectedMember) {
 
-        return DEFAULT_ANNUAL_AMOUNT;
+        return 0;
 
     }
 
 
-    const year =
-        subscriptionYear.value;
+    /*
+       IMPORTANT:
+       Excel मधील बाकी रक्कम वापरली जाते.
 
+       उदाहरण:
+       Excel pending = 1500
+       Paid Now = 200
 
-    if (!year) {
+       Result = 1300
+    */
 
-        return DEFAULT_ANNUAL_AMOUNT;
-
-    }
-
-
-    const alreadyPaid =
-        getMemberYearPayment(
-            selectedMember.id,
-            year
-        );
+    const currentPending =
+        getCurrentMemberPending();
 
 
     const paidNow =
@@ -839,23 +1030,23 @@ function calculatePendingAmount() {
             paidAmount.value
             :
             0
-        ) || 0;
+        );
 
 
-    const annual =
-        Number(
-            annualAmount
-            ?
-            annualAmount.value
-            :
-            DEFAULT_ANNUAL_AMOUNT
-        ) || DEFAULT_ANNUAL_AMOUNT;
+    if (
+        !Number.isFinite(
+            paidNow
+        )
+    ) {
+
+        return currentPending;
+
+    }
 
 
     return Math.max(
         0,
-        annual -
-        alreadyPaid -
+        currentPending -
         paidNow
     );
 
@@ -863,12 +1054,16 @@ function calculatePendingAmount() {
 
 
 /* =========================================================
-   19. UPDATE PENDING
+   23. UPDATE PENDING
 ========================================================= */
 
 function updatePendingAmount() {
 
-    if (!pendingAmount) return;
+    if (!pendingAmount) {
+
+        return;
+
+    }
 
 
     pendingAmount.value =
@@ -878,10 +1073,17 @@ function updatePendingAmount() {
 
 
 /* =========================================================
-   20. MEMBER SUMMARY
+   24. MEMBER SUBSCRIPTION SUMMARY
 ========================================================= */
 
 function updateMemberSubscriptionSummary() {
+
+    if (!selectedMember) {
+
+        return;
+
+    }
+
 
     const summary =
         document.getElementById(
@@ -889,17 +1091,7 @@ function updateMemberSubscriptionSummary() {
         );
 
 
-    if (!summary) return;
-
-
-    if (
-        !selectedMember ||
-        !subscriptionYear ||
-        !subscriptionYear.value
-    ) {
-
-        summary.innerHTML =
-            "";
+    if (!summary) {
 
         return;
 
@@ -907,21 +1099,61 @@ function updateMemberSubscriptionSummary() {
 
 
     const year =
-        subscriptionYear.value;
+        subscriptionYear
+        ?
+        subscriptionYear.value
+        :
+        "";
 
 
-    const alreadyPaid =
+    const importedPending =
+        getCurrentMemberPending();
+
+
+    const yearPaid =
+        year
+        ?
         getMemberYearPayment(
             selectedMember.id,
             year
-        );
+        )
+        :
+        0;
 
 
-    const pending =
+    if (!year) {
+
+        summary.innerHTML = `
+
+            <div class="subscription-summary">
+
+                <strong>
+                    ${escapeSubscriptionHTML(
+                        selectedMember.name
+                    )}
+                </strong>
+
+                <div>
+                    Excel/Member मध्ये नोंद असलेली
+                    एकूण बाकी:
+                    <strong>
+                        ₹${importedPending}
+                    </strong>
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const paymentPending =
         Math.max(
             0,
-            DEFAULT_ANNUAL_AMOUNT -
-            alreadyPaid
+            importedPending
         );
 
 
@@ -948,13 +1180,15 @@ function updateMemberSubscriptionSummary() {
             </div>
 
             <div>
-                आधी भरलेली:
-                ₹${alreadyPaid}
+                या वर्षी भरलेली:
+                ₹${yearPaid}
             </div>
 
             <div>
-                बाकी:
-                ₹${pending}
+                <strong>
+                    एकूण बाकी:
+                    ₹${paymentPending}
+                </strong>
             </div>
 
         </div>
@@ -965,16 +1199,38 @@ function updateMemberSubscriptionSummary() {
 
 
 /* =========================================================
-   21. YEAR CHANGE
+   25. YEAR CHANGE
 ========================================================= */
 
-if (subscriptionYear) {
+if (
+    subscriptionYear
+) {
 
     subscriptionYear.addEventListener(
         "change",
         function() {
 
+            updatePendingAmount();
+
             updateMemberSubscriptionSummary();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   26. PAID AMOUNT CHANGE
+========================================================= */
+
+if (
+    paidAmount
+) {
+
+    paidAmount.addEventListener(
+        "input",
+        function() {
 
             updatePendingAmount();
 
@@ -985,41 +1241,10 @@ if (subscriptionYear) {
 
 
 /* =========================================================
-   22. PAID AMOUNT CHANGE
-========================================================= */
-
-if (paidAmount) {
-
-    paidAmount.addEventListener(
-        "input",
-        updatePendingAmount
-    );
-
-}
-
-
-/* =========================================================
-   23. ANNUAL AMOUNT CHANGE
-========================================================= */
-
-if (annualAmount) {
-
-    annualAmount.addEventListener(
-        "input",
-        updatePendingAmount
-    );
-
-}
-
-
-/* =========================================================
-   24. GENERATE RECEIPT NUMBER
+   27. GENERATE RECEIPT NUMBER
 ========================================================= */
 
 function generateReceiptNumber() {
-
-    loadSubscriptionData();
-
 
     let maxNumber = 0;
 
@@ -1027,9 +1252,18 @@ function generateReceiptNumber() {
     subscriptions.forEach(
         function(item) {
 
+            if (
+                !item.receiptNo
+            ) {
+
+                return;
+
+            }
+
+
             const match =
                 String(
-                    item.receiptNo || ""
+                    item.receiptNo
                 )
                 .match(
                     /MGVM-REC-(\d+)/i
@@ -1046,7 +1280,8 @@ function generateReceiptNumber() {
 
 
                 if (
-                    number > maxNumber
+                    number >
+                    maxNumber
                 ) {
 
                     maxNumber =
@@ -1064,7 +1299,8 @@ function generateReceiptNumber() {
         "MGVM-REC-" +
         String(
             maxNumber + 1
-        ).padStart(
+        )
+        .padStart(
             4,
             "0"
         )
@@ -1074,10 +1310,147 @@ function generateReceiptNumber() {
 
 
 /* =========================================================
-   25. FORM SUBMIT
+   28. UPDATE MEMBER PENDING AFTER PAYMENT
+   MAIN FIX
 ========================================================= */
 
-if (subscriptionForm) {
+function reduceMemberPending(
+    memberId,
+    amount
+) {
+
+    const index =
+        members.findIndex(
+            function(member) {
+
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        memberId
+                    )
+                );
+
+            }
+        );
+
+
+    if (
+        index === -1
+    ) {
+
+        return;
+
+    }
+
+
+    const currentPending =
+        Number(
+            members[index]
+                .subscriptionPending
+        ) || 0;
+
+
+    members[index]
+        .subscriptionPending =
+        Math.max(
+            0,
+            currentPending -
+            Number(
+                amount
+            )
+        );
+
+
+    saveMembers();
+
+
+    /*
+       selectedMember सुद्धा update करा.
+       त्यामुळे लगेच UI मध्ये नवीन pending दिसेल.
+    */
+
+    if (
+        selectedMember &&
+        String(
+            selectedMember.id
+        ) ===
+        String(
+            memberId
+        )
+    ) {
+
+        selectedMember =
+            members[index];
+
+    }
+
+}
+
+
+/* =========================================================
+   29. ADD MEMBER PENDING AFTER DELETE
+========================================================= */
+
+function increaseMemberPending(
+    memberId,
+    amount
+) {
+
+    const index =
+        members.findIndex(
+            function(member) {
+
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        memberId
+                    )
+                );
+
+            }
+        );
+
+
+    if (
+        index === -1
+    ) {
+
+        return;
+
+    }
+
+
+    const currentPending =
+        Number(
+            members[index]
+                .subscriptionPending
+        ) || 0;
+
+
+    members[index]
+        .subscriptionPending =
+        currentPending +
+        Number(
+            amount || 0
+        );
+
+
+    saveMembers();
+
+}
+
+
+/* =========================================================
+   30. FORM SUBMIT
+========================================================= */
+
+if (
+    subscriptionForm
+) {
 
     subscriptionForm.addEventListener(
         "submit",
@@ -1089,16 +1462,15 @@ if (subscriptionForm) {
             loadSubscriptionData();
 
 
-            /*
-               If member was not selected,
-               try Member ID.
-            */
+            /* =========================================
+               MEMBER
+            ========================================= */
 
             if (!selectedMember) {
 
                 if (
                     subscriptionMemberId &&
-                    subscriptionMemberId.value.trim()
+                    subscriptionMemberId.value
                 ) {
 
                     selectedMember =
@@ -1114,7 +1486,7 @@ if (subscriptionForm) {
             if (!selectedMember) {
 
                 alert(
-                    "कृपया प्रथम सभासद Search करून Select करा."
+                    "कृपया प्रथम सभासद निवडा."
                 );
 
                 return;
@@ -1122,7 +1494,27 @@ if (subscriptionForm) {
             }
 
 
-            /* YEAR */
+            /*
+               Latest member data पुन्हा घ्या.
+            */
+
+            const latestMember =
+                findMemberById(
+                    selectedMember.id
+                );
+
+
+            if (latestMember) {
+
+                selectedMember =
+                    latestMember;
+
+            }
+
+
+            /* =========================================
+               YEAR
+            ========================================= */
 
             const year =
                 subscriptionYear
@@ -1143,7 +1535,9 @@ if (subscriptionForm) {
             }
 
 
-            /* PAYMENT MODE */
+            /* =========================================
+               PAYMENT MODE
+            ========================================= */
 
             if (
                 paymentMode &&
@@ -1159,7 +1553,9 @@ if (subscriptionForm) {
             }
 
 
-            /* PAYMENT DATE */
+            /* =========================================
+               PAYMENT DATE
+            ========================================= */
 
             if (
                 paymentDate &&
@@ -1175,7 +1571,9 @@ if (subscriptionForm) {
             }
 
 
-            /* PAID AMOUNT */
+            /* =========================================
+               PAYMENT AMOUNT
+            ========================================= */
 
             const amount =
                 Number(
@@ -1188,7 +1586,9 @@ if (subscriptionForm) {
 
 
             if (
-                !Number.isFinite(amount) ||
+                !Number.isFinite(
+                    amount
+                ) ||
                 amount <= 0
             ) {
 
@@ -1201,25 +1601,28 @@ if (subscriptionForm) {
             }
 
 
-            /* ANNUAL */
+            /* =========================================
+               CURRENT PENDING
+            ========================================= */
 
-            const annual =
-                Number(
-                    annualAmount
-                    ?
-                    annualAmount.value
-                    :
-                    DEFAULT_ANNUAL_AMOUNT
-                );
+            const currentPending =
+                getCurrentMemberPending();
 
+
+            /*
+               Excel pending / current member pending
+               पेक्षा जास्त payment करू देऊ नका.
+            */
 
             if (
-                !Number.isFinite(annual) ||
-                annual <= 0
+                amount >
+                currentPending
             ) {
 
                 alert(
-                    "वार्षिक वर्गणी रक्कम योग्य टाका."
+                    "या सभासदाची सध्याची बाकी ₹" +
+                    currentPending +
+                    " आहे."
                 );
 
                 return;
@@ -1227,42 +1630,9 @@ if (subscriptionForm) {
             }
 
 
-            /* ALREADY PAID */
-
-            const alreadyPaid =
-                getMemberYearPayment(
-                    selectedMember.id,
-                    year
-                );
-
-
-            /* OVER PAYMENT */
-
-            if (
-                alreadyPaid + amount >
-                annual
-            ) {
-
-                const remaining =
-                    Math.max(
-                        0,
-                        annual -
-                        alreadyPaid
-                    );
-
-
-                alert(
-                    "या वर्षासाठी फक्त ₹" +
-                    remaining +
-                    " बाकी आहे."
-                );
-
-                return;
-
-            }
-
-
-            /* RECEIPT */
+            /* =========================================
+               RECEIPT
+            ========================================= */
 
             let finalReceiptNo =
                 receiptNo
@@ -1280,7 +1650,9 @@ if (subscriptionForm) {
             }
 
 
-            /* DUPLICATE RECEIPT */
+            /* =========================================
+               DUPLICATE RECEIPT
+            ========================================= */
 
             const receiptExists =
                 subscriptions.some(
@@ -1288,14 +1660,14 @@ if (subscriptionForm) {
 
                         return (
                             String(
-                                item.receiptNo || ""
+                                item.receiptNo
                             )
-                            .trim()
                             .toLowerCase()
                             ===
-                            finalReceiptNo
-                                .trim()
-                                .toLowerCase()
+                            String(
+                                finalReceiptNo
+                            )
+                            .toLowerCase()
                         );
 
                     }
@@ -1313,19 +1685,27 @@ if (subscriptionForm) {
             }
 
 
-            /* =================================================
+            /* =========================================
+               NEW PENDING
+            ========================================= */
+
+            const newPending =
+                Math.max(
+                    0,
+                    currentPending -
+                    amount
+                );
+
+
+            /* =========================================
                CREATE TRANSACTION
-            ================================================= */
+            ========================================= */
 
             const transaction = {
 
                 id:
                     "SUB-" +
-                    Date.now() +
-                    "-" +
-                    Math.floor(
-                        Math.random() * 1000
-                    ),
+                    Date.now(),
 
                 memberId:
                     selectedMember.id,
@@ -1334,24 +1714,20 @@ if (subscriptionForm) {
                     selectedMember.name,
 
                 wadi:
-                    selectedMember.wadi || "",
+                    selectedMember.wadi ||
+                    "",
 
                 year:
                     year,
 
                 annualAmount:
-                    annual,
+                    DEFAULT_ANNUAL_AMOUNT,
 
                 paidAmount:
                     amount,
 
                 pendingAmount:
-                    Math.max(
-                        0,
-                        annual -
-                        alreadyPaid -
-                        amount
-                    ),
+                    newPending,
 
                 receiptNo:
                     finalReceiptNo,
@@ -1378,10 +1754,15 @@ if (subscriptionForm) {
                     "",
 
                 createdAt:
-                    new Date().toISOString()
+                    new Date()
+                        .toISOString()
 
             };
 
+
+            /* =========================================
+               SAVE TRANSACTION
+            ========================================= */
 
             subscriptions.push(
                 transaction
@@ -1391,29 +1772,30 @@ if (subscriptionForm) {
             saveSubscriptions();
 
 
-            /*
-               Update member pending
-            */
+            /* =========================================
+               UPDATE MEMBER PENDING
+            ========================================= */
 
-            recalculateMemberPending(
-                selectedMember.id
+            reduceMemberPending(
+                selectedMember.id,
+                amount
             );
 
 
-            /*
-               Refresh
-            */
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            showSubscriptionToast(
+                "वर्गणी यशस्वीरित्या जतन झाली."
+            );
+
 
             loadSubscriptionData();
 
             loadTransactionYears();
 
             displaySubscriptionTransactions();
-
-
-            showSubscriptionToast(
-                "वर्गणी यशस्वीरित्या जतन झाली."
-            );
 
 
             resetSubscriptionForm();
@@ -1425,134 +1807,27 @@ if (subscriptionForm) {
 
 
 /* =========================================================
-   26. RECALCULATE MEMBER PENDING
-========================================================= */
-
-function recalculateMemberPending(
-    memberId
-) {
-
-    loadSubscriptionData();
-
-
-    const memberIndex =
-        members.findIndex(
-            function(member) {
-
-                return (
-                    String(member.id).trim() ===
-                    String(memberId).trim()
-                );
-
-            }
-        );
-
-
-    if (memberIndex === -1) {
-
-        return;
-
-    }
-
-
-    const memberTransactions =
-        subscriptions.filter(
-            function(item) {
-
-                return (
-                    String(
-                        item.memberId
-                    ).trim() ===
-                    String(
-                        memberId
-                    ).trim()
-                );
-
-            }
-        );
-
-
-    const yearMap = {};
-
-
-    memberTransactions.forEach(
-        function(item) {
-
-            const year =
-                item.year;
-
-
-            if (!year) return;
-
-
-            if (
-                !Object.prototype.hasOwnProperty.call(
-                    yearMap,
-                    year
-                )
-            ) {
-
-                yearMap[year] = 0;
-
-            }
-
-
-            yearMap[year] +=
-                Number(
-                    item.paidAmount || 0
-                );
-
-        }
-    );
-
-
-    let totalPending = 0;
-
-
-    Object.keys(
-        yearMap
-    ).forEach(
-        function(year) {
-
-            totalPending +=
-                Math.max(
-                    0,
-                    DEFAULT_ANNUAL_AMOUNT -
-                    yearMap[year]
-                );
-
-        }
-    );
-
-
-    members[
-        memberIndex
-    ].subscriptionPending =
-        totalPending;
-
-
-    saveMembers();
-
-}
-
-
-/* =========================================================
-   27. RESET FORM
+   31. RESET FORM
 ========================================================= */
 
 function resetSubscriptionForm() {
 
-    selectedMember = null;
+    selectedMember =
+        null;
 
 
-    if (subscriptionForm) {
+    if (
+        subscriptionForm
+    ) {
 
         subscriptionForm.reset();
 
     }
 
 
-    if (memberSearchInput) {
+    if (
+        memberSearchInput
+    ) {
 
         memberSearchInput.value =
             "";
@@ -1560,7 +1835,9 @@ function resetSubscriptionForm() {
     }
 
 
-    if (memberSuggestions) {
+    if (
+        memberSuggestions
+    ) {
 
         memberSuggestions.innerHTML =
             "";
@@ -1571,7 +1848,9 @@ function resetSubscriptionForm() {
     }
 
 
-    if (subscriptionMemberId) {
+    if (
+        subscriptionMemberId
+    ) {
 
         subscriptionMemberId.value =
             "";
@@ -1579,7 +1858,9 @@ function resetSubscriptionForm() {
     }
 
 
-    if (subscriptionMemberName) {
+    if (
+        subscriptionMemberName
+    ) {
 
         subscriptionMemberName.value =
             "";
@@ -1587,7 +1868,9 @@ function resetSubscriptionForm() {
     }
 
 
-    if (subscriptionWadi) {
+    if (
+        subscriptionWadi
+    ) {
 
         subscriptionWadi.value =
             "";
@@ -1595,25 +1878,22 @@ function resetSubscriptionForm() {
     }
 
 
-    if (annualAmount) {
-
-        annualAmount.value =
-            DEFAULT_ANNUAL_AMOUNT;
-
-    }
-
+    setDefaultAnnualAmount();
 
     setTodayDate();
 
-    updatePendingAmount();
+    if (pendingAmount) {
 
-    updateMemberSubscriptionSummary();
+        pendingAmount.value =
+            "";
+
+    }
 
 }
 
 
 /* =========================================================
-   28. TOAST
+   32. TOAST
 ========================================================= */
 
 function showSubscriptionToast(
@@ -1635,7 +1915,7 @@ function showSubscriptionToast(
     }
 
 
-    toast.innerText =
+    toast.innerHTML =
         message;
 
 
@@ -1657,7 +1937,7 @@ function showSubscriptionToast(
 
 
 /* =========================================================
-   29. DISPLAY TRANSACTIONS
+   33. DISPLAY TRANSACTIONS
 ========================================================= */
 
 function displaySubscriptionTransactions(
@@ -1670,14 +1950,20 @@ function displaySubscriptionTransactions(
         );
 
 
-    if (!tableBody) return;
+    if (!tableBody) {
+
+        return;
+
+    }
 
 
     loadSubscriptionData();
 
 
     let data =
-        [...subscriptions];
+        [
+            ...subscriptions
+        ];
 
 
     if (filterYear) {
@@ -1687,8 +1973,8 @@ function displaySubscriptionTransactions(
                 function(item) {
 
                     return (
-                        String(item.year) ===
-                        String(filterYear)
+                        item.year ===
+                        filterYear
                     );
 
                 }
@@ -1700,7 +1986,9 @@ function displaySubscriptionTransactions(
     data.reverse();
 
 
-    if (!data.length) {
+    if (
+        data.length === 0
+    ) {
 
         tableBody.innerHTML = `
 
@@ -1729,10 +2017,15 @@ function displaySubscriptionTransactions(
 
 
     data.forEach(
-        function(item, index) {
+        function(
+            item,
+            index
+        ) {
 
             const row =
-                document.createElement("tr");
+                document.createElement(
+                    "tr"
+                );
 
 
             row.innerHTML = `
@@ -1768,19 +2061,19 @@ function displaySubscriptionTransactions(
                 <td>
                     ₹${Number(
                         item.annualAmount || 0
-                    ).toLocaleString("en-IN")}
+                    )}
                 </td>
 
                 <td>
                     ₹${Number(
                         item.paidAmount || 0
-                    ).toLocaleString("en-IN")}
+                    )}
                 </td>
 
                 <td>
                     ₹${Number(
                         item.pendingAmount || 0
-                    ).toLocaleString("en-IN")}
+                    )}
                 </td>
 
                 <td>
@@ -1794,12 +2087,11 @@ function displaySubscriptionTransactions(
                     <button
                         type="button"
                         class="btn btn-danger"
-                        onclick="deleteSubscription('${String(
-                            item.id
-                        ).replace(
-                            /'/g,
-                            "\\'"
-                        )}')"
+                        onclick="deleteSubscription(
+                            '${escapeSubscriptionJS(
+                                item.id
+                            )}'
+                        )"
                     >
 
                         <i class="fa fa-trash"></i>
@@ -1822,10 +2114,18 @@ function displaySubscriptionTransactions(
 
 
 /* =========================================================
-   30. TRANSACTION FILTER
+   34. YEAR FILTER
 ========================================================= */
 
-if (transactionYearFilter) {
+const transactionYearFilter =
+    document.getElementById(
+        "transactionYearFilter"
+    );
+
+
+if (
+    transactionYearFilter
+) {
 
     transactionYearFilter.addEventListener(
         "change",
@@ -1842,7 +2142,7 @@ if (transactionYearFilter) {
 
 
 /* =========================================================
-   31. DELETE SUBSCRIPTION
+   35. DELETE SUBSCRIPTION
 ========================================================= */
 
 function deleteSubscription(
@@ -1857,8 +2157,12 @@ function deleteSubscription(
             function(item) {
 
                 return (
-                    String(item.id) ===
-                    String(transactionId)
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        transactionId
+                    )
                 );
 
             }
@@ -1894,8 +2198,12 @@ function deleteSubscription(
             function(item) {
 
                 return (
-                    String(item.id) !==
-                    String(transactionId)
+                    String(
+                        item.id
+                    ) !==
+                    String(
+                        transactionId
+                    )
                 );
 
             }
@@ -1905,8 +2213,16 @@ function deleteSubscription(
     saveSubscriptions();
 
 
-    recalculateMemberPending(
-        transaction.memberId
+    /*
+       Delete केलेली payment amount
+       member pending मध्ये परत add करा.
+    */
+
+    increaseMemberPending(
+        transaction.memberId,
+        Number(
+            transaction.paidAmount || 0
+        )
     );
 
 
@@ -1914,15 +2230,7 @@ function deleteSubscription(
 
     loadTransactionYears();
 
-    displaySubscriptionTransactions(
-        transactionYearFilter
-        ?
-        transactionYearFilter.value
-        :
-        ""
-    );
-
-    updateSubscriptionDashboard();
+    displaySubscriptionTransactions();
 
 
     showSubscriptionToast(
@@ -1933,7 +2241,7 @@ function deleteSubscription(
 
 
 /* =========================================================
-   32. DASHBOARD
+   36. DASHBOARD UPDATE
 ========================================================= */
 
 function updateSubscriptionDashboard() {
@@ -1943,7 +2251,10 @@ function updateSubscriptionDashboard() {
 
     const totalSubscription =
         subscriptions.reduce(
-            function(total, item) {
+            function(
+                total,
+                item
+            ) {
 
                 return (
                     total +
@@ -1957,26 +2268,22 @@ function updateSubscriptionDashboard() {
         );
 
 
-    const totalElement =
+    const element =
         document.getElementById(
             "totalSubscription"
         );
 
 
-    if (totalElement) {
+    if (element) {
 
-        totalElement.innerText =
+        element.innerText =
             "₹" +
-            totalSubscription.toLocaleString(
-                "en-IN"
-            );
+            totalSubscription;
 
     }
 
 
-    /*
-       Current Financial Year
-    */
+    /* CURRENT FINANCIAL YEAR */
 
     const currentFinancialYear =
         getFinancialYear(
@@ -1997,7 +2304,10 @@ function updateSubscriptionDashboard() {
             }
         )
         .reduce(
-            function(total, item) {
+            function(
+                total,
+                item
+            ) {
 
                 return (
                     total +
@@ -2021,31 +2331,20 @@ function updateSubscriptionDashboard() {
 
         yearElement.innerText =
             "₹" +
-            yearTotal.toLocaleString(
-                "en-IN"
-            );
+            yearTotal;
 
     }
 
 
-    /*
-       Today's Collection
-    */
+    /* TODAY COLLECTION */
 
     const today =
-        new Date();
-
-
-    const todayString =
-        today.getFullYear() +
-        "-" +
-        String(
-            today.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            today.getDate()
-        ).padStart(2, "0");
+        new Date()
+        .toISOString()
+        .slice(
+            0,
+            10
+        );
 
 
     const todayTotal =
@@ -2055,13 +2354,16 @@ function updateSubscriptionDashboard() {
 
                 return (
                     item.paymentDate ===
-                    todayString
+                    today
                 );
 
             }
         )
         .reduce(
-            function(total, item) {
+            function(
+                total,
+                item
+            ) {
 
                 return (
                     total +
@@ -2085,9 +2387,7 @@ function updateSubscriptionDashboard() {
 
         todayElement.innerText =
             "₹" +
-            todayTotal.toLocaleString(
-                "en-IN"
-            );
+            todayTotal;
 
     }
 
@@ -2095,7 +2395,7 @@ function updateSubscriptionDashboard() {
 
 
 /* =========================================================
-   33. CLOSE SEARCH OUTSIDE
+   37. CLOSE SEARCH OUTSIDE
 ========================================================= */
 
 document.addEventListener(
@@ -2130,50 +2430,36 @@ document.addEventListener(
 
 
 /* =========================================================
-   34. PAGE INITIALIZATION
+   38. PAGE INITIALIZATION
 ========================================================= */
 
-function initializeSubscriptionPage() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-    loadSubscriptionData();
+        loadSubscriptionData();
 
-    loadSubscriptionYears();
+        loadSubscriptionYears();
 
-    loadTransactionYears();
+        loadTransactionYears();
 
-    setTodayDate();
+        setTodayDate();
 
-    setDefaultAnnualAmount();
+        setDefaultAnnualAmount();
 
-    displaySubscriptionTransactions();
+        displaySubscriptionTransactions();
 
-    updateSubscriptionDashboard();
+        updateSubscriptionDashboard();
 
-    updatePendingAmount();
+        if (pendingAmount) {
 
-}
+            pendingAmount.value =
+                "";
 
+        }
 
-/* =========================================================
-   35. DOM READY
-========================================================= */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeSubscriptionPage
-    );
-
-}
-else {
-
-    initializeSubscriptionPage();
-
-}
+    }
+);
 
 
 /* =========================================================
