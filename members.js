@@ -1,6 +1,6 @@
 /* =========================================================
    members.js
-   COMPLETE CORRECTED FINAL VERSION
+   CORRECTED FINAL VERSION
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
    Features:
@@ -16,17 +16,10 @@
    ✅ Delete
    ✅ Excel / CSV Import
    ✅ Excel मधील बाकी वर्गणी Import
-   ✅ Opening Pending Amount सुरक्षित
    ✅ Excel Export
    ✅ Print
    ✅ Dashboard Member Count
-
-   IMPORTANT:
-   openingSubscriptionPending =
-   Excel / Existing historical pending amount
-
-   subscriptionPending =
-   Current remaining pending amount
+   ✅ Subscription Compatible
 ========================================================= */
 
 
@@ -45,12 +38,27 @@ function loadMembers() {
 
     try {
 
-        members =
-            JSON.parse(
-                localStorage.getItem(
-                    "mgvm_members"
-                )
-            ) || [];
+        const stored =
+            localStorage.getItem(
+                "mgvm_members"
+            );
+
+        if (stored) {
+
+            const parsed =
+                JSON.parse(stored);
+
+            members =
+                Array.isArray(parsed)
+                    ? parsed
+                    : [];
+
+        }
+        else {
+
+            members = [];
+
+        }
 
     }
     catch (error) {
@@ -68,90 +76,53 @@ function loadMembers() {
 
 
 /* =========================================================
-   INITIAL LOAD
-========================================================= */
-
-loadMembers();
-
-
-/* =========================================================
    3. DOM ELEMENTS
 ========================================================= */
 
 const memberForm =
-    document.getElementById(
-        "memberForm"
-    );
+    document.getElementById("memberForm");
 
 const memberTableBody =
-    document.getElementById(
-        "memberTableBody"
-    );
+    document.getElementById("memberTableBody");
 
 const memberId =
-    document.getElementById(
-        "memberId"
-    );
+    document.getElementById("memberId");
 
 const memberName =
-    document.getElementById(
-        "memberName"
-    );
+    document.getElementById("memberName");
 
 const mobile =
-    document.getElementById(
-        "mobile"
-    );
+    document.getElementById("mobile");
 
 const wadi =
-    document.getElementById(
-        "wadi"
-    );
+    document.getElementById("wadi");
 
 const dob =
-    document.getElementById(
-        "dob"
-    );
+    document.getElementById("dob");
 
 const address =
-    document.getElementById(
-        "address"
-    );
+    document.getElementById("address");
 
 const photo =
-    document.getElementById(
-        "photo"
-    );
+    document.getElementById("photo");
 
 const searchMemberInput =
-    document.getElementById(
-        "searchMember"
-    );
+    document.getElementById("searchMember");
 
 const wadiFilter =
-    document.getElementById(
-        "wadiFilter"
-    );
+    document.getElementById("wadiFilter");
 
 const importBtn =
-    document.getElementById(
-        "importBtn"
-    );
+    document.getElementById("importBtn");
 
 const exportBtn =
-    document.getElementById(
-        "exportBtn"
-    );
+    document.getElementById("exportBtn");
 
 const printBtn =
-    document.getElementById(
-        "printBtn"
-    );
+    document.getElementById("printBtn");
 
 const excelFile =
-    document.getElementById(
-        "excelFile"
-    );
+    document.getElementById("excelFile");
 
 
 /* =========================================================
@@ -164,9 +135,7 @@ function saveMembers() {
 
         localStorage.setItem(
             "mgvm_members",
-            JSON.stringify(
-                members
-            )
+            JSON.stringify(members)
         );
 
         return true;
@@ -191,28 +160,39 @@ function saveMembers() {
 
 
 /* =========================================================
-   5. GET NEXT MEMBER ID
+   5. NORMALIZE SEARCH TEXT
+   Name search problem fix
+========================================================= */
+
+function normalizeSearchText(value) {
+
+    return String(value || "")
+        .normalize("NFC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+
+}
+
+
+/* =========================================================
+   6. GET NEXT MEMBER ID
 ========================================================= */
 
 function generateNextMemberId() {
 
     let maxNumber = 0;
 
-
     members.forEach(
         function(member) {
 
             const id =
-                String(
-                    member.id || ""
-                );
-
+                String(member.id || "");
 
             const match =
                 id.match(
                     /MGVM-(\d+)/i
                 );
-
 
             if (match) {
 
@@ -222,13 +202,11 @@ function generateNextMemberId() {
                         10
                     );
 
-
                 if (
                     number > maxNumber
                 ) {
 
-                    maxNumber =
-                        number;
+                    maxNumber = number;
 
                 }
 
@@ -237,23 +215,17 @@ function generateNextMemberId() {
         }
     );
 
-
     return (
         "MGVM-" +
-        String(
-            maxNumber + 1
-        )
-        .padStart(
-            4,
-            "0"
-        )
+        String(maxNumber + 1)
+            .padStart(4, "0")
     );
 
 }
 
 
 /* =========================================================
-   6. DISPLAY NEXT MEMBER ID
+   7. DISPLAY NEXT MEMBER ID
 ========================================================= */
 
 function generateMemberId() {
@@ -267,7 +239,7 @@ function generateMemberId() {
 
 
 /* =========================================================
-   7. IMAGE TO BASE64
+   8. IMAGE TO BASE64
 ========================================================= */
 
 function imageToBase64(file) {
@@ -283,10 +255,8 @@ function imageToBase64(file) {
 
             }
 
-
             const reader =
                 new FileReader();
-
 
             reader.onload =
                 function(event) {
@@ -297,7 +267,6 @@ function imageToBase64(file) {
 
                 };
 
-
             reader.onerror =
                 function() {
 
@@ -305,10 +274,7 @@ function imageToBase64(file) {
 
                 };
 
-
-            reader.readAsDataURL(
-                file
-            );
+            reader.readAsDataURL(file);
 
         }
     );
@@ -317,16 +283,13 @@ function imageToBase64(file) {
 
 
 /* =========================================================
-   8. TOAST
+   9. TOAST
 ========================================================= */
 
 function showToast(message) {
 
     const toast =
-        document.getElementById(
-            "toast"
-        );
-
+        document.getElementById("toast");
 
     if (!toast) {
 
@@ -336,14 +299,11 @@ function showToast(message) {
 
     }
 
-
     toast.innerText =
         message;
 
-
     toast.style.display =
         "block";
-
 
     setTimeout(
         function() {
@@ -359,7 +319,7 @@ function showToast(message) {
 
 
 /* =========================================================
-   9. RESET FORM
+   10. RESET FORM
 ========================================================= */
 
 function resetMemberForm() {
@@ -368,11 +328,9 @@ function resetMemberForm() {
 
         memberForm.reset();
 
-        memberForm.dataset.editingId =
-            "";
+        delete memberForm.dataset.editingId;
 
     }
-
 
     generateMemberId();
 
@@ -380,240 +338,7 @@ function resetMemberForm() {
 
 
 /* =========================================================
-   10. ENSURE MEMBER PENDING STRUCTURE
-========================================================= */
-
-function ensureMemberPendingStructure(
-    member
-) {
-
-    if (!member) return;
-
-
-    /*
-       Old members मध्ये
-       openingSubscriptionPending नसेल
-       तर existing pending ला opening मानले जाईल.
-
-       Existing subscription payments असल्यास
-       opening = current pending + paid amount.
-    */
-
-    if (
-        member.openingSubscriptionPending ===
-        undefined ||
-        member.openingSubscriptionPending ===
-        null
-    ) {
-
-        let paidTotal = 0;
-
-
-        try {
-
-            const subscriptions =
-                JSON.parse(
-                    localStorage.getItem(
-                        "mgvm_subscriptions"
-                    )
-                ) || [];
-
-
-            paidTotal =
-                subscriptions
-                .filter(
-                    function(item) {
-
-                        return (
-                            String(
-                                item.memberId
-                            ) ===
-                            String(
-                                member.id
-                            )
-                        );
-
-                    }
-                )
-                .reduce(
-                    function(
-                        total,
-                        item
-                    ) {
-
-                        return (
-                            total +
-                            Number(
-                                item.paidAmount || 0
-                            )
-                        );
-
-                    },
-                    0
-                );
-
-        }
-        catch (error) {
-
-            paidTotal = 0;
-
-        }
-
-
-        const currentPending =
-            Number(
-                member.subscriptionPending || 0
-            );
-
-
-        member.openingSubscriptionPending =
-            Math.max(
-                0,
-                currentPending +
-                paidTotal
-            );
-
-    }
-
-
-    if (
-        member.subscriptionPayments ===
-        undefined
-    ) {
-
-        member.subscriptionPayments =
-            [];
-
-    }
-
-}
-
-
-/* =========================================================
-   11. RECALCULATE MEMBER PENDING
-========================================================= */
-
-function recalculateMemberPending(
-    memberId
-) {
-
-    const index =
-        members.findIndex(
-            function(member) {
-
-                return (
-                    String(
-                        member.id
-                    ) ===
-                    String(
-                        memberId
-                    )
-                );
-
-            }
-        );
-
-
-    if (index === -1) {
-
-        return 0;
-
-    }
-
-
-    const member =
-        members[index];
-
-
-    ensureMemberPendingStructure(
-        member
-    );
-
-
-    let opening =
-        Number(
-            member.openingSubscriptionPending
-        ) || 0;
-
-
-    let totalPaid = 0;
-
-
-    try {
-
-        const subscriptions =
-            JSON.parse(
-                localStorage.getItem(
-                    "mgvm_subscriptions"
-                )
-            ) || [];
-
-
-        totalPaid =
-            subscriptions
-            .filter(
-                function(item) {
-
-                    return (
-                        String(
-                            item.memberId
-                        ) ===
-                        String(
-                            memberId
-                        )
-                    );
-
-                }
-            )
-            .reduce(
-                function(
-                    total,
-                    item
-                ) {
-
-                    return (
-                        total +
-                        Number(
-                            item.paidAmount || 0
-                        )
-                    );
-
-                },
-                0
-            );
-
-    }
-    catch (error) {
-
-        totalPaid = 0;
-
-    }
-
-
-    member.subscriptionPending =
-        Math.max(
-            0,
-            opening -
-            totalPaid
-        );
-
-
-    members[index] =
-        member;
-
-
-    saveMembers();
-
-
-    return (
-        member.subscriptionPending
-    );
-
-}
-
-
-/* =========================================================
-   12. SAVE NEW MEMBER
+   11. SAVE / UPDATE MEMBER
 ========================================================= */
 
 if (memberForm) {
@@ -622,64 +347,40 @@ if (memberForm) {
         "submit",
         async function(event) {
 
-            /*
-               Edit mode दुसऱ्या listener मध्ये handle होईल.
-            */
-
-            if (
-                memberForm.dataset.editingId
-            ) {
-
-                return;
-
-            }
-
-
             event.preventDefault();
-
 
             loadMembers();
 
+            const editingId =
+                memberForm.dataset.editingId || "";
 
             const name =
                 memberName
-                ?
-                memberName.value.trim()
-                :
-                "";
-
+                    ? memberName.value.trim()
+                    : "";
 
             const mobileNumber =
                 mobile
-                ?
-                mobile.value.trim()
-                :
-                "";
-
+                    ? mobile.value.trim()
+                    : "";
 
             const wadiName =
                 wadi
-                ?
-                wadi.value
-                :
-                "";
-
+                    ? wadi.value.trim()
+                    : "";
 
             const birthDate =
                 dob
-                ?
-                dob.value
-                :
-                "";
-
+                    ? dob.value
+                    : "";
 
             const memberAddress =
                 address
-                ?
-                address.value.trim()
-                :
-                "";
+                    ? address.value.trim()
+                    : "";
 
+
+            /* NAME REQUIRED */
 
             if (!name) {
 
@@ -692,22 +393,171 @@ if (memberForm) {
             }
 
 
-            /* =========================================
-               DUPLICATE NAME
-            ========================================= */
+            const normalizedName =
+                normalizeSearchText(name);
+
+
+            /* =================================================
+               EDIT MEMBER
+            ================================================= */
+
+            if (editingId) {
+
+                const memberIndex =
+                    members.findIndex(
+                        function(item) {
+
+                            return (
+                                String(item.id) ===
+                                String(editingId)
+                            );
+
+                        }
+                    );
+
+                if (memberIndex === -1) {
+
+                    alert(
+                        "सभासद सापडला नाही."
+                    );
+
+                    return;
+
+                }
+
+
+                /* Duplicate Name */
+
+                const duplicateName =
+                    members.some(
+                        function(item) {
+
+                            return (
+                                String(item.id) !==
+                                String(editingId) &&
+
+                                normalizeSearchText(
+                                    item.name
+                                ) ===
+                                normalizedName
+                            );
+
+                        }
+                    );
+
+
+                if (duplicateName) {
+
+                    alert(
+                        "हे नाव दुसऱ्या सभासदासाठी वापरले आहे."
+                    );
+
+                    return;
+
+                }
+
+
+                /* Duplicate Mobile */
+
+                if (mobileNumber !== "") {
+
+                    const duplicateMobile =
+                        members.some(
+                            function(item) {
+
+                                return (
+                                    String(item.id) !==
+                                    String(editingId) &&
+
+                                    String(
+                                        item.mobile || ""
+                                    )
+                                    .trim() ===
+                                    mobileNumber
+                                );
+
+                            }
+                        );
+
+
+                    if (duplicateMobile) {
+
+                        alert(
+                            "हा मोबाईल नंबर दुसऱ्या सभासदासाठी वापरलेला आहे."
+                        );
+
+                        return;
+
+                    }
+
+                }
+
+
+                /* PHOTO */
+
+                if (
+                    photo &&
+                    photo.files &&
+                    photo.files[0]
+                ) {
+
+                    members[memberIndex].photo =
+                        await imageToBase64(
+                            photo.files[0]
+                        );
+
+                }
+
+
+                members[memberIndex].name =
+                    name;
+
+                members[memberIndex].mobile =
+                    mobileNumber;
+
+                members[memberIndex].wadi =
+                    wadiName;
+
+                members[memberIndex].dob =
+                    birthDate;
+
+                members[memberIndex].address =
+                    memberAddress;
+
+
+                saveMembers();
+
+                showToast(
+                    "सभासदाची माहिती Update झाली."
+                );
+
+                displayMembers();
+
+                updateDashboardMemberCount();
+
+                resetMemberForm();
+
+                return;
+
+            }
+
+
+            /* =================================================
+               NEW MEMBER
+            ================================================= */
+
+
+            /* Duplicate Name */
 
             const duplicateName =
                 members.some(
                     function(member) {
 
                         return (
-                            String(
-                                member.name || ""
-                            )
-                            .trim()
-                            .toLowerCase()
-                            ===
-                            name.toLowerCase()
+                            normalizeSearchText(
+                                member.name
+                            ) ===
+                            normalizedName
                         );
 
                     }
@@ -725,13 +575,9 @@ if (memberForm) {
             }
 
 
-            /* =========================================
-               DUPLICATE MOBILE
-            ========================================= */
+            /* Duplicate Mobile */
 
-            if (
-                mobileNumber !== ""
-            ) {
+            if (mobileNumber !== "") {
 
                 const duplicateMobile =
                     members.some(
@@ -741,8 +587,7 @@ if (memberForm) {
                                 String(
                                     member.mobile || ""
                                 )
-                                .trim()
-                                ===
+                                .trim() ===
                                 mobileNumber
                             );
 
@@ -750,9 +595,7 @@ if (memberForm) {
                     );
 
 
-                if (
-                    duplicateMobile
-                ) {
+                if (duplicateMobile) {
 
                     alert(
                         "हा मोबाईल नंबर आधीच नोंदणीकृत आहे."
@@ -765,24 +608,18 @@ if (memberForm) {
             }
 
 
-            /* =========================================
-               PHOTO
-            ========================================= */
+            /* PHOTO */
 
             const photoData =
                 await imageToBase64(
                     photo &&
                     photo.files
-                    ?
-                    photo.files[0]
-                    :
-                    null
+                        ? photo.files[0]
+                        : null
                 );
 
 
-            /* =========================================
-               NEW MEMBER
-            ========================================= */
+            /* CREATE MEMBER */
 
             const newMember = {
 
@@ -807,14 +644,6 @@ if (memberForm) {
                 photo:
                     photoData,
 
-                /*
-                   New member ची historical
-                   pending सुरुवातीला 0
-                */
-
-                openingSubscriptionPending:
-                    0,
-
                 subscriptionPending:
                     0,
 
@@ -823,9 +652,9 @@ if (memberForm) {
 
                 createdDate:
                     new Date()
-                    .toLocaleDateString(
-                        "mr-IN"
-                    )
+                        .toLocaleDateString(
+                            "mr-IN"
+                        )
 
             };
 
@@ -835,9 +664,7 @@ if (memberForm) {
             );
 
 
-            if (
-                saveMembers()
-            ) {
+            if (saveMembers()) {
 
                 displayMembers();
 
@@ -858,22 +685,15 @@ if (memberForm) {
 
 
 /* =========================================================
-   13. DISPLAY MEMBERS
+   12. DISPLAY MEMBERS
 ========================================================= */
 
-function displayMembers(
-    list = members
-) {
+function displayMembers(list = members) {
 
-    if (!memberTableBody) {
-
-        return;
-
-    }
-
+    if (!memberTableBody) return;
 
     if (
-        !list ||
+        !Array.isArray(list) ||
         list.length === 0
     ) {
 
@@ -883,7 +703,7 @@ function displayMembers(
 
                 <td
                     colspan="7"
-                    align="center"
+                    style="text-align:center;"
                 >
 
                     अद्याप कोणताही सभासद उपलब्ध नाही.
@@ -899,26 +719,21 @@ function displayMembers(
     }
 
 
-    memberTableBody.innerHTML =
-        "";
+    memberTableBody.innerHTML = "";
 
 
     list.forEach(
         function(member) {
 
             const row =
-                document.createElement(
-                    "tr"
-                );
+                document.createElement("tr");
 
 
             let photoHTML =
                 `<span>👤</span>`;
 
 
-            if (
-                member.photo
-            ) {
+            if (member.photo) {
 
                 photoHTML = `
 
@@ -934,11 +749,6 @@ function displayMembers(
                             border-radius:50%;
                             cursor:pointer;
                         "
-                        onclick="previewPhoto(
-                            '${escapeJS(
-                                member.photo
-                            )}'
-                        )"
                     >
 
                 `;
@@ -959,33 +769,23 @@ function displayMembers(
                 </td>
 
                 <td>
-                    ${escapeHTML(
-                        member.id
-                    )}
+                    ${escapeHTML(member.id)}
                 </td>
 
                 <td>
-                    ${escapeHTML(
-                        member.name
-                    )}
+                    ${escapeHTML(member.name)}
                 </td>
 
                 <td>
-                    ${escapeHTML(
-                        member.wadi
-                    )}
+                    ${escapeHTML(member.wadi)}
                 </td>
 
                 <td>
-                    ${escapeHTML(
-                        member.mobile
-                    )}
+                    ${escapeHTML(member.mobile)}
                 </td>
 
                 <td>
-                    ₹${pending.toLocaleString(
-                        "en-IN"
-                    )}
+                    ₹${pending.toLocaleString("en-IN")}
                 </td>
 
                 <td>
@@ -993,11 +793,6 @@ function displayMembers(
                     <button
                         type="button"
                         class="btn btn-primary"
-                        onclick="editMember(
-                            '${escapeJS(
-                                member.id
-                            )}'
-                        )"
                     >
                         <i class="fa fa-edit"></i>
                         Edit
@@ -1006,11 +801,6 @@ function displayMembers(
                     <button
                         type="button"
                         class="btn btn-danger"
-                        onclick="deleteMember(
-                            '${escapeJS(
-                                member.id
-                            )}'
-                        )"
                     >
                         <i class="fa fa-trash"></i>
                         Delete
@@ -1021,9 +811,63 @@ function displayMembers(
             `;
 
 
-            memberTableBody.appendChild(
-                row
-            );
+            const buttons =
+                row.querySelectorAll("button");
+
+
+            if (buttons[0]) {
+
+                buttons[0].addEventListener(
+                    "click",
+                    function() {
+
+                        editMember(
+                            member.id
+                        );
+
+                    }
+                );
+
+            }
+
+
+            if (buttons[1]) {
+
+                buttons[1].addEventListener(
+                    "click",
+                    function() {
+
+                        deleteMember(
+                            member.id
+                        );
+
+                    }
+                );
+
+            }
+
+
+            const image =
+                row.querySelector("img");
+
+
+            if (image) {
+
+                image.addEventListener(
+                    "click",
+                    function() {
+
+                        previewPhoto(
+                            member.photo
+                        );
+
+                    }
+                );
+
+            }
+
+
+            memberTableBody.appendChild(row);
 
         }
     );
@@ -1032,27 +876,34 @@ function displayMembers(
 
 
 /* =========================================================
-   14. SEARCH MEMBERS
+   13. SEARCH MEMBERS
+   IMPORTANT FIX
 ========================================================= */
 
 function searchMembers() {
 
+    /*
+       प्रत्येक search वेळी latest localStorage
+       data load केला जातो.
+    */
+
+    loadMembers();
+
+
     const keyword =
         searchMemberInput
-        ?
-        searchMemberInput.value
-            .trim()
-            .toLowerCase()
-        :
-        "";
+            ? normalizeSearchText(
+                searchMemberInput.value
+            )
+            : "";
 
 
     const selectedWadi =
         wadiFilter
-        ?
-        wadiFilter.value
-        :
-        "";
+            ? String(
+                wadiFilter.value || ""
+            ).trim()
+            : "";
 
 
     const filtered =
@@ -1060,44 +911,54 @@ function searchMembers() {
             function(member) {
 
                 const name =
-                    String(
-                        member.name || ""
-                    )
-                    .toLowerCase();
-
+                    normalizeSearchText(
+                        member.name
+                    );
 
                 const mobileNumber =
-                    String(
-                        member.mobile || ""
-                    )
-                    .toLowerCase();
-
+                    normalizeSearchText(
+                        member.mobile
+                    );
 
                 const id =
-                    String(
-                        member.id || ""
-                    )
-                    .toLowerCase();
+                    normalizeSearchText(
+                        member.id
+                    );
 
+                const memberWadi =
+                    String(
+                        member.wadi || ""
+                    ).trim();
+
+
+                /*
+                   Name / Mobile / ID search
+                */
 
                 const searchMatch =
                     !keyword ||
+
                     name.includes(
                         keyword
                     ) ||
+
                     mobileNumber.includes(
                         keyword
                     ) ||
+
                     id.includes(
                         keyword
                     );
 
 
+                /*
+                   Wadi filter
+                */
+
                 const wadiMatch =
                     !selectedWadi ||
-                    String(
-                        member.wadi || ""
-                    ) ===
+
+                    memberWadi ===
                     selectedWadi;
 
 
@@ -1117,21 +978,26 @@ function searchMembers() {
 }
 
 
-if (
-    searchMemberInput
-) {
+/* =========================================================
+   14. SEARCH EVENTS
+========================================================= */
+
+if (searchMemberInput) {
 
     searchMemberInput.addEventListener(
         "input",
         searchMembers
     );
 
+    searchMemberInput.addEventListener(
+        "keyup",
+        searchMembers
+    );
+
 }
 
 
-if (
-    wadiFilter
-) {
+if (wadiFilter) {
 
     wadiFilter.addEventListener(
         "change",
@@ -1152,26 +1018,16 @@ function previewPhoto(src) {
             "photoModal"
         );
 
-
     const image =
         document.getElementById(
             "previewImage"
         );
 
 
-    if (
-        !modal ||
-        !image
-    ) {
-
-        return;
-
-    }
+    if (!modal || !image) return;
 
 
-    image.src =
-        src;
-
+    image.src = src;
 
     modal.style.display =
         "block";
@@ -1179,23 +1035,25 @@ function previewPhoto(src) {
 }
 
 
-const closeBtn =
-    document.querySelector(
-        ".close"
-    );
+/* =========================================================
+   16. CLOSE PHOTO MODAL
+========================================================= */
 
+document.addEventListener(
+    "click",
+    function(event) {
 
-if (closeBtn) {
-
-    closeBtn.addEventListener(
-        "click",
-        function() {
+        if (
+            event.target.classList &&
+            event.target.classList.contains(
+                "close"
+            )
+        ) {
 
             const modal =
                 document.getElementById(
                     "photoModal"
                 );
-
 
             if (modal) {
 
@@ -1205,9 +1063,9 @@ if (closeBtn) {
             }
 
         }
-    );
 
-}
+    }
+);
 
 
 window.addEventListener(
@@ -1218,7 +1076,6 @@ window.addEventListener(
             document.getElementById(
                 "photoModal"
             );
-
 
         if (
             modal &&
@@ -1235,12 +1092,10 @@ window.addEventListener(
 
 
 /* =========================================================
-   16. EDIT MEMBER
+   17. EDIT MEMBER
 ========================================================= */
 
-function editMember(
-    id
-) {
+function editMember(id) {
 
     loadMembers();
 
@@ -1250,9 +1105,7 @@ function editMember(
             function(item) {
 
                 return (
-                    String(
-                        item.id
-                    ) ===
+                    String(item.id) ===
                     String(id)
                 );
 
@@ -1271,57 +1124,34 @@ function editMember(
     }
 
 
-    ensureMemberPendingStructure(
-        member
-    );
-
-
-    if (memberId) {
-
+    if (memberId)
         memberId.value =
-            member.id;
-
-    }
+            member.id || "";
 
 
-    if (memberName) {
-
+    if (memberName)
         memberName.value =
             member.name || "";
 
-    }
 
-
-    if (mobile) {
-
+    if (mobile)
         mobile.value =
             member.mobile || "";
 
-    }
 
-
-    if (wadi) {
-
+    if (wadi)
         wadi.value =
             member.wadi || "";
 
-    }
 
-
-    if (dob) {
-
+    if (dob)
         dob.value =
             member.dob || "";
 
-    }
 
-
-    if (address) {
-
+    if (address)
         address.value =
             member.address || "";
-
-    }
 
 
     if (memberForm) {
@@ -1348,243 +1178,10 @@ function editMember(
 
 
 /* =========================================================
-   17. HANDLE EDIT SUBMIT
-========================================================= */
-
-if (memberForm) {
-
-    memberForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            const editingId =
-                memberForm.dataset.editingId;
-
-
-            if (!editingId) {
-
-                return;
-
-            }
-
-
-            event.preventDefault();
-
-
-            loadMembers();
-
-
-            const member =
-                members.find(
-                    function(item) {
-
-                        return (
-                            String(
-                                item.id
-                            ) ===
-                            String(
-                                editingId
-                            )
-                        );
-
-                    }
-                );
-
-
-            if (!member) {
-
-                memberForm.dataset.editingId =
-                    "";
-
-                return;
-
-            }
-
-
-            const name =
-                memberName
-                ?
-                memberName.value.trim()
-                :
-                "";
-
-
-            const mobileNumber =
-                mobile
-                ?
-                mobile.value.trim()
-                :
-                "";
-
-
-            if (!name) {
-
-                alert(
-                    "सभासदाचे नाव आवश्यक आहे."
-                );
-
-                return;
-
-            }
-
-
-            const duplicateName =
-                members.some(
-                    function(item) {
-
-                        return (
-                            String(
-                                item.id
-                            ) !==
-                            String(
-                                editingId
-                            ) &&
-                            String(
-                                item.name || ""
-                            )
-                            .trim()
-                            .toLowerCase()
-                            ===
-                            name.toLowerCase()
-                        );
-
-                    }
-                );
-
-
-            if (
-                duplicateName
-            ) {
-
-                alert(
-                    "हे नाव दुसऱ्या सभासदासाठी वापरले आहे."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                mobileNumber !== ""
-            ) {
-
-                const duplicateMobile =
-                    members.some(
-                        function(item) {
-
-                            return (
-                                String(
-                                    item.id
-                                ) !==
-                                String(
-                                    editingId
-                                ) &&
-                                String(
-                                    item.mobile || ""
-                                )
-                                .trim()
-                                ===
-                                mobileNumber
-                            );
-
-                        }
-                    );
-
-
-                if (
-                    duplicateMobile
-                ) {
-
-                    alert(
-                        "हा मोबाईल नंबर दुसऱ्या सभासदासाठी वापरलेला आहे."
-                    );
-
-                    return;
-
-                }
-
-            }
-
-
-            if (
-                photo &&
-                photo.files &&
-                photo.files[0]
-            ) {
-
-                member.photo =
-                    await imageToBase64(
-                        photo.files[0]
-                    );
-
-            }
-
-
-            member.name =
-                name;
-
-            member.mobile =
-                mobileNumber;
-
-            member.wadi =
-                wadi
-                ?
-                wadi.value
-                :
-                "";
-
-            member.dob =
-                dob
-                ?
-                dob.value
-                :
-                "";
-
-            member.address =
-                address
-                ?
-                address.value.trim()
-                :
-                "";
-
-
-            ensureMemberPendingStructure(
-                member
-            );
-
-
-            saveMembers();
-
-
-            memberForm.dataset.editingId =
-                "";
-
-
-            displayMembers();
-
-            updateDashboardMemberCount();
-
-            resetMemberForm();
-
-
-            showToast(
-                "सभासदाची माहिती Update झाली."
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
    18. DELETE MEMBER
 ========================================================= */
 
-function deleteMember(
-    id
-) {
+function deleteMember(id) {
 
     loadMembers();
 
@@ -1594,9 +1191,7 @@ function deleteMember(
             function(item) {
 
                 return (
-                    String(
-                        item.id
-                    ) ===
+                    String(item.id) ===
                     String(id)
                 );
 
@@ -1604,27 +1199,18 @@ function deleteMember(
         );
 
 
-    if (!member) {
-
-        return;
-
-    }
+    if (!member) return;
 
 
     const confirmDelete =
         confirm(
             "तुम्हाला '" +
             member.name +
-            "' हा सभासद Delete करायचा आहे का?\n\n" +
-            "या सभासदाच्या subscription transactions delete होणार नाहीत."
+            "' हा सभासद Delete करायचा आहे का?"
         );
 
 
-    if (!confirmDelete) {
-
-        return;
-
-    }
+    if (!confirmDelete) return;
 
 
     members =
@@ -1632,9 +1218,7 @@ function deleteMember(
             function(item) {
 
                 return (
-                    String(
-                        item.id
-                    ) !==
+                    String(item.id) !==
                     String(id)
                 );
 
@@ -1643,7 +1227,6 @@ function deleteMember(
 
 
     saveMembers();
-
 
     displayMembers();
 
@@ -1660,7 +1243,7 @@ function deleteMember(
 
 
 /* =========================================================
-   19. EXCEL IMPORT BUTTON
+   19. EXCEL IMPORT
 ========================================================= */
 
 if (
@@ -1677,12 +1260,6 @@ if (
         }
     );
 
-}
-
-
-if (
-    excelFile
-) {
 
     excelFile.addEventListener(
         "change",
@@ -1696,26 +1273,18 @@ if (
    20. HANDLE EXCEL IMPORT
 ========================================================= */
 
-async function handleExcelImport(
-    event
-) {
+async function handleExcelImport(event) {
 
     const file =
         event.target.files[0];
 
 
-    if (!file) {
-
-        return;
-
-    }
+    if (!file) return;
 
 
     try {
 
-        showMemberLoader(
-            true
-        );
+        showMemberLoader(true);
 
 
         if (
@@ -1724,7 +1293,7 @@ async function handleExcelImport(
         ) {
 
             alert(
-                "Excel Library उपलब्ध नाही. Internet Connection तपासा."
+                "Excel Library उपलब्ध नाही."
             );
 
             return;
@@ -1755,14 +1324,12 @@ async function handleExcelImport(
 
 
         const data =
-            await readExcelFile(
-                file
-            );
+            await readExcelFile(file);
 
 
         if (
             !data ||
-            data.length === 0
+            !data.length
         ) {
 
             alert(
@@ -1797,9 +1364,7 @@ async function handleExcelImport(
 
                 if (
                     !name ||
-                    String(
-                        name
-                    ).trim() === ""
+                    String(name).trim() === ""
                 ) {
 
                     invalidCount++;
@@ -1810,9 +1375,7 @@ async function handleExcelImport(
 
 
                 const cleanName =
-                    String(
-                        name
-                    ).trim();
+                    String(name).trim();
 
 
                 const mobileNumber =
@@ -1875,12 +1438,6 @@ async function handleExcelImport(
                     );
 
 
-                const cleanAddress =
-                    String(
-                        memberAddress || ""
-                    ).trim();
-
-
                 const pendingAmount =
                     getExcelValue(
                         row,
@@ -1902,62 +1459,24 @@ async function handleExcelImport(
                     );
 
 
-                /*
-                   Existing members मध्ये check
-                */
-
-                let duplicate =
+                const duplicateName =
                     members.some(
                         function(member) {
 
                             return (
-                                String(
-                                    member.name || ""
+                                normalizeSearchText(
+                                    member.name
+                                ) ===
+                                normalizeSearchText(
+                                    cleanName
                                 )
-                                .trim()
-                                .toLowerCase()
-                                ===
-                                cleanName
-                                    .toLowerCase()
                             );
 
                         }
                     );
 
 
-                if (
-                    !duplicate &&
-                    cleanMobile !== ""
-                ) {
-
-                    duplicate =
-                        members.some(
-                            function(member) {
-
-                                return (
-                                    String(
-                                        member.mobile || ""
-                                    )
-                                    .trim()
-                                    ===
-                                    cleanMobile
-                                );
-
-                            }
-                        );
-
-                }
-
-
-                /*
-                   Same Excel file मधील previous
-                   imported rows सुद्धा duplicate
-                   म्हणून check होतील.
-                */
-
-                if (
-                    duplicate
-                ) {
+                if (duplicateName) {
 
                     duplicateCount++;
 
@@ -1966,7 +1485,38 @@ async function handleExcelImport(
                 }
 
 
-                const newMember = {
+                if (
+                    cleanMobile !== ""
+                ) {
+
+                    const duplicateMobile =
+                        members.some(
+                            function(member) {
+
+                                return (
+                                    String(
+                                        member.mobile || ""
+                                    )
+                                    .trim() ===
+                                    cleanMobile
+                                );
+
+                            }
+                        );
+
+
+                    if (duplicateMobile) {
+
+                        duplicateCount++;
+
+                        return;
+
+                    }
+
+                }
+
+
+                members.push({
 
                     id:
                         generateNextMemberId(),
@@ -1986,18 +1536,12 @@ async function handleExcelImport(
                         ),
 
                     address:
-                        cleanAddress,
+                        String(
+                            memberAddress || ""
+                        ).trim(),
 
                     photo:
                         "",
-
-                    /*
-                       Excel मधून आलेली जुनी
-                       बाकी कायम Opening Pending म्हणून.
-                    */
-
-                    openingSubscriptionPending:
-                        cleanPending,
 
                     subscriptionPending:
                         cleanPending,
@@ -2007,16 +1551,11 @@ async function handleExcelImport(
 
                     createdDate:
                         new Date()
-                        .toLocaleDateString(
-                            "mr-IN"
-                        )
+                            .toLocaleDateString(
+                                "mr-IN"
+                            )
 
-                };
-
-
-                members.push(
-                    newMember
-                );
+                });
 
 
                 importedCount++;
@@ -2026,7 +1565,6 @@ async function handleExcelImport(
 
 
         saveMembers();
-
 
         displayMembers();
 
@@ -2040,13 +1578,11 @@ async function handleExcelImport(
 
             "✅ नवीन सभासद: " +
             importedCount +
-            "\n" +
 
-            "⚠️ Duplicate: " +
+            "\n⚠️ Duplicate: " +
             duplicateCount +
-            "\n" +
 
-            "❌ Invalid: " +
+            "\n❌ Invalid: " +
             invalidCount
         );
 
@@ -2058,22 +1594,16 @@ async function handleExcelImport(
             error
         );
 
-
         alert(
-            "Excel Import करताना समस्या आली.\n\n" +
-            "कृपया Excel headings तपासा."
+            "Excel Import करताना समस्या आली."
         );
 
     }
     finally {
 
-        showMemberLoader(
-            false
-        );
+        showMemberLoader(false);
 
-
-        event.target.value =
-            "";
+        event.target.value = "";
 
     }
 
@@ -2084,9 +1614,7 @@ async function handleExcelImport(
    21. READ EXCEL
 ========================================================= */
 
-function readExcelFile(
-    file
-) {
+function readExcelFile(file) {
 
     return new Promise(
         function(resolve, reject) {
@@ -2104,10 +1632,8 @@ function readExcelFile(
                             XLSX.read(
                                 event.target.result,
                                 {
-                                    type:
-                                        "array",
-                                    cellDates:
-                                        true
+                                    type: "array",
+                                    cellDates: true
                                 }
                             );
 
@@ -2122,22 +1648,17 @@ function readExcelFile(
                             XLSX.utils.sheet_to_json(
                                 sheet,
                                 {
-                                    defval:
-                                        ""
+                                    defval: ""
                                 }
                             );
 
 
-                        resolve(
-                            rows
-                        );
+                        resolve(rows);
 
                     }
                     catch (error) {
 
-                        reject(
-                            error
-                        );
+                        reject(error);
 
                     }
 
@@ -2147,16 +1668,12 @@ function readExcelFile(
             reader.onerror =
                 function(error) {
 
-                    reject(
-                        error
-                    );
+                    reject(error);
 
                 };
 
 
-            reader.readAsArrayBuffer(
-                file
-            );
+            reader.readAsArrayBuffer(file);
 
         }
     );
@@ -2184,9 +1701,7 @@ function getExcelValue(
 
 
     const keys =
-        Object.keys(
-            row
-        );
+        Object.keys(row);
 
 
     for (
@@ -2214,13 +1729,10 @@ function getExcelValue(
 
 
             if (
-                actual ===
-                wanted
+                actual === wanted
             ) {
 
-                return row[
-                    keys[j]
-                ];
+                return row[keys[j]];
 
             }
 
@@ -2235,26 +1747,16 @@ function getExcelValue(
 
 
 /* =========================================================
-   23. NORMALIZE HEADER
+   23. NORMALIZE EXCEL HEADER
 ========================================================= */
 
-function normalizeExcelHeader(
-    value
-) {
+function normalizeExcelHeader(value) {
 
-    return String(
-        value || ""
-    )
-    .trim()
-    .toLowerCase()
-    .replace(
-        /\s+/g,
-        ""
-    )
-    .replace(
-        /_/g,
-        ""
-    );
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/_/g, "");
 
 }
 
@@ -2263,9 +1765,7 @@ function normalizeExcelHeader(
    24. PARSE PENDING
 ========================================================= */
 
-function parsePendingAmount(
-    value
-) {
+function parsePendingAmount(value) {
 
     if (
         value === null ||
@@ -2279,129 +1779,71 @@ function parsePendingAmount(
 
 
     if (
-        typeof value ===
-        "number"
+        typeof value === "number"
     ) {
 
         return isNaN(value)
-            ?
-            0
-            :
-            Number(value);
+            ? 0
+            : Number(value);
 
     }
 
 
-    let text =
-        String(
-            value
-        )
-        .trim();
-
-
-    text =
-        text.replace(
-            /₹/g,
-            ""
-        );
-
-
-    text =
-        text.replace(
-            /,/g,
-            ""
-        );
-
-
-    text =
-        text.replace(
-            /\s/g,
-            ""
-        );
+    const text =
+        String(value)
+            .replace(/₹/g, "")
+            .replace(/,/g, "")
+            .replace(/\s/g, "")
+            .trim();
 
 
     const amount =
-        Number(
-            text
-        );
+        Number(text);
 
 
     return isNaN(amount)
-        ?
-        0
-        :
-        amount;
+        ? 0
+        : amount;
 
 }
 
 
 /* =========================================================
-   25. NORMALIZE DATE
+   25. NORMALIZE EXCEL DATE
 ========================================================= */
 
-function normalizeExcelDate(
-    value
-) {
+function normalizeExcelDate(value) {
 
-    if (!value) {
-
-        return "";
-
-    }
+    if (!value) return "";
 
 
     if (
         value instanceof Date &&
-        !isNaN(
-            value.getTime()
-        )
+        !isNaN(value.getTime())
     ) {
 
-        const yyyy =
-            value.getFullYear();
-
-
-        const mm =
+        return (
+            value.getFullYear() +
+            "-" +
             String(
                 value.getMonth() + 1
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        const dd =
+            ).padStart(2, "0") +
+            "-" +
             String(
                 value.getDate()
-            )
-            .padStart(
-                2,
-                "0"
-            );
-
-
-        return (
-            yyyy +
-            "-" +
-            mm +
-            "-" +
-            dd
+            ).padStart(2, "0")
         );
 
     }
 
 
     const text =
-        String(
-            value
-        )
-        .trim();
+        String(value).trim();
 
 
     if (
         /^\d{4}-\d{1,2}-\d{1,2}$/
-        .test(text)
+            .test(text)
     ) {
 
         const parts =
@@ -2423,7 +1865,7 @@ function normalizeExcelDate(
 
     if (
         /^\d{1,2}\/\d{1,2}\/\d{4}$/
-        .test(text)
+            .test(text)
     ) {
 
         const parts =
@@ -2445,7 +1887,7 @@ function normalizeExcelDate(
 
     if (
         /^\d{1,2}-\d{1,2}-\d{4}$/
-        .test(text)
+            .test(text)
     ) {
 
         const parts =
@@ -2471,12 +1913,10 @@ function normalizeExcelDate(
 
 
 /* =========================================================
-   26. EXCEL EXPORT
+   26. EXPORT
 ========================================================= */
 
-if (
-    exportBtn
-) {
+if (exportBtn) {
 
     exportBtn.addEventListener(
         "click",
@@ -2488,9 +1928,10 @@ if (
 
 function exportMembersToExcel() {
 
-    if (
-        members.length === 0
-    ) {
+    loadMembers();
+
+
+    if (!members.length) {
 
         alert(
             "Export करण्यासाठी कोणताही सभासद उपलब्ध नाही."
@@ -2559,20 +2000,6 @@ function exportMembersToExcel() {
         );
 
 
-    worksheet["!cols"] = [
-
-        { wch: 15 },
-        { wch: 25 },
-        { wch: 15 },
-        { wch: 25 },
-        { wch: 15 },
-        { wch: 35 },
-        { wch: 15 },
-        { wch: 18 }
-
-    ];
-
-
     const workbook =
         XLSX.utils.book_new();
 
@@ -2601,9 +2028,7 @@ function exportMembersToExcel() {
    27. PRINT
 ========================================================= */
 
-if (
-    printBtn
-) {
+if (printBtn) {
 
     printBtn.addEventListener(
         "click",
@@ -2615,9 +2040,10 @@ if (
 
 function printMemberList() {
 
-    if (
-        members.length === 0
-    ) {
+    loadMembers();
+
+
+    if (!members.length) {
 
         alert(
             "Print करण्यासाठी सभासद उपलब्ध नाहीत."
@@ -2648,20 +2074,18 @@ function printMemberList() {
 
     const searchText =
         searchMemberInput
-        ?
-        searchMemberInput.value
-            .trim()
-            .toLowerCase()
-        :
-        "";
+            ? normalizeSearchText(
+                searchMemberInput.value
+            )
+            : "";
 
 
     const selectedWadi =
         wadiFilter
-        ?
-        wadiFilter.value
-        :
-        "";
+            ? String(
+                wadiFilter.value || ""
+            ).trim()
+            : "";
 
 
     const printMembers =
@@ -2669,36 +2093,43 @@ function printMemberList() {
             function(member) {
 
                 const name =
-                    String(
-                        member.name || ""
-                    )
-                    .toLowerCase();
-
+                    normalizeSearchText(
+                        member.name
+                    );
 
                 const mobileNumber =
-                    String(
-                        member.mobile || ""
-                    )
-                    .toLowerCase();
-
+                    normalizeSearchText(
+                        member.mobile
+                    );
 
                 const id =
-                    String(
-                        member.id || ""
-                    )
-                    .toLowerCase();
+                    normalizeSearchText(
+                        member.id
+                    );
 
 
                 const searchMatch =
                     !searchText ||
-                    name.includes(searchText) ||
-                    mobileNumber.includes(searchText) ||
-                    id.includes(searchText);
+
+                    name.includes(
+                        searchText
+                    ) ||
+
+                    mobileNumber.includes(
+                        searchText
+                    ) ||
+
+                    id.includes(
+                        searchText
+                    );
 
 
                 const wadiMatch =
                     !selectedWadi ||
-                    member.wadi === selectedWadi;
+                    String(
+                        member.wadi || ""
+                    ).trim() ===
+                    selectedWadi;
 
 
                 return (
@@ -2710,12 +2141,10 @@ function printMemberList() {
         );
 
 
-    if (
-        printMembers.length === 0
-    ) {
+    if (!printMembers.length) {
 
         alert(
-            "Print करण्यासाठी matching सभासद उपलब्ध नाहीत."
+            "Matching सभासद उपलब्ध नाहीत."
         );
 
         printWindow.close();
@@ -2741,38 +2170,26 @@ function printMemberList() {
 
                 <tr>
 
+                    <td>${index + 1}</td>
+
                     <td>
-                        ${index + 1}
+                        ${escapeHTML(member.id)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            member.id
-                        )}
+                        ${escapeHTML(member.name)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            member.name
-                        )}
+                        ${escapeHTML(member.wadi)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            member.wadi
-                        )}
+                        ${escapeHTML(member.mobile)}
                     </td>
 
                     <td>
-                        ${escapeHTML(
-                            member.mobile
-                        )}
-                    </td>
-
-                    <td>
-                        ₹${pending.toLocaleString(
-                            "en-IN"
-                        )}
+                        ₹${pending.toLocaleString("en-IN")}
                     </td>
 
                 </tr>
@@ -2800,39 +2217,37 @@ function printMemberList() {
             <style>
 
                 body {
-                    font-family:
-                    Arial,
-                    sans-serif;
-                    padding:20px;
+                    font-family: Arial, sans-serif;
+                    padding: 20px;
                 }
 
                 h1,
                 h2 {
-                    text-align:center;
+                    text-align: center;
                 }
 
                 table {
-                    width:100%;
-                    border-collapse:collapse;
-                    margin-top:20px;
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
                 }
 
                 th,
                 td {
-                    border:1px solid #333;
-                    padding:8px;
-                    text-align:center;
+                    border: 1px solid #333;
+                    padding: 8px;
+                    text-align: center;
                 }
 
                 th {
-                    background:#eeeeee;
+                    background: #eeeeee;
                 }
 
                 @media print {
 
                     @page {
-                        size:landscape;
-                        margin:10mm;
+                        size: landscape;
+                        margin: 10mm;
                     }
 
                 }
@@ -2860,9 +2275,7 @@ function printMemberList() {
 
                 तारीख:
                 ${new Date()
-                    .toLocaleDateString(
-                        "mr-IN"
-                    )}
+                    .toLocaleDateString("mr-IN")}
 
             </p>
 
@@ -2921,10 +2334,13 @@ function printMemberList() {
 
 
 /* =========================================================
-   28. DASHBOARD COUNT
+   28. DASHBOARD MEMBER COUNT
 ========================================================= */
 
 function updateDashboardMemberCount() {
+
+    loadMembers();
+
 
     const totalMembers =
         document.getElementById(
@@ -2932,9 +2348,7 @@ function updateDashboardMemberCount() {
         );
 
 
-    if (
-        totalMembers
-    ) {
+    if (totalMembers) {
 
         totalMembers.innerText =
             members.length;
@@ -2948,9 +2362,7 @@ function updateDashboardMemberCount() {
    29. LOADER
 ========================================================= */
 
-function showMemberLoader(
-    show
-) {
+function showMemberLoader(show) {
 
     const loader =
         document.getElementById(
@@ -2963,10 +2375,8 @@ function showMemberLoader(
 
     loader.style.display =
         show
-        ?
-        "flex"
-        :
-        "none";
+            ? "flex"
+            : "none";
 
 }
 
@@ -2975,94 +2385,25 @@ function showMemberLoader(
    30. ESCAPE HTML
 ========================================================= */
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
-    return String(
-        value || ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
 
 /* =========================================================
-   31. ESCAPE JS
-========================================================= */
-
-function escapeJS(
-    value
-) {
-
-    return String(
-        value || ""
-    )
-    .replace(
-        /\\/g,
-        "\\\\"
-    )
-    .replace(
-        /'/g,
-        "\\'"
-    )
-    .replace(
-        /"/g,
-        '\\"'
-    )
-    .replace(
-        /\r?\n/g,
-        "\\n"
-    );
-
-}
-
-
-/* =========================================================
-   32. INITIALIZATION
+   31. PAGE INITIALIZATION
 ========================================================= */
 
 function initializeMembersPage() {
 
     loadMembers();
-
-
-    /*
-       Existing old members migrate.
-    */
-
-    members.forEach(
-        function(member) {
-
-            ensureMemberPendingStructure(
-                member
-            );
-
-        }
-    );
-
-
-    saveMembers();
-
 
     generateMemberId();
 
@@ -3072,6 +2413,10 @@ function initializeMembersPage() {
 
 }
 
+
+/* =========================================================
+   32. DOM READY
+========================================================= */
 
 if (
     document.readyState ===
