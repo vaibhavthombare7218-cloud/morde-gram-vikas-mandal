@@ -1,6 +1,6 @@
 /* =========================================================
    members.js
-   COMPLETE FINAL VERSION
+   COMPLETE CORRECTED FINAL VERSION
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
    Features:
@@ -16,9 +16,17 @@
    ✅ Delete
    ✅ Excel / CSV Import
    ✅ Excel मधील बाकी वर्गणी Import
+   ✅ Opening Pending Amount सुरक्षित
    ✅ Excel Export
    ✅ Print
    ✅ Dashboard Member Count
+
+   IMPORTANT:
+   openingSubscriptionPending =
+   Excel / Existing historical pending amount
+
+   subscriptionPending =
+   Current remaining pending amount
 ========================================================= */
 
 
@@ -28,30 +36,46 @@
 
 let members = [];
 
-try {
 
-    members =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_members"
-            )
-        ) || [];
+/* =========================================================
+   2. LOAD MEMBERS
+========================================================= */
 
-}
-catch (error) {
+function loadMembers() {
 
-    console.error(
-        "Members LocalStorage Error:",
-        error
-    );
+    try {
 
-    members = [];
+        members =
+            JSON.parse(
+                localStorage.getItem(
+                    "mgvm_members"
+                )
+            ) || [];
+
+    }
+    catch (error) {
+
+        console.error(
+            "Members Load Error:",
+            error
+        );
+
+        members = [];
+
+    }
 
 }
 
 
 /* =========================================================
-   2. DOM ELEMENTS
+   INITIAL LOAD
+========================================================= */
+
+loadMembers();
+
+
+/* =========================================================
+   3. DOM ELEMENTS
 ========================================================= */
 
 const memberForm =
@@ -131,7 +155,7 @@ const excelFile =
 
 
 /* =========================================================
-   3. SAVE LOCAL STORAGE
+   4. SAVE MEMBERS
 ========================================================= */
 
 function saveMembers() {
@@ -167,7 +191,7 @@ function saveMembers() {
 
 
 /* =========================================================
-   4. GET NEXT MEMBER ID
+   5. GET NEXT MEMBER ID
 ========================================================= */
 
 function generateNextMemberId() {
@@ -229,17 +253,12 @@ function generateNextMemberId() {
 
 
 /* =========================================================
-   5. DISPLAY NEXT MEMBER ID
+   6. DISPLAY NEXT MEMBER ID
 ========================================================= */
 
 function generateMemberId() {
 
-    if (!memberId) {
-
-        return;
-
-    }
-
+    if (!memberId) return;
 
     memberId.value =
         generateNextMemberId();
@@ -248,7 +267,7 @@ function generateMemberId() {
 
 
 /* =========================================================
-   6. IMAGE TO BASE64
+   7. IMAGE TO BASE64
 ========================================================= */
 
 function imageToBase64(file) {
@@ -298,7 +317,7 @@ function imageToBase64(file) {
 
 
 /* =========================================================
-   7. SHOW TOAST
+   8. TOAST
 ========================================================= */
 
 function showToast(message) {
@@ -340,7 +359,7 @@ function showToast(message) {
 
 
 /* =========================================================
-   8. RESET FORM
+   9. RESET FORM
 ========================================================= */
 
 function resetMemberForm() {
@@ -348,6 +367,9 @@ function resetMemberForm() {
     if (memberForm) {
 
         memberForm.reset();
+
+        memberForm.dataset.editingId =
+            "";
 
     }
 
@@ -358,7 +380,240 @@ function resetMemberForm() {
 
 
 /* =========================================================
-   9. SAVE NEW MEMBER
+   10. ENSURE MEMBER PENDING STRUCTURE
+========================================================= */
+
+function ensureMemberPendingStructure(
+    member
+) {
+
+    if (!member) return;
+
+
+    /*
+       Old members मध्ये
+       openingSubscriptionPending नसेल
+       तर existing pending ला opening मानले जाईल.
+
+       Existing subscription payments असल्यास
+       opening = current pending + paid amount.
+    */
+
+    if (
+        member.openingSubscriptionPending ===
+        undefined ||
+        member.openingSubscriptionPending ===
+        null
+    ) {
+
+        let paidTotal = 0;
+
+
+        try {
+
+            const subscriptions =
+                JSON.parse(
+                    localStorage.getItem(
+                        "mgvm_subscriptions"
+                    )
+                ) || [];
+
+
+            paidTotal =
+                subscriptions
+                .filter(
+                    function(item) {
+
+                        return (
+                            String(
+                                item.memberId
+                            ) ===
+                            String(
+                                member.id
+                            )
+                        );
+
+                    }
+                )
+                .reduce(
+                    function(
+                        total,
+                        item
+                    ) {
+
+                        return (
+                            total +
+                            Number(
+                                item.paidAmount || 0
+                            )
+                        );
+
+                    },
+                    0
+                );
+
+        }
+        catch (error) {
+
+            paidTotal = 0;
+
+        }
+
+
+        const currentPending =
+            Number(
+                member.subscriptionPending || 0
+            );
+
+
+        member.openingSubscriptionPending =
+            Math.max(
+                0,
+                currentPending +
+                paidTotal
+            );
+
+    }
+
+
+    if (
+        member.subscriptionPayments ===
+        undefined
+    ) {
+
+        member.subscriptionPayments =
+            [];
+
+    }
+
+}
+
+
+/* =========================================================
+   11. RECALCULATE MEMBER PENDING
+========================================================= */
+
+function recalculateMemberPending(
+    memberId
+) {
+
+    const index =
+        members.findIndex(
+            function(member) {
+
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        memberId
+                    )
+                );
+
+            }
+        );
+
+
+    if (index === -1) {
+
+        return 0;
+
+    }
+
+
+    const member =
+        members[index];
+
+
+    ensureMemberPendingStructure(
+        member
+    );
+
+
+    let opening =
+        Number(
+            member.openingSubscriptionPending
+        ) || 0;
+
+
+    let totalPaid = 0;
+
+
+    try {
+
+        const subscriptions =
+            JSON.parse(
+                localStorage.getItem(
+                    "mgvm_subscriptions"
+                )
+            ) || [];
+
+
+        totalPaid =
+            subscriptions
+            .filter(
+                function(item) {
+
+                    return (
+                        String(
+                            item.memberId
+                        ) ===
+                        String(
+                            memberId
+                        )
+                    );
+
+                }
+            )
+            .reduce(
+                function(
+                    total,
+                    item
+                ) {
+
+                    return (
+                        total +
+                        Number(
+                            item.paidAmount || 0
+                        )
+                    );
+
+                },
+                0
+            );
+
+    }
+    catch (error) {
+
+        totalPaid = 0;
+
+    }
+
+
+    member.subscriptionPending =
+        Math.max(
+            0,
+            opening -
+            totalPaid
+        );
+
+
+    members[index] =
+        member;
+
+
+    saveMembers();
+
+
+    return (
+        member.subscriptionPending
+    );
+
+}
+
+
+/* =========================================================
+   12. SAVE NEW MEMBER
 ========================================================= */
 
 if (memberForm) {
@@ -367,14 +622,29 @@ if (memberForm) {
         "submit",
         async function(event) {
 
+            /*
+               Edit mode दुसऱ्या listener मध्ये handle होईल.
+            */
+
+            if (
+                memberForm.dataset.editingId
+            ) {
+
+                return;
+
+            }
+
+
             event.preventDefault();
+
+
+            loadMembers();
 
 
             const name =
                 memberName
                 ?
-                memberName.value
-                    .trim()
+                memberName.value.trim()
                 :
                 "";
 
@@ -382,8 +652,7 @@ if (memberForm) {
             const mobileNumber =
                 mobile
                 ?
-                mobile.value
-                    .trim()
+                mobile.value.trim()
                 :
                 "";
 
@@ -407,15 +676,10 @@ if (memberForm) {
             const memberAddress =
                 address
                 ?
-                address.value
-                    .trim()
+                address.value.trim()
                 :
                 "";
 
-
-            /* =========================================
-               Name Required
-            ========================================= */
 
             if (!name) {
 
@@ -429,7 +693,7 @@ if (memberForm) {
 
 
             /* =========================================
-               Duplicate Name
+               DUPLICATE NAME
             ========================================= */
 
             const duplicateName =
@@ -462,7 +726,7 @@ if (memberForm) {
 
 
             /* =========================================
-               Duplicate Mobile
+               DUPLICATE MOBILE
             ========================================= */
 
             if (
@@ -502,12 +766,13 @@ if (memberForm) {
 
 
             /* =========================================
-               Photo
+               PHOTO
             ========================================= */
 
             const photoData =
                 await imageToBase64(
-                    photo
+                    photo &&
+                    photo.files
                     ?
                     photo.files[0]
                     :
@@ -516,7 +781,7 @@ if (memberForm) {
 
 
             /* =========================================
-               Create Member
+               NEW MEMBER
             ========================================= */
 
             const newMember = {
@@ -543,33 +808,27 @@ if (memberForm) {
                     photoData,
 
                 /*
-                   Subscription module
-                   साठी pending amount
+                   New member ची historical
+                   pending सुरुवातीला 0
                 */
+
+                openingSubscriptionPending:
+                    0,
 
                 subscriptionPending:
                     0,
-
-                /*
-                   Future year-wise data
-                   साठी structure
-                */
 
                 subscriptionPayments:
                     [],
 
                 createdDate:
                     new Date()
-                        .toLocaleDateString(
-                            "mr-IN"
-                        )
+                    .toLocaleDateString(
+                        "mr-IN"
+                    )
 
             };
 
-
-            /* =========================================
-               Add Member
-            ========================================= */
 
             members.push(
                 newMember
@@ -599,7 +858,7 @@ if (memberForm) {
 
 
 /* =========================================================
-   10. DISPLAY MEMBERS
+   13. DISPLAY MEMBERS
 ========================================================= */
 
 function displayMembers(
@@ -653,10 +912,6 @@ function displayMembers(
                 );
 
 
-            /* =====================================
-               Photo
-            ===================================== */
-
             let photoHTML =
                 `<span>👤</span>`;
 
@@ -690,10 +945,6 @@ function displayMembers(
 
             }
 
-
-            /* =====================================
-               Pending
-            ===================================== */
 
             const pending =
                 Number(
@@ -740,6 +991,7 @@ function displayMembers(
                 <td>
 
                     <button
+                        type="button"
                         class="btn btn-primary"
                         onclick="editMember(
                             '${escapeJS(
@@ -752,6 +1004,7 @@ function displayMembers(
                     </button>
 
                     <button
+                        type="button"
                         class="btn btn-danger"
                         onclick="deleteMember(
                             '${escapeJS(
@@ -779,7 +1032,7 @@ function displayMembers(
 
 
 /* =========================================================
-   11. SEARCH MEMBERS
+   14. SEARCH MEMBERS
 ========================================================= */
 
 function searchMembers() {
@@ -864,10 +1117,6 @@ function searchMembers() {
 }
 
 
-/* =========================================================
-   12. SEARCH EVENT
-========================================================= */
-
 if (
     searchMemberInput
 ) {
@@ -879,10 +1128,6 @@ if (
 
 }
 
-
-/* =========================================================
-   13. WADI FILTER EVENT
-========================================================= */
 
 if (
     wadiFilter
@@ -897,7 +1142,7 @@ if (
 
 
 /* =========================================================
-   14. PHOTO PREVIEW
+   15. PHOTO PREVIEW
 ========================================================= */
 
 function previewPhoto(src) {
@@ -934,10 +1179,6 @@ function previewPhoto(src) {
 }
 
 
-/* =========================================================
-   15. CLOSE PHOTO MODAL
-========================================================= */
-
 const closeBtn =
     document.querySelector(
         ".close"
@@ -969,10 +1210,6 @@ if (closeBtn) {
 }
 
 
-/* =========================================================
-   16. CLOSE MODAL OUTSIDE
-========================================================= */
-
 window.addEventListener(
     "click",
     function(event) {
@@ -998,12 +1235,15 @@ window.addEventListener(
 
 
 /* =========================================================
-   17. EDIT MEMBER
+   16. EDIT MEMBER
 ========================================================= */
 
 function editMember(
     id
 ) {
+
+    loadMembers();
+
 
     const member =
         members.find(
@@ -1029,6 +1269,11 @@ function editMember(
         return;
 
     }
+
+
+    ensureMemberPendingStructure(
+        member
+    );
 
 
     if (memberId) {
@@ -1079,10 +1324,6 @@ function editMember(
     }
 
 
-    /*
-       Form submit बदलण्यासाठी
-    */
-
     if (memberForm) {
 
         memberForm.dataset.editingId =
@@ -1107,7 +1348,7 @@ function editMember(
 
 
 /* =========================================================
-   18. HANDLE EDIT ON SUBMIT
+   17. HANDLE EDIT SUBMIT
 ========================================================= */
 
 if (memberForm) {
@@ -1128,6 +1369,9 @@ if (memberForm) {
 
 
             event.preventDefault();
+
+
+            loadMembers();
 
 
             const member =
@@ -1160,8 +1404,7 @@ if (memberForm) {
             const name =
                 memberName
                 ?
-                memberName.value
-                    .trim()
+                memberName.value.trim()
                 :
                 "";
 
@@ -1169,8 +1412,7 @@ if (memberForm) {
             const mobileNumber =
                 mobile
                 ?
-                mobile.value
-                    .trim()
+                mobile.value.trim()
                 :
                 "";
 
@@ -1185,10 +1427,6 @@ if (memberForm) {
 
             }
 
-
-            /* =====================================
-               Duplicate Name
-            ===================================== */
 
             const duplicateName =
                 members.some(
@@ -1226,10 +1464,6 @@ if (memberForm) {
 
             }
 
-
-            /* =====================================
-               Duplicate Mobile
-            ===================================== */
 
             if (
                 mobileNumber !== ""
@@ -1273,10 +1507,6 @@ if (memberForm) {
             }
 
 
-            /* =====================================
-               Photo
-            ===================================== */
-
             if (
                 photo &&
                 photo.files &&
@@ -1314,10 +1544,14 @@ if (memberForm) {
             member.address =
                 address
                 ?
-                address.value
-                    .trim()
+                address.value.trim()
                 :
                 "";
+
+
+            ensureMemberPendingStructure(
+                member
+            );
 
 
             saveMembers();
@@ -1345,12 +1579,15 @@ if (memberForm) {
 
 
 /* =========================================================
-   19. DELETE MEMBER
+   18. DELETE MEMBER
 ========================================================= */
 
 function deleteMember(
     id
 ) {
+
+    loadMembers();
+
 
     const member =
         members.find(
@@ -1378,7 +1615,8 @@ function deleteMember(
         confirm(
             "तुम्हाला '" +
             member.name +
-            "' हा सभासद Delete करायचा आहे का?"
+            "' हा सभासद Delete करायचा आहे का?\n\n" +
+            "या सभासदाच्या subscription transactions delete होणार नाहीत."
         );
 
 
@@ -1406,6 +1644,7 @@ function deleteMember(
 
     saveMembers();
 
+
     displayMembers();
 
     generateMemberId();
@@ -1421,7 +1660,7 @@ function deleteMember(
 
 
 /* =========================================================
-   20. EXCEL IMPORT BUTTON
+   19. EXCEL IMPORT BUTTON
 ========================================================= */
 
 if (
@@ -1441,10 +1680,6 @@ if (
 }
 
 
-/* =========================================================
-   21. EXCEL FILE CHANGE
-========================================================= */
-
 if (
     excelFile
 ) {
@@ -1458,7 +1693,7 @@ if (
 
 
 /* =========================================================
-   22. HANDLE EXCEL IMPORT
+   20. HANDLE EXCEL IMPORT
 ========================================================= */
 
 async function handleExcelImport(
@@ -1539,22 +1774,13 @@ async function handleExcelImport(
         }
 
 
-        let importedCount =
-            0;
-
-        let duplicateCount =
-            0;
-
-        let invalidCount =
-            0;
+        let importedCount = 0;
+        let duplicateCount = 0;
+        let invalidCount = 0;
 
 
         data.forEach(
             function(row) {
-
-                /* =====================================
-                   NAME
-                ===================================== */
 
                 const name =
                     getExcelValue(
@@ -1589,10 +1815,6 @@ async function handleExcelImport(
                     ).trim();
 
 
-                /* =====================================
-                   MOBILE
-                ===================================== */
-
                 const mobileNumber =
                     getExcelValue(
                         row,
@@ -1612,10 +1834,6 @@ async function handleExcelImport(
                     ).trim();
 
 
-                /* =====================================
-                   WADI
-                ===================================== */
-
                 const wadiName =
                     getExcelValue(
                         row,
@@ -1633,10 +1851,6 @@ async function handleExcelImport(
                     ).trim();
 
 
-                /* =====================================
-                   DOB
-                ===================================== */
-
                 const birthDate =
                     getExcelValue(
                         row,
@@ -1649,10 +1863,6 @@ async function handleExcelImport(
                         ]
                     );
 
-
-                /* =====================================
-                   ADDRESS
-                ===================================== */
 
                 const memberAddress =
                     getExcelValue(
@@ -1670,10 +1880,6 @@ async function handleExcelImport(
                         memberAddress || ""
                     ).trim();
 
-
-                /* =====================================
-                   PENDING SUBSCRIPTION
-                ===================================== */
 
                 const pendingAmount =
                     getExcelValue(
@@ -1696,11 +1902,11 @@ async function handleExcelImport(
                     );
 
 
-                /* =====================================
-                   DUPLICATE NAME
-                ===================================== */
+                /*
+                   Existing members मध्ये check
+                */
 
-                const duplicateName =
+                let duplicate =
                     members.some(
                         function(member) {
 
@@ -1720,25 +1926,11 @@ async function handleExcelImport(
 
 
                 if (
-                    duplicateName
-                ) {
-
-                    duplicateCount++;
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   DUPLICATE MOBILE
-                ===================================== */
-
-                if (
+                    !duplicate &&
                     cleanMobile !== ""
                 ) {
 
-                    const duplicateMobile =
+                    duplicate =
                         members.some(
                             function(member) {
 
@@ -1754,23 +1946,25 @@ async function handleExcelImport(
                             }
                         );
 
-
-                    if (
-                        duplicateMobile
-                    ) {
-
-                        duplicateCount++;
-
-                        return;
-
-                    }
-
                 }
 
 
-                /* =====================================
-                   NEW MEMBER
-                ===================================== */
+                /*
+                   Same Excel file मधील previous
+                   imported rows सुद्धा duplicate
+                   म्हणून check होतील.
+                */
+
+                if (
+                    duplicate
+                ) {
+
+                    duplicateCount++;
+
+                    return;
+
+                }
+
 
                 const newMember = {
 
@@ -1797,6 +1991,14 @@ async function handleExcelImport(
                     photo:
                         "",
 
+                    /*
+                       Excel मधून आलेली जुनी
+                       बाकी कायम Opening Pending म्हणून.
+                    */
+
+                    openingSubscriptionPending:
+                        cleanPending,
+
                     subscriptionPending:
                         cleanPending,
 
@@ -1805,9 +2007,9 @@ async function handleExcelImport(
 
                     createdDate:
                         new Date()
-                            .toLocaleDateString(
-                                "mr-IN"
-                            )
+                        .toLocaleDateString(
+                            "mr-IN"
+                        )
 
                 };
 
@@ -1823,16 +2025,8 @@ async function handleExcelImport(
         );
 
 
-        /* =====================================
-           SAVE
-        ===================================== */
-
         saveMembers();
 
-
-        /* =====================================
-           REFRESH
-        ===================================== */
 
         displayMembers();
 
@@ -1840,10 +2034,6 @@ async function handleExcelImport(
 
         updateDashboardMemberCount();
 
-
-        /* =====================================
-           RESULT
-        ===================================== */
 
         alert(
             "Excel Import पूर्ण झाला.\n\n" +
@@ -1891,7 +2081,7 @@ async function handleExcelImport(
 
 
 /* =========================================================
-   23. READ EXCEL FILE
+   21. READ EXCEL
 ========================================================= */
 
 function readExcelFile(
@@ -1916,7 +2106,6 @@ function readExcelFile(
                                 {
                                     type:
                                         "array",
-
                                     cellDates:
                                         true
                                 }
@@ -1976,7 +2165,7 @@ function readExcelFile(
 
 
 /* =========================================================
-   24. GET EXCEL VALUE
+   22. GET EXCEL VALUE
 ========================================================= */
 
 function getExcelValue(
@@ -2046,7 +2235,7 @@ function getExcelValue(
 
 
 /* =========================================================
-   25. NORMALIZE EXCEL HEADER
+   23. NORMALIZE HEADER
 ========================================================= */
 
 function normalizeExcelHeader(
@@ -2071,7 +2260,7 @@ function normalizeExcelHeader(
 
 
 /* =========================================================
-   26. PARSE PENDING AMOUNT
+   24. PARSE PENDING
 ========================================================= */
 
 function parsePendingAmount(
@@ -2147,7 +2336,7 @@ function parsePendingAmount(
 
 
 /* =========================================================
-   27. NORMALIZE EXCEL DATE
+   25. NORMALIZE DATE
 ========================================================= */
 
 function normalizeExcelDate(
@@ -2210,11 +2399,9 @@ function normalizeExcelDate(
         .trim();
 
 
-    /* YYYY-MM-DD */
-
     if (
         /^\d{4}-\d{1,2}-\d{1,2}$/
-            .test(text)
+        .test(text)
     ) {
 
         const parts =
@@ -2224,31 +2411,19 @@ function normalizeExcelDate(
         return (
             parts[0] +
             "-" +
-            String(
-                parts[1]
-            )
-            .padStart(
-                2,
-                "0"
-            ) +
+            String(parts[1])
+                .padStart(2, "0") +
             "-" +
-            String(
-                parts[2]
-            )
-            .padStart(
-                2,
-                "0"
-            )
+            String(parts[2])
+                .padStart(2, "0")
         );
 
     }
 
 
-    /* DD/MM/YYYY */
-
     if (
         /^\d{1,2}\/\d{1,2}\/\d{4}$/
-            .test(text)
+        .test(text)
     ) {
 
         const parts =
@@ -2258,31 +2433,19 @@ function normalizeExcelDate(
         return (
             parts[2] +
             "-" +
-            String(
-                parts[1]
-            )
-            .padStart(
-                2,
-                "0"
-            ) +
+            String(parts[1])
+                .padStart(2, "0") +
             "-" +
-            String(
-                parts[0]
-            )
-            .padStart(
-                2,
-                "0"
-            )
+            String(parts[0])
+                .padStart(2, "0")
         );
 
     }
 
 
-    /* DD-MM-YYYY */
-
     if (
         /^\d{1,2}-\d{1,2}-\d{4}$/
-            .test(text)
+        .test(text)
     ) {
 
         const parts =
@@ -2292,21 +2455,11 @@ function normalizeExcelDate(
         return (
             parts[2] +
             "-" +
-            String(
-                parts[1]
-            )
-            .padStart(
-                2,
-                "0"
-            ) +
+            String(parts[1])
+                .padStart(2, "0") +
             "-" +
-            String(
-                parts[0]
-            )
-            .padStart(
-                2,
-                "0"
-            )
+            String(parts[0])
+                .padStart(2, "0")
         );
 
     }
@@ -2318,7 +2471,7 @@ function normalizeExcelDate(
 
 
 /* =========================================================
-   28. EXCEL EXPORT
+   26. EXCEL EXPORT
 ========================================================= */
 
 if (
@@ -2408,37 +2561,14 @@ function exportMembersToExcel() {
 
     worksheet["!cols"] = [
 
-        {
-            wch: 15
-        },
-
-        {
-            wch: 25
-        },
-
-        {
-            wch: 15
-        },
-
-        {
-            wch: 25
-        },
-
-        {
-            wch: 15
-        },
-
-        {
-            wch: 35
-        },
-
-        {
-            wch: 15
-        },
-
-        {
-            wch: 18
-        }
+        { wch: 15 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 35 },
+        { wch: 15 },
+        { wch: 18 }
 
     ];
 
@@ -2468,7 +2598,7 @@ function exportMembersToExcel() {
 
 
 /* =========================================================
-   29. PRINT BUTTON
+   27. PRINT
 ========================================================= */
 
 if (
@@ -2482,10 +2612,6 @@ if (
 
 }
 
-
-/* =========================================================
-   30. PRINT MEMBER LIST
-========================================================= */
 
 function printMemberList() {
 
@@ -2565,21 +2691,14 @@ function printMemberList() {
 
                 const searchMatch =
                     !searchText ||
-                    name.includes(
-                        searchText
-                    ) ||
-                    mobileNumber.includes(
-                        searchText
-                    ) ||
-                    id.includes(
-                        searchText
-                    );
+                    name.includes(searchText) ||
+                    mobileNumber.includes(searchText) ||
+                    id.includes(searchText);
 
 
                 const wadiMatch =
                     !selectedWadi ||
-                    member.wadi ===
-                    selectedWadi;
+                    member.wadi === selectedWadi;
 
 
                 return (
@@ -2681,68 +2800,39 @@ function printMemberList() {
             <style>
 
                 body {
-
                     font-family:
                     Arial,
                     sans-serif;
-
-                    padding:
-                    20px;
-
+                    padding:20px;
                 }
 
                 h1,
                 h2 {
-
-                    text-align:
-                    center;
-
+                    text-align:center;
                 }
 
                 table {
-
-                    width:
-                    100%;
-
-                    border-collapse:
-                    collapse;
-
-                    margin-top:
-                    20px;
-
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:20px;
                 }
 
                 th,
                 td {
-
-                    border:
-                    1px solid #333;
-
-                    padding:
-                    8px;
-
-                    text-align:
-                    center;
-
+                    border:1px solid #333;
+                    padding:8px;
+                    text-align:center;
                 }
 
                 th {
-
-                    background:
-                    #eeeeee;
-
+                    background:#eeeeee;
                 }
 
                 @media print {
 
                     @page {
-
-                        size:
-                        landscape;
-
-                        margin:
-                        10mm;
-
+                        size:landscape;
+                        margin:10mm;
                     }
 
                 }
@@ -2761,9 +2851,7 @@ function printMemberList() {
                 सभासद यादी
             </h2>
 
-            <p style="
-                text-align:center;
-            ">
+            <p style="text-align:center;">
 
                 एकूण सभासद:
                 ${printMembers.length}
@@ -2784,29 +2872,17 @@ function printMemberList() {
 
                     <tr>
 
-                        <th>
-                            क्र.
-                        </th>
+                        <th>क्र.</th>
 
-                        <th>
-                            Member ID
-                        </th>
+                        <th>Member ID</th>
 
-                        <th>
-                            नाव
-                        </th>
+                        <th>नाव</th>
 
-                        <th>
-                            वाडी
-                        </th>
+                        <th>वाडी</th>
 
-                        <th>
-                            मोबाईल
-                        </th>
+                        <th>मोबाईल</th>
 
-                        <th>
-                            बाकी वर्गणी
-                        </th>
+                        <th>बाकी वर्गणी</th>
 
                     </tr>
 
@@ -2845,7 +2921,7 @@ function printMemberList() {
 
 
 /* =========================================================
-   31. DASHBOARD MEMBER COUNT
+   28. DASHBOARD COUNT
 ========================================================= */
 
 function updateDashboardMemberCount() {
@@ -2869,7 +2945,7 @@ function updateDashboardMemberCount() {
 
 
 /* =========================================================
-   32. LOADER
+   29. LOADER
 ========================================================= */
 
 function showMemberLoader(
@@ -2882,11 +2958,7 @@ function showMemberLoader(
         );
 
 
-    if (!loader) {
-
-        return;
-
-    }
+    if (!loader) return;
 
 
     loader.style.display =
@@ -2900,7 +2972,7 @@ function showMemberLoader(
 
 
 /* =========================================================
-   33. ESCAPE HTML
+   30. ESCAPE HTML
 ========================================================= */
 
 function escapeHTML(
@@ -2935,7 +3007,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   34. ESCAPE JAVASCRIPT
+   31. ESCAPE JS
 ========================================================= */
 
 function escapeJS(
@@ -2966,10 +3038,31 @@ function escapeJS(
 
 
 /* =========================================================
-   35. PAGE INITIALIZATION
+   32. INITIALIZATION
 ========================================================= */
 
 function initializeMembersPage() {
+
+    loadMembers();
+
+
+    /*
+       Existing old members migrate.
+    */
+
+    members.forEach(
+        function(member) {
+
+            ensureMemberPendingStructure(
+                member
+            );
+
+        }
+    );
+
+
+    saveMembers();
+
 
     generateMemberId();
 
@@ -2979,10 +3072,6 @@ function initializeMembersPage() {
 
 }
 
-
-/* =========================================================
-   36. DOM READY
-========================================================= */
 
 if (
     document.readyState ===
@@ -3007,5 +3096,5 @@ else {
 ========================================================= */
 
 console.log(
-    "MGVM Complete members.js loaded successfully."
+    "MGVM Corrected members.js loaded successfully."
 );
