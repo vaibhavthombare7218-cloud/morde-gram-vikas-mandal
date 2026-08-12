@@ -2,28 +2,46 @@
    income.js
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
-   INCOME MANAGEMENT
+   INCOME MANAGEMENT - CORRECTED FINAL
 
-   Features:
+   HTML IDs MATCHED:
+   incomeType
+   incomeName
+   incomeMemberId
+   incomeMobile
+   incomeDate
+   incomeAmount
+   incomePaymentMode
+   incomeReceiptNo
+   incomeDescription
+   incomeEnteredBy
+
+   STORAGE:
+   mgvm_income
+
+   FEATURES:
    ✅ Income Save
-   ✅ Income Date
+   ✅ Name
+   ✅ Member ID
+   ✅ Mobile
+   ✅ Income Type
+   ✅ Date
    ✅ Amount
-   ✅ Income Head / Category
-   ✅ Description
-   ✅ Receipt / Reference No.
    ✅ Payment Mode
+   ✅ Receipt No.
+   ✅ Description
    ✅ Entered By
    ✅ LocalStorage
-   ✅ Income History
    ✅ Search
+   ✅ Delete
    ✅ Total Income
-   ✅ Delete Income
+   ✅ Today Income
    ✅ Dashboard Compatible
 ========================================================= */
 
 
 /* =========================================================
-   1. GLOBAL
+   1. STORAGE KEY
 ========================================================= */
 
 const INCOME_KEY = "mgvm_income";
@@ -42,10 +60,14 @@ function getIncome() {
                 INCOME_KEY
             );
 
+        if (!data) {
+
+            return [];
+
+        }
+
         const parsed =
-            data
-                ? JSON.parse(data)
-                : [];
+            JSON.parse(data);
 
         return Array.isArray(parsed)
             ? parsed
@@ -67,12 +89,10 @@ function getIncome() {
 
 
 /* =========================================================
-   3. SAVE INCOME
+   3. SAVE INCOME LIST
 ========================================================= */
 
-function saveIncomeList(
-    list
-) {
+function saveIncomeList(list) {
 
     try {
 
@@ -92,7 +112,7 @@ function saveIncomeList(
         );
 
         alert(
-            "उत्पन्न data save करताना समस्या आली."
+            "जमा data save करताना समस्या आली."
         );
 
         return false;
@@ -103,36 +123,19 @@ function saveIncomeList(
 
 
 /* =========================================================
-   4. HTML ESCAPE
+   4. ESCAPE HTML
 ========================================================= */
 
-function escapeIncomeHTML(
-    value
-) {
+function escapeIncomeHTML(value) {
 
     return String(
-        value || ""
+        value ?? ""
     )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 }
 
@@ -141,9 +144,7 @@ function escapeIncomeHTML(
    5. FORMAT NUMBER
 ========================================================= */
 
-function formatIncomeNumber(
-    number
-) {
+function formatIncomeNumber(number) {
 
     return Number(
         number || 0
@@ -158,9 +159,7 @@ function formatIncomeNumber(
    6. FORMAT DATE
 ========================================================= */
 
-function formatIncomeDate(
-    dateString
-) {
+function formatIncomeDate(dateString) {
 
     if (!dateString) {
 
@@ -168,16 +167,12 @@ function formatIncomeDate(
 
     }
 
-
     const parts =
         String(
             dateString
         ).split("-");
 
-
-    if (
-        parts.length === 3
-    ) {
+    if (parts.length === 3) {
 
         return (
             parts[2] +
@@ -188,7 +183,6 @@ function formatIncomeDate(
         );
 
     }
-
 
     return dateString;
 
@@ -206,21 +200,17 @@ function setIncomeTodayDate() {
             "incomeDate"
         );
 
-
     if (!input) {
 
         return;
 
     }
 
-
     const today =
         new Date();
 
-
     const yyyy =
         today.getFullYear();
-
 
     const mm =
         String(
@@ -230,7 +220,6 @@ function setIncomeTodayDate() {
             "0"
         );
 
-
     const dd =
         String(
             today.getDate()
@@ -239,7 +228,6 @@ function setIncomeTodayDate() {
             "0"
         );
 
-
     input.value =
         `${yyyy}-${mm}-${dd}`;
 
@@ -247,7 +235,7 @@ function setIncomeTodayDate() {
 
 
 /* =========================================================
-   8. GENERATE INCOME RECEIPT
+   8. GENERATE RECEIPT NUMBER
 ========================================================= */
 
 function generateIncomeReceiptNumber() {
@@ -255,9 +243,7 @@ function generateIncomeReceiptNumber() {
     const income =
         getIncome();
 
-
     let maxNumber = 0;
-
 
     income.forEach(
         function(item) {
@@ -267,12 +253,10 @@ function generateIncomeReceiptNumber() {
                     item.receiptNo || ""
                 );
 
-
             const match =
                 receipt.match(
                     /MGVM-INC-(\d+)/i
                 );
-
 
             if (!match) {
 
@@ -280,13 +264,11 @@ function generateIncomeReceiptNumber() {
 
             }
 
-
             const number =
                 parseInt(
                     match[1],
                     10
                 );
-
 
             if (
                 number >
@@ -301,13 +283,11 @@ function generateIncomeReceiptNumber() {
         }
     );
 
-
     return (
         "MGVM-INC-" +
         String(
             maxNumber + 1
-        )
-        .padStart(
+        ).padStart(
             4,
             "0"
         )
@@ -328,15 +308,27 @@ function saveIncome() {
         )?.value || "";
 
 
-    const category =
+    const type =
         document.getElementById(
-            "incomeCategory"
+            "incomeType"
         )?.value.trim() || "";
 
 
-    const description =
+    const name =
         document.getElementById(
-            "incomeDescription"
+            "incomeName"
+        )?.value.trim() || "";
+
+
+    const memberId =
+        document.getElementById(
+            "incomeMemberId"
+        )?.value.trim() || "";
+
+
+    const mobile =
+        document.getElementById(
+            "incomeMobile"
         )?.value.trim() || "";
 
 
@@ -348,16 +340,22 @@ function saveIncome() {
         );
 
 
+    const paymentMode =
+        document.getElementById(
+            "incomePaymentMode"
+        )?.value || "";
+
+
     const receiptInput =
         document.getElementById(
             "incomeReceiptNo"
         );
 
 
-    const paymentMode =
+    const description =
         document.getElementById(
-            "incomePaymentMode"
-        )?.value || "";
+            "incomeDescription"
+        )?.value.trim() || "";
 
 
     const enteredBy =
@@ -371,10 +369,10 @@ function saveIncome() {
        VALIDATION
     ===================================================== */
 
-    if (!date) {
+    if (!type) {
 
         alert(
-            "कृपया उत्पन्नाची तारीख निवडा."
+            "कृपया जमा प्रकार निवडा."
         );
 
         return;
@@ -382,10 +380,21 @@ function saveIncome() {
     }
 
 
-    if (!category) {
+    if (!name) {
 
         alert(
-            "कृपया उत्पन्नाचा प्रकार निवडा."
+            "कृपया जमा करणाऱ्याचे नाव टाका."
+        );
+
+        return;
+
+    }
+
+
+    if (!date) {
+
+        alert(
+            "कृपया जमा तारीख निवडा."
         );
 
         return;
@@ -399,7 +408,7 @@ function saveIncome() {
     ) {
 
         alert(
-            "कृपया योग्य उत्पन्न रक्कम टाका."
+            "कृपया योग्य जमा रक्कम टाका."
         );
 
         return;
@@ -418,9 +427,8 @@ function saveIncome() {
     }
 
 
-
     /* =====================================================
-       RECEIPT
+       RECEIPT NUMBER
     ===================================================== */
 
     let receiptNo =
@@ -444,7 +452,6 @@ function saveIncome() {
     const income =
         getIncome();
 
-
     const duplicate =
         income.some(
             function(item) {
@@ -455,10 +462,7 @@ function saveIncome() {
                     )
                     .toLowerCase()
                     ===
-                    String(
-                        receiptNo
-                    )
-                    .toLowerCase()
+                    receiptNo.toLowerCase()
                 );
 
             }
@@ -476,9 +480,8 @@ function saveIncome() {
     }
 
 
-
     /* =====================================================
-       CREATE OBJECT
+       CREATE TRANSACTION
     ===================================================== */
 
     const transaction = {
@@ -494,11 +497,20 @@ function saveIncome() {
         date:
             date,
 
-        category:
-            category,
+        type:
+            type,
 
-        description:
-            description,
+        category:
+            type,
+
+        name:
+            name,
+
+        memberId:
+            memberId,
+
+        mobile:
+            mobile,
 
         amount:
             amount,
@@ -509,6 +521,9 @@ function saveIncome() {
         paymentMode:
             paymentMode,
 
+        description:
+            description,
+
         enteredBy:
             enteredBy,
 
@@ -517,7 +532,6 @@ function saveIncome() {
                 .toISOString()
 
     };
-
 
 
     /* =====================================================
@@ -540,21 +554,18 @@ function saveIncome() {
     }
 
 
-
     /* =====================================================
        SUCCESS
     ===================================================== */
 
     showIncomeToast(
-        "उत्पन्नाची नोंद यशस्वीरित्या सेव्ह झाली."
+        "जमा नोंद यशस्वीरित्या सेव्ह झाली."
     );
 
 
     clearIncomeForm();
 
-
     displayIncomeHistory();
-
 
     updateIncomeDashboard();
 
@@ -569,11 +580,14 @@ function clearIncomeForm() {
 
     const fields = [
 
-        "incomeCategory",
-        "incomeDescription",
+        "incomeType",
+        "incomeName",
+        "incomeMemberId",
+        "incomeMobile",
         "incomeAmount",
         "incomeReceiptNo",
         "incomePaymentMode",
+        "incomeDescription",
         "incomeEnteredBy"
 
     ];
@@ -586,7 +600,6 @@ function clearIncomeForm() {
                 document.getElementById(
                     id
                 );
-
 
             if (element) {
 
@@ -605,7 +618,7 @@ function clearIncomeForm() {
 
 
 /* =========================================================
-   11. DISPLAY INCOME HISTORY
+   11. DISPLAY HISTORY
 ========================================================= */
 
 function displayIncomeHistory() {
@@ -614,7 +627,6 @@ function displayIncomeHistory() {
         document.getElementById(
             "incomeTableBody"
         );
-
 
     if (!tbody) {
 
@@ -641,6 +653,10 @@ function displayIncomeHistory() {
         getIncome();
 
 
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
     if (keyword) {
 
         data =
@@ -650,7 +666,9 @@ function displayIncomeHistory() {
                     return (
 
                         String(
-                            item.category || ""
+                            item.type ||
+                            item.category ||
+                            ""
                         )
                         .toLowerCase()
                         .includes(
@@ -660,7 +678,27 @@ function displayIncomeHistory() {
                         ||
 
                         String(
-                            item.description || ""
+                            item.name || ""
+                        )
+                        .toLowerCase()
+                        .includes(
+                            keyword
+                        )
+
+                        ||
+
+                        String(
+                            item.memberId || ""
+                        )
+                        .toLowerCase()
+                        .includes(
+                            keyword
+                        )
+
+                        ||
+
+                        String(
+                            item.mobile || ""
                         )
                         .toLowerCase()
                         .includes(
@@ -680,7 +718,7 @@ function displayIncomeHistory() {
                         ||
 
                         String(
-                            item.paymentMode || ""
+                            item.description || ""
                         )
                         .toLowerCase()
                         .includes(
@@ -694,6 +732,10 @@ function displayIncomeHistory() {
 
     }
 
+
+    /* =====================================================
+       SORT
+    ===================================================== */
 
     data.sort(
         function(a, b) {
@@ -711,6 +753,10 @@ function displayIncomeHistory() {
         }
     );
 
+
+    /* =====================================================
+       TOTAL
+    ===================================================== */
 
     const total =
         data.reduce(
@@ -740,7 +786,7 @@ function displayIncomeHistory() {
     if (totalElement) {
 
         totalElement.innerHTML =
-            `एकूण उत्पन्न: ₹${formatIncomeNumber(total)}`;
+            `एकूण जमा: ₹${formatIncomeNumber(total)}`;
 
     }
 
@@ -758,11 +804,11 @@ function displayIncomeHistory() {
             <tr>
 
                 <td
-                    colspan="9"
+                    colspan="10"
                     style="text-align:center;"
                 >
 
-                    कोणतीही उत्पन्न नोंद सापडली नाही.
+                    कोणतीही जमा नोंद सापडली नाही.
 
                 </td>
 
@@ -774,6 +820,10 @@ function displayIncomeHistory() {
 
     }
 
+
+    /* =====================================================
+       TABLE
+    ===================================================== */
 
     data.forEach(
         function(
@@ -801,13 +851,23 @@ function displayIncomeHistory() {
 
                 <td>
                     ${escapeIncomeHTML(
-                        item.category
+                        item.type ||
+                        item.category ||
+                        "-"
                     )}
                 </td>
 
                 <td>
                     ${escapeIncomeHTML(
-                        item.description || "-"
+                        item.name ||
+                        "-"
+                    )}
+                </td>
+
+                <td>
+                    ${escapeIncomeHTML(
+                        item.memberId ||
+                        "-"
                     )}
                 </td>
 
@@ -819,19 +879,22 @@ function displayIncomeHistory() {
 
                 <td>
                     ${escapeIncomeHTML(
-                        item.receiptNo || "-"
+                        item.paymentMode ||
+                        "-"
                     )}
                 </td>
 
                 <td>
                     ${escapeIncomeHTML(
-                        item.paymentMode || "-"
+                        item.receiptNo ||
+                        "-"
                     )}
                 </td>
 
                 <td>
                     ${escapeIncomeHTML(
-                        item.enteredBy || "-"
+                        item.description ||
+                        "-"
                     )}
                 </td>
 
@@ -863,20 +926,16 @@ function displayIncomeHistory() {
 
 
 /* =========================================================
-   12. DELETE INCOME
+   12. DELETE
 ========================================================= */
 
-function deleteIncome(
-    incomeId
-) {
+function deleteIncome(incomeId) {
 
-    const confirmDelete =
-        confirm(
-            "ही उत्पन्न नोंद Delete करायची आहे का?"
-        );
-
-
-    if (!confirmDelete) {
+    if (
+        !confirm(
+            "ही जमा नोंद Delete करायची आहे का?"
+        )
+    ) {
 
         return;
 
@@ -907,7 +966,7 @@ function deleteIncome(
     if (!exists) {
 
         alert(
-            "उत्पन्न नोंद सापडली नाही."
+            "जमा नोंद सापडली नाही."
         );
 
         return;
@@ -932,9 +991,15 @@ function deleteIncome(
         );
 
 
-    saveIncomeList(
-        income
-    );
+    if (
+        !saveIncomeList(
+            income
+        )
+    ) {
+
+        return;
+
+    }
 
 
     displayIncomeHistory();
@@ -943,7 +1008,7 @@ function deleteIncome(
 
 
     showIncomeToast(
-        "उत्पन्न नोंद Delete झाली."
+        "जमा नोंद Delete झाली."
     );
 
 }
@@ -978,25 +1043,38 @@ function updateIncomeDashboard() {
         );
 
 
-    const totalElement =
+    const totalElements = [
+
         document.getElementById(
             "totalIncomeDashboard"
-        );
+        ),
+
+        document.getElementById(
+            "totalIncome"
+        )
+
+    ];
 
 
-    if (totalElement) {
+    totalElements.forEach(
+        function(element) {
 
-        totalElement.innerText =
-            "₹" +
-            total.toLocaleString(
-                "en-IN"
-            );
+            if (element) {
 
-    }
+                element.innerText =
+                    "₹" +
+                    total.toLocaleString(
+                        "en-IN"
+                    );
+
+            }
+
+        }
+    );
 
 
     /* =====================================================
-       TODAY INCOME
+       TODAY
     ===================================================== */
 
     const today =
@@ -1029,7 +1107,6 @@ function updateIncomeDashboard() {
 
                 }
 
-
                 return sum;
 
             },
@@ -1057,16 +1134,23 @@ function updateIncomeDashboard() {
 
 
 /* =========================================================
-   14. SEARCH EVENT
+   14. SEARCH
 ========================================================= */
 
-const incomeSearch =
-    document.getElementById(
-        "incomeSearch"
-    );
+function initializeIncomeSearch() {
+
+    const incomeSearch =
+        document.getElementById(
+            "incomeSearch"
+        );
 
 
-if (incomeSearch) {
+    if (!incomeSearch) {
+
+        return;
+
+    }
+
 
     incomeSearch.addEventListener(
         "input",
@@ -1084,9 +1168,7 @@ if (incomeSearch) {
    15. TOAST
 ========================================================= */
 
-function showIncomeToast(
-    message
-) {
+function showIncomeToast(message) {
 
     const toast =
         document.getElementById(
@@ -1125,12 +1207,66 @@ function showIncomeToast(
 
 
 /* =========================================================
-   16. INITIALIZE
+   16. FORM SUBMIT
+========================================================= */
+
+function initializeIncomeForm() {
+
+    const form =
+        document.getElementById(
+            "incomeForm"
+        );
+
+
+    if (!form) {
+
+        return;
+
+    }
+
+
+    form.addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            saveIncome();
+
+        }
+    );
+
+
+    form.addEventListener(
+        "reset",
+        function() {
+
+            setTimeout(
+                function() {
+
+                    setIncomeTodayDate();
+
+                },
+                0
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   17. INITIALIZE
 ========================================================= */
 
 function initializeIncomePage() {
 
     setIncomeTodayDate();
+
+    initializeIncomeForm();
+
+    initializeIncomeSearch();
 
     displayIncomeHistory();
 
@@ -1140,7 +1276,7 @@ function initializeIncomePage() {
 
 
 /* =========================================================
-   17. DOM READY
+   18. DOM READY
 ========================================================= */
 
 if (
@@ -1166,5 +1302,5 @@ else {
 ========================================================= */
 
 console.log(
-    "MGVM income.js loaded successfully."
+    "MGVM corrected income.js loaded successfully."
 );
