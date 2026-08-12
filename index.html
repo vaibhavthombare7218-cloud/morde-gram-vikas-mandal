@@ -1,380 +1,731 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+          href="style.css">
 
-    <meta name="theme-color" content="#0d6efd">
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <meta name="theme-color"
+          content="#0d6efd">
+
 </head>
 
+
 <body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <header class="top-header">
 
     <div class="logo-box">
-        <img src="assets/logo.png" id="logo" alt="MGVM Logo">
+
+        <img src="assets/logo.png"
+             id="logo"
+             alt="MGVM Logo">
+
     </div>
 
+
     <div class="title-box">
-        <h1>मोर्डे ग्राम विकास मंडळ, मुंबई</h1>
+
+        <h1>
+            मोर्डे ग्राम विकास मंडळ, मुंबई
+        </h1>
+
         <p>
-        सभासद वर्गणी व्यवस्थापन प्रणाली
+            सभासद वर्गणी व्यवस्थापन प्रणाली
         </p>
+
     </div>
 
 </header>
 
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
 <nav class="main-nav">
 
-<button onclick="location.href='member-details.html'">
-<i class="fa fa-home"></i><br>
-सभासद माहिती
-</button>
+    <button onclick="location.href='member-details.html'">
+        <i class="fa fa-home"></i><br>
+        सभासद माहिती
+    </button>
 
-<button onclick="location.href='members.html'">
-<i class="fa fa-users"></i><br>
-सभासद
-</button>
 
-<button onclick="location.href='subscription.html'">
-<i class="fa fa-money-bill-wave"></i><br>
-वर्गणी
-</button>
+    <button onclick="location.href='members.html'">
+        <i class="fa fa-users"></i><br>
+        सभासद
+    </button>
 
-<button onclick="location.href='meeting.html'">
-<i class="fa fa-handshake"></i><br>
-सभा
-</button>
 
-<button onclick="location.href='donation.html'">
-<i class="fa fa-heart"></i><br>
-देणगी
-</button>
+    <button onclick="location.href='subscription.html'">
+        <i class="fa fa-money-bill-wave"></i><br>
+        वर्गणी
+    </button>
 
-<button onclick="location.href='income.html'">
-<i class="fa fa-arrow-trend-up"></i><br>
-उत्पन्न
-</button>
 
-<button onclick="location.href='expense.html'">
-<i class="fa fa-arrow-trend-down"></i><br>
-खर्च
-</button>
+    <button onclick="location.href='meeting.html'">
+        <i class="fa fa-handshake"></i><br>
+        सभा
+    </button>
 
-<button onclick="location.href='reports.html'">
-<i class="fa fa-chart-column"></i><br>
-अहवाल
-</button>
 
-<button onclick="location.href='clear.html'">
-<i class="fa fa-gear"></i><br>
-सेटिंग
-</button>
+    <button onclick="location.href='donation.html'">
+        <i class="fa fa-heart"></i><br>
+        देणगी
+    </button>
+
+
+    <button onclick="location.href='income.html'">
+        <i class="fa fa-arrow-trend-up"></i><br>
+        उत्पन्न
+    </button>
+
+
+    <button onclick="location.href='expense.html'">
+        <i class="fa fa-arrow-trend-down"></i><br>
+        खर्च
+    </button>
+
+
+    <button onclick="location.href='reports.html'">
+        <i class="fa fa-chart-column"></i><br>
+        अहवाल
+    </button>
+
+
+    <button onclick="location.href='clear.html'">
+        <i class="fa fa-gear"></i><br>
+        सेटिंग
+    </button>
 
 </nav>
 
+
+
 <main class="container">
 
-<h2>
-Dashboard
-</h2>
+
+<!-- =====================================================
+     DASHBOARD TITLE
+===================================================== -->
+
+<section>
+
+    <h2>
+        📊 Dashboard
+    </h2>
+
+    <p id="dashboardDate"></p>
+
+</section>
+
+
+
+<!-- =====================================================
+     MAIN SUMMARY
+===================================================== -->
 
 <div class="dashboard-grid">
 
-<div class="card">
 
-<h3>
-एकूण सभासद
-</h3>
+    <div class="card">
 
-<h1 id="totalMembers">
-0
-</h1>
+        <h3>
+            👥 एकूण सभासद
+        </h3>
 
-</div>
+        <h1 id="totalMembers">
+            0
+        </h1>
 
-<div class="card">
+    </div>
 
-<h3>
-एकूण वर्गणी
-</h3>
 
-<h1 id="totalSubscription">
-₹0
-</h1>
 
-</div>
+    <div class="card">
 
-<div class="card">
+        <h3>
+            💰 एकूण वर्गणी
+        </h3>
 
-<h3>
-बाकी वर्गणी
-</h3>
+        <h1 id="totalSubscription">
+            ₹0
+        </h1>
 
-<h1 id="pendingSubscription">
-₹0
-</h1>
+    </div>
 
-</div>
 
-<div class="card">
 
-<h3>
-एकूण देणगी
-</h3>
+    <div class="card">
 
-<h1 id="totalDonation">
-₹0
-</h1>
+        <h3>
+            ⏳ बाकी वर्गणी
+        </h3>
 
-</div>
+        <h1 id="pendingSubscription">
+            ₹0
+        </h1>
 
-</div>
-<!-- =========================
-     Quick Actions
-========================== -->
+    </div>
 
-<section class="quick-actions">
 
-<h2>⚡ जलद पर्याय</h2>
 
-<div class="action-grid">
+    <div class="card">
 
-<button class="action-btn"
-onclick="location.href='members.html'">
-<i class="fa-solid fa-user-plus"></i>
-<span>नवीन सभासद</span>
-</button>
+        <h3>
+            ❤️ एकूण देणगी
+        </h3>
 
-<button class="action-btn"
-onclick="location.href='subscription.html'">
-<i class="fa-solid fa-indian-rupee-sign"></i>
-<span>वर्गणी भरा</span>
-</button>
+        <h1 id="totalDonation">
+            ₹0
+        </h1>
 
-<button class="action-btn"
-onclick="location.href='donation.html'">
-<i class="fa-solid fa-hand-holding-heart"></i>
-<span>देणगी नोंद</span>
-</button>
+    </div>
 
-<button class="action-btn"
-onclick="location.href='wadi_report.html'">
-<i class="fa-solid fa-users"></i>
-<span>वाडीनुसार बाकी</span>
-</button>
 
-<button class="action-btn"
-onclick="location.href='income.html'">
-<i class="fa-solid fa-arrow-trend-up"></i>
-<span>उत्पन्न</span>
-</button>
 
-<button class="action-btn"
-onclick="location.href='expense.html'">
-<i class="fa-solid fa-arrow-trend-down"></i>
-<span>खर्च</span>
-</button>
+    <div class="card">
 
-<button class="action-btn"
-onclick="location.href='reports.html'">
-<i class="fa-solid fa-chart-pie"></i>
-<span>अहवाल</span>
-</button>
+        <h3>
+            📈 एकूण उत्पन्न
+        </h3>
 
-<button class="action-btn"
-onclick="location.href='backup.html'">
-<i class="fa-solid fa-download"></i>
-<span>बॅकअप</span>
-</button>
+        <h1 id="totalIncome">
+            ₹0
+        </h1>
 
-</div>
+    </div>
 
-</section>
 
-<!-- =========================
-     Search Section
-========================== -->
 
-<section class="search-box">
+    <div class="card">
 
-<h2>🔍 सभासद शोधा</h2>
+        <h3>
+            📉 एकूण खर्च
+        </h3>
 
-<input
-type="text"
-id="memberSearch"
-placeholder="नाव किंवा मोबाईल नंबर टाका..."
-onkeyup="searchMember()">
+        <h1 id="totalExpense">
+            ₹0
+        </h1>
 
-<div id="searchResult">
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            💵 एकूण जमा
+        </h3>
+
+        <h1 id="totalCollection">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            🏦 शिल्लक रक्कम
+        </h3>
+
+        <h1 id="balanceAmount">
+            ₹0
+        </h1>
+
+    </div>
 
 </div>
 
-</section>
 
-<!-- =========================
-      Wadi Wise Search
-========================== -->
 
-<section class="wadi-search">
-
-<h2>🏡 वाडी नुसार शोध</h2>
-
-<select id="wadiFilter"
-onchange="filterWadi()">
-
-<option value="">सर्व वाड्या</option>
-    
-<option>लाडवाडी_१</option>
-    
-<option>लाडवाडी_२</option>
-
-<option>वरची ढवळवाडी</option>
-
-<option>ढवळवाडी</option>
-
-<option>खालची ठोंबरेवाडी</option>
-
-<option>रांबाडेवाडी</option>
-
-<option>बोडण वाडी</option>
-
-<option>पाठारवाडी</option>
-
-<option>गोवुळवाडी</option>
-     
-<option>वरची ठोंबरेवाडी</option>
-    
-<option>घाटकरवाडी</option>
-    
-<option>दळवीवाडी</option> 
-     
-<option>सत्याचीवाडी</option>
-
-<option>नाडणकर वाडी</option>
-     
-<option>बौद्धवाडी</option>
-     
-<option>गवळीवाडी</option>
-    
-</select>
-
-<div id="wadiMembers">
-
-</div>
-
-</section>
-
-<!-- =========================
-     Recent Activity
-========================== -->
-
-<section class="recent-box">
-
-<h2>📝 अलीकडील नोंदी</h2>
-
-<div id="recentActivity">
-
-<p>
-अद्याप कोणतीही नोंद उपलब्ध नाही.
-</p>
-
-</div>
-
-    </section>
-<!-- =========================
-     Dashboard Statistics
-========================== -->
+<!-- =====================================================
+     TODAY
+===================================================== -->
 
 <section class="statistics-section">
 
-    <h2>📊 सांख्यिकी</h2>
+    <h2>
+        📅 आजचा व्यवहार
+    </h2>
+
 
     <div class="stats-grid">
 
-        <div class="stat-card">
-            <h3>आजची वर्गणी</h3>
-            <h1 id="todaySubscription">₹0</h1>
-        </div>
 
         <div class="stat-card">
-            <h3>या वर्षाची वर्गणी</h3>
-            <h1 id="yearSubscription">₹0</h1>
+
+            <h3>
+                आजची वर्गणी
+            </h3>
+
+            <h1 id="todaySubscription">
+                ₹0
+            </h1>
+
         </div>
 
-        <div class="stat-card">
-            <h3>एकूण उत्पन्न</h3>
-            <h1 id="totalIncome">₹0</h1>
-        </div>
 
         <div class="stat-card">
-            <h3>एकूण खर्च</h3>
-            <h1 id="totalExpense">₹0</h1>
+
+            <h3>
+                आजची देणगी
+            </h3>
+
+            <h1 id="todayDonation">
+                ₹0
+            </h1>
+
         </div>
 
+
         <div class="stat-card">
-            <h3>शिल्लक रक्कम</h3>
-            <h1 id="balanceAmount">₹0</h1>
+
+            <h3>
+                आजचे उत्पन्न
+            </h3>
+
+            <h1 id="todayIncome">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजचा खर्च
+            </h3>
+
+            <h1 id="todayExpense">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजची शिल्लक
+            </h3>
+
+            <h1 id="todayBalance">
+                ₹0
+            </h1>
+
         </div>
 
     </div>
 
 </section>
 
-<!-- =========================
-     Pending Subscription
-========================== -->
 
-<section class="pending-section">
 
-    <h2>💰 बाकी वर्गणी</h2>
+<!-- =====================================================
+     YEAR / MEMBER STATUS
+===================================================== -->
 
-    <table class="table">
+<section class="statistics-section">
 
-        <thead>
+    <h2>
+        📌 अतिरिक्त माहिती
+    </h2>
 
-            <tr>
-                <th>सभासद</th>
-                <th>वाडी</th>
-                <th>बाकी</th>
-            </tr>
 
-        </thead>
+    <div class="stats-grid">
 
-        <tbody id="pendingTable">
 
-            <tr>
-                <td colspan="3" align="center">
-                    कोणताही डेटा उपलब्ध नाही.
-                </td>
-            </tr>
+        <div class="stat-card">
 
-        </tbody>
+            <h3>
+                चालू वर्षाची वर्गणी
+            </h3>
 
-    </table>
+            <h1 id="yearSubscription">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                बाकी असलेले सभासद
+            </h3>
+
+            <h1 id="pendingMembersCount">
+                0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                वर्गणी पूर्ण भरलेले
+            </h3>
+
+            <h1 id="paidMembersCount">
+                0
+            </h1>
+
+        </div>
+
+    </div>
 
 </section>
 
-<!-- =========================
-     Announcements
-========================== -->
+
+
+<!-- =====================================================
+     QUICK ACTIONS
+===================================================== -->
+
+<section class="quick-actions">
+
+    <h2>
+        ⚡ जलद पर्याय
+    </h2>
+
+
+    <div class="action-grid">
+
+
+        <button class="action-btn"
+                onclick="location.href='members.html'">
+
+            <i class="fa-solid fa-user-plus"></i>
+
+            <span>
+                नवीन सभासद
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='subscription.html'">
+
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+
+            <span>
+                वर्गणी भरा
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='donation.html'">
+
+            <i class="fa-solid fa-hand-holding-heart"></i>
+
+            <span>
+                देणगी नोंद
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='wadi_report.html'">
+
+            <i class="fa-solid fa-users"></i>
+
+            <span>
+                वाडीनुसार बाकी
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='income.html'">
+
+            <i class="fa-solid fa-arrow-trend-up"></i>
+
+            <span>
+                उत्पन्न
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='expense.html'">
+
+            <i class="fa-solid fa-arrow-trend-down"></i>
+
+            <span>
+                खर्च
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='reports.html'">
+
+            <i class="fa-solid fa-chart-pie"></i>
+
+            <span>
+                अहवाल
+            </span>
+
+        </button>
+
+
+        <button class="action-btn"
+                onclick="location.href='backup.html'">
+
+            <i class="fa-solid fa-download"></i>
+
+            <span>
+                बॅकअप
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     MEMBER SEARCH
+===================================================== -->
+
+<section class="search-box">
+
+    <h2>
+        🔍 सभासद शोधा
+    </h2>
+
+
+    <input type="text"
+           id="memberSearch"
+           placeholder="नाव, Member ID किंवा मोबाईल नंबर टाका...">
+
+
+    <div id="searchResult"></div>
+
+</section>
+
+
+
+<!-- =====================================================
+     WADI SEARCH
+===================================================== -->
+
+<section class="wadi-search">
+
+    <h2>
+        🏡 वाडीनुसार सभासद
+    </h2>
+
+
+    <select id="wadiFilter">
+
+        <option value="">
+            सर्व वाड्या
+        </option>
+
+        <option>लाडवाडी_१</option>
+        <option>लाडवाडी_२</option>
+        <option>वरची ढवळवाडी</option>
+        <option>ढवळवाडी</option>
+        <option>खालची ठोंबरेवाडी</option>
+        <option>रांबाडेवाडी</option>
+        <option>बोडण वाडी</option>
+        <option>पाठारवाडी</option>
+        <option>गोवुळवाडी</option>
+        <option>वरची ठोंबरेवाडी</option>
+        <option>घाटकरवाडी</option>
+        <option>दळवीवाडी</option>
+        <option>सत्याचीवाडी</option>
+        <option>नाडणकर वाडी</option>
+        <option>बौद्धवाडी</option>
+        <option>गवळीवाडी</option>
+
+    </select>
+
+
+    <div id="wadiMembers"></div>
+
+</section>
+
+
+
+<!-- =====================================================
+     WADI STATISTICS
+===================================================== -->
+
+<section class="statistics-section">
+
+    <h2>
+        🏡 वाडीनुसार सांख्यिकी
+    </h2>
+
+
+    <div id="wadiStatistics"
+         class="stats-grid">
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PENDING SUBSCRIPTION
+===================================================== -->
+
+<section class="pending-section">
+
+    <h2>
+        💰 बाकी वर्गणी
+    </h2>
+
+
+    <div style="overflow-x:auto;">
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        सभासद
+                    </th>
+
+                    <th>
+                        वाडी
+                    </th>
+
+                    <th>
+                        बाकी
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="pendingTable">
+
+                <tr>
+
+                    <td colspan="3"
+                        align="center">
+
+                        डेटा loading...
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     RECENT ACTIVITY
+===================================================== -->
+
+<section class="recent-box">
+
+    <h2>
+        📝 अलीकडील नोंदी
+    </h2>
+
+
+    <div id="recentActivity">
+
+        <p>
+            डेटा loading...
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     RECENT MEETINGS
+===================================================== -->
+
+<section class="recent-box">
+
+    <h2>
+        🤝 अलीकडील सभा
+    </h2>
+
+
+    <div id="recentMeetings">
+
+        <p>
+            डेटा loading...
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     NOTICE
+===================================================== -->
 
 <section class="notice-section">
 
-    <h2>📢 सूचना</h2>
+    <h2>
+        📢 सूचना
+    </h2>
+
 
     <div class="notice-card">
 
@@ -389,10 +740,15 @@ onchange="filterWadi()">
     </div>
 
 </section>
+
+
 </main>
-<!-- =========================
-     Footer
-========================== -->
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
 
 <footer>
 
@@ -406,10 +762,17 @@ onchange="filterWadi()">
 
 </footer>
 
-<!-- JavaScript -->
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
 
 <script src="database.js"></script>
+
 <script src="script.js"></script>
 
+
 </body>
-    </html>
+
+</html>
