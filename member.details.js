@@ -1,1055 +1,1415 @@
 /* =========================================================
    member-details.js
+
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
-   सभासद Details Page
+   MEMBER DETAILS PAGE
 
-   Features:
-   ✅ Member Search
-   ✅ Member Name / ID / Mobile Search
-   ✅ Member Details View
+   DATA SOURCES:
+
+   Members:
+   mgvm_members
+
+   Subscription:
+   mgvm_subscriptions
+
+   Donation:
+   mgvm_donations
+
+   FEATURES:
+
+   ✅ Member Details
+   ✅ Name Search
+   ✅ ID Search
+   ✅ Mobile Search
+   ✅ Wadi
+   ✅ Address
    ✅ Pending Subscription
-   ✅ 2026 पासून जमा वर्गणी
-   ✅ 2026 पासून जमा देणगी
-   ✅ Edit / Delete नाही
-   ✅ Existing LocalStorage data compatible
+   ✅ Subscription collected from 01-01-2026
+   ✅ Donation collected from 01-01-2026
+   ✅ View Details
+   ❌ Edit
+   ❌ Delete
+
 ========================================================= */
 
 
 /* =========================================================
-   SETTINGS
+   1. STORAGE KEYS
 ========================================================= */
 
-const DETAILS_YEAR = 2026;
+const MEMBER_DETAILS_MEMBERS_KEY =
+    "mgvm_members";
+
+const MEMBER_DETAILS_SUBSCRIPTION_KEY =
+    "mgvm_subscriptions";
+
+const MEMBER_DETAILS_DONATION_KEY =
+    "mgvm_donations";
 
 
 /* =========================================================
-   DOM
+   2. DATA
 ========================================================= */
 
-const searchInput = document.getElementById("memberSearch");
-const searchResults = document.getElementById("searchResults");
-const clearSearch = document.getElementById("clearSearch");
+let detailMembers = [];
 
-const emptyState = document.getElementById("emptyState");
-const memberDetails = document.getElementById("memberDetails");
+let detailSubscriptions = [];
+
+let detailDonations = [];
 
 
 /* =========================================================
-   HELPER
+   3. 2026 START DATE
 ========================================================= */
 
-function clean(value) {
-
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-    return String(value).trim();
-}
-
-
-function normalize(value) {
-
-    return clean(value)
-        .toLowerCase()
-        .replace(/\s+/g, "");
-}
-
-
-function money(value) {
-
-    let amount = Number(value);
-
-    if (!Number.isFinite(amount)) {
-        amount = 0;
-    }
-
-    return "₹" + amount.toLocaleString("en-IN");
-}
+const FROM_2026_DATE =
+    "2026-01-01";
 
 
 /* =========================================================
-   LOCAL STORAGE READ
+   4. GET LOCAL STORAGE
 ========================================================= */
 
-function readStorage(key) {
+function getLocalArray(key) {
 
     try {
 
-        const value = localStorage.getItem(key);
+        const data =
+            localStorage.getItem(key);
 
-        if (!value) {
-            return null;
+        if (!data) {
+
+            return [];
+
         }
 
-        return JSON.parse(value);
+        const parsed =
+            JSON.parse(data);
 
-    } catch (error) {
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
 
-        console.warn("Storage read error:", key, error);
-
-        return null;
     }
-}
+    catch (error) {
 
+        console.error(
+            "Storage Error:",
+            key,
+            error
+        );
 
-/* =========================================================
-   FIND STORAGE DATA
-========================================================= */
-
-function findStorageArray(possibleKeys) {
-
-    for (const key of possibleKeys) {
-
-        const data = readStorage(key);
-
-        if (Array.isArray(data)) {
-            return data;
-        }
+        return [];
 
     }
 
-    return [];
 }
 
 
 /* =========================================================
-   MEMBERS
+   5. LOAD ALL DATA
 ========================================================= */
 
-function getMembers() {
+function loadMemberDetailsData() {
 
-    const possibleKeys = [
+    detailMembers =
+        getLocalArray(
+            MEMBER_DETAILS_MEMBERS_KEY
+        );
 
-        "members",
-        "mgvmMembers",
-        "memberList",
-        "membersData",
-        "MGVM_members",
-        "MGVM_Members",
-        "sabhasad",
-        "sabhasadData"
 
-    ];
+    detailSubscriptions =
+        getLocalArray(
+            MEMBER_DETAILS_SUBSCRIPTION_KEY
+        );
 
-    let members = findStorageArray(possibleKeys);
 
-    /*
-       जर data object मध्ये members array असेल
-    */
+    detailDonations =
+        getLocalArray(
+            MEMBER_DETAILS_DONATION_KEY
+        );
 
-    if (!members.length) {
-
-        for (let i = 0; i < localStorage.length; i++) {
-
-            const key = localStorage.key(i);
-
-            const data = readStorage(key);
-
-            if (
-                Array.isArray(data) &&
-                data.length &&
-                typeof data[0] === "object"
-            ) {
-
-                const first = data[0];
-
-                const hasMemberField =
-                    first.name !== undefined ||
-                    first.memberName !== undefined ||
-                    first.sabhasadName !== undefined ||
-                    first.memberId !== undefined ||
-                    first.memberID !== undefined;
-
-                if (hasMemberField) {
-
-                    members = data;
-
-                    break;
-                }
-            }
-        }
-    }
-
-    return members;
 }
 
 
 /* =========================================================
-   MEMBER FIELD HELPERS
+   6. NORMALIZE
 ========================================================= */
 
-function getMemberName(member) {
+function normalizeDetailText(
+    value
+) {
 
-    return clean(
-        member.name ??
-        member.memberName ??
-        member.sabhasadName ??
-        member.fullName ??
-        member.navn ??
-        member["सभासद नाव"] ??
-        member["सभासद नाव"] ??
-        member["नाव"]
-    );
-}
+    return String(
+        value || ""
+    )
+    .normalize("NFC")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 
-
-function getMemberId(member) {
-
-    return clean(
-        member.memberId ??
-        member.memberID ??
-        member.id ??
-        member.member_id ??
-        member.memberCode ??
-        member.mgvmId ??
-        member["Member ID"] ??
-        member["Member Id"] ??
-        member["सभासद ID"] ??
-        member["ID"]
-    );
-}
-
-
-function getMemberWadi(member) {
-
-    return clean(
-        member.wadi ??
-        member.ward ??
-        member.wadiName ??
-        member["वाडी"] ??
-        member["Wadi"]
-    );
-}
-
-
-function getMemberMobile(member) {
-
-    return clean(
-        member.mobile ??
-        member.mobileNumber ??
-        member.phone ??
-        member.contact ??
-        member.contactNumber ??
-        member["मोबाईल"] ??
-        member["Mobile"]
-    );
-}
-
-
-function getMemberAddress(member) {
-
-    return clean(
-        member.address ??
-        member.fullAddress ??
-        member.addr ??
-        member["पत्ता"] ??
-        member["Address"]
-    );
 }
 
 
 /* =========================================================
-   PENDING SUBSCRIPTION
+   7. ESCAPE HTML
 ========================================================= */
 
-function getPendingSubscription(member) {
+function escapeDetailHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   8. FORMAT MONEY
+========================================================= */
+
+function formatDetailMoney(
+    amount
+) {
 
     const value =
-        member.subscriptionPending ??
-        member.pendingSubscription ??
-        member.pendingAmount ??
-        member.subscriptionDue ??
-        member.bakiVargani ??
-        member.bakiSubscription ??
-        member["बाकी वर्गणी"] ??
-        0;
+        Number(amount || 0);
 
-    const amount = Number(value);
-
-    return Number.isFinite(amount) ? amount : 0;
-}
-
-
-/* =========================================================
-   DATE PARSER
-========================================================= */
-
-function parseDate(value) {
-
-    if (!value) {
-        return null;
-    }
-
-    if (value instanceof Date) {
-        return isNaN(value.getTime()) ? null : value;
-    }
-
-    const text = clean(value);
-
-    /*
-       yyyy-mm-dd
-    */
-
-    let match = text.match(
-        /^(\d{4})-(\d{1,2})-(\d{1,2})/
-    );
-
-    if (match) {
-
-        const d = new Date(
-            Number(match[1]),
-            Number(match[2]) - 1,
-            Number(match[3])
-        );
-
-        return isNaN(d.getTime()) ? null : d;
-    }
-
-
-    /*
-       dd/mm/yyyy
-       dd-mm-yyyy
-    */
-
-    match = text.match(
-        /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/
-    );
-
-    if (match) {
-
-        const d = new Date(
-            Number(match[3]),
-            Number(match[2]) - 1,
-            Number(match[1])
-        );
-
-        return isNaN(d.getTime()) ? null : d;
-    }
-
-
-    /*
-       Excel / ISO date
-    */
-
-    const d = new Date(text);
-
-    if (!isNaN(d.getTime())) {
-        return d;
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   TRANSACTION DATE
-========================================================= */
-
-function getTransactionDate(transaction) {
 
     return (
-        transaction.date ??
-        transaction.paymentDate ??
-        transaction.transactionDate ??
-        transaction.receiptDate ??
-        transaction.createdAt ??
-        transaction["तारीख"] ??
-        transaction["Payment Date"] ??
-        transaction["Date"]
+        "₹" +
+        value.toLocaleString(
+            "en-IN"
+        )
     );
+
 }
 
 
 /* =========================================================
-   TRANSACTION AMOUNT
+   9. GET MEMBER ID
+   members.js uses member.id
 ========================================================= */
 
-function getTransactionAmount(transaction) {
+function getMemberId(
+    member
+) {
 
-    const possibleValues = [
+    if (!member) {
 
-        transaction.amount,
-        transaction.paidAmount,
-        transaction.paymentAmount,
-        transaction.receivedAmount,
-        transaction.rakkam,
-        transaction["रक्कम"],
-        transaction["Amount"],
-        transaction["Payment Amount"]
+        return "";
 
-    ];
-
-    for (const value of possibleValues) {
-
-        if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ) {
-
-            const number = Number(
-                String(value)
-                    .replace(/₹/g, "")
-                    .replace(/,/g, "")
-                    .trim()
-            );
-
-            if (Number.isFinite(number)) {
-                return number;
-            }
-        }
     }
-
-    return 0;
-}
-
-
-/* =========================================================
-   TRANSACTION MEMBER MATCH
-========================================================= */
-
-function transactionBelongsToMember(transaction, member) {
-
-    const memberId = normalize(getMemberId(member));
-    const memberName = normalize(getMemberName(member));
-    const memberMobile = normalize(getMemberMobile(member));
-
-
-    const transactionId = normalize(
-        transaction.memberId ??
-        transaction.memberID ??
-        transaction.member_id ??
-        transaction["Member ID"] ??
-        transaction["Member Id"] ??
-        transaction["सभासद ID"] ??
-        transaction["ID"]
-    );
-
-
-    const transactionName = normalize(
-        transaction.memberName ??
-        transaction.sabhasadName ??
-        transaction.name ??
-        transaction.donorName ??
-        transaction["सभासद नाव"] ??
-        transaction["सभासद नाव"] ??
-        transaction["नाव"]
-    );
-
-
-    const transactionMobile = normalize(
-        transaction.mobile ??
-        transaction.mobileNumber ??
-        transaction.phone ??
-        transaction["Mobile"] ??
-        transaction["मोबाईल"]
-    );
 
 
     /*
-       सर्वात आधी Member ID match
+       Primary:
+       members.js => id
+
+       Compatibility:
+       donation.js => memberId
+    */
+
+    return String(
+        member.id ||
+        member.memberId ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   10. GET DONATION MEMBER ID
+========================================================= */
+
+function getDonationMemberId(
+    donation
+) {
+
+    if (!donation) {
+
+        return "";
+
+    }
+
+
+    return String(
+        donation.memberId ||
+        donation.idMember ||
+        donation.memberID ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   11. GET SUBSCRIPTION MEMBER ID
+========================================================= */
+
+function getSubscriptionMemberId(
+    subscription
+) {
+
+    if (!subscription) {
+
+        return "";
+
+    }
+
+
+    return String(
+        subscription.memberId ||
+        subscription.memberID ||
+        subscription.idMember ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   12. DATE CHECK
+========================================================= */
+
+function isFrom2026(
+    dateValue
+) {
+
+    if (!dateValue) {
+
+        return false;
+
+    }
+
+
+    const text =
+        String(
+            dateValue
+        ).trim();
+
+
+    /*
+       Main system date:
+       YYYY-MM-DD
+
+       Compare string directly to avoid
+       timezone problems.
     */
 
     if (
-        memberId &&
-        transactionId &&
-        memberId === transactionId
+        /^\d{4}-\d{2}-\d{2}$/
+            .test(text)
     ) {
-        return true;
+
+        return (
+            text >=
+            FROM_2026_DATE
+        );
+
     }
 
 
     /*
-       Member ID उपलब्ध नसेल तर Name + Mobile
+       ISO date:
+       2026-01-01T...
     */
 
     if (
-        memberName &&
-        transactionName &&
-        memberName === transactionName
+        text.length >= 10 &&
+        /^\d{4}-\d{2}-\d{2}/
+            .test(text)
     ) {
 
-        if (!memberMobile || !transactionMobile) {
-            return true;
-        }
+        return (
+            text.substring(
+                0,
+                10
+            ) >=
+            FROM_2026_DATE
+        );
 
-        return memberMobile === transactionMobile;
     }
 
-
-    return false;
-}
-
-
-/* =========================================================
-   GET ALL TRANSACTIONS
-========================================================= */
-
-function getAllTransactionArrays(possibleKeys) {
-
-    const output = [];
-
-    for (const key of possibleKeys) {
-
-        const data = readStorage(key);
-
-        if (Array.isArray(data)) {
-
-            output.push(...data);
-        }
-    }
 
     /*
-       Duplicate transactions remove करण्यासाठी
+       Other date format fallback
     */
 
-    const seen = new Set();
-
-    return output.filter((item, index) => {
-
-        const signature = JSON.stringify(item);
-
-        if (seen.has(signature)) {
-            return false;
-        }
-
-        seen.add(signature);
-
-        return true;
-    });
-}
+    const date =
+        new Date(text);
 
 
-/* =========================================================
-   SUBSCRIPTION TRANSACTIONS
-========================================================= */
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
 
-function getSubscriptionTransactions() {
+        return false;
 
-    return getAllTransactionArrays([
-
-        "subscriptions",
-        "subscriptionData",
-        "subscriptionTransactions",
-        "subscriptionRecords",
-        "vargani",
-        "varganiData",
-        "varganiTransactions",
-        "MGVM_subscriptions",
-        "MGVM_Subscriptions"
-
-    ]);
-}
-
-
-/* =========================================================
-   DONATION TRANSACTIONS
-========================================================= */
-
-function getDonationTransactions() {
-
-    return getAllTransactionArrays([
-
-        "donations",
-        "donationData",
-        "donationTransactions",
-        "donationRecords",
-        "denagi",
-        "denagiData",
-        "denagiTransactions",
-        "MGVM_donations",
-        "MGVM_Donations"
-
-    ]);
-}
-
-
-/* =========================================================
-   2026 SUBSCRIPTION TOTAL
-========================================================= */
-
-function calculateSubscription2026(member) {
-
-    const transactions =
-        getSubscriptionTransactions();
-
-    const startDate =
-        new Date(DETAILS_YEAR, 0, 1);
-
-    let total = 0;
-
-
-    transactions.forEach(transaction => {
-
-        if (
-            !transactionBelongsToMember(
-                transaction,
-                member
-            )
-        ) {
-            return;
-        }
-
-
-        const dateValue =
-            getTransactionDate(transaction);
-
-        const date =
-            parseDate(dateValue);
-
-        if (!date) {
-            return;
-        }
-
-
-        if (date >= startDate) {
-
-            total += getTransactionAmount(
-                transaction
-            );
-        }
-
-    });
-
-
-    return total;
-}
-
-
-/* =========================================================
-   2026 DONATION TOTAL
-========================================================= */
-
-function calculateDonation2026(member) {
-
-    const transactions =
-        getDonationTransactions();
-
-    const startDate =
-        new Date(DETAILS_YEAR, 0, 1);
-
-    let total = 0;
-
-
-    transactions.forEach(transaction => {
-
-        if (
-            !transactionBelongsToMember(
-                transaction,
-                member
-            )
-        ) {
-            return;
-        }
-
-
-        const dateValue =
-            getTransactionDate(transaction);
-
-        const date =
-            parseDate(dateValue);
-
-        if (!date) {
-            return;
-        }
-
-
-        if (date >= startDate) {
-
-            total += getTransactionAmount(
-                transaction
-            );
-        }
-
-    });
-
-
-    return total;
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-function searchMembers(query) {
-
-    const members = getMembers();
-
-    const text = normalize(query);
-
-    if (!text) {
-        return [];
     }
 
 
-    return members
-        .filter(member => {
-
-            const name =
-                normalize(getMemberName(member));
-
-            const id =
-                normalize(getMemberId(member));
-
-            const mobile =
-                normalize(getMemberMobile(member));
-
-            const wadi =
-                normalize(getMemberWadi(member));
+    const year =
+        date.getFullYear();
 
 
-            return (
-                name.includes(text) ||
-                id.includes(text) ||
-                mobile.includes(text) ||
-                wadi.includes(text)
-            );
+    return year >= 2026;
 
-        })
-        .slice(0, 30);
 }
 
 
 /* =========================================================
-   SHOW SEARCH RESULTS
+   13. GET SUBSCRIPTION COLLECTION FROM 2026
 ========================================================= */
 
-function showSearchResults(results) {
+function getMemberSubscriptionFrom2026(
+    member
+) {
 
-    searchResults.innerHTML = "";
-
-
-    if (!results.length) {
-
-        searchResults.innerHTML = `
-            <div class="search-result">
-                <div>
-                    <div class="result-name">
-                        सभासद सापडला नाही
-                    </div>
-                    <div class="result-info">
-                        नाव / ID / Mobile तपासा.
-                    </div>
-                </div>
-            </div>
-        `;
-
-        searchResults.style.display = "block";
-
-        return;
-    }
-
-
-    results.forEach(member => {
-
-        const button =
-            document.createElement("button");
-
-        button.type = "button";
-
-        button.className = "search-result";
-
-
-        const name =
-            getMemberName(member) || "नाव नाही";
-
-        const id =
-            getMemberId(member) || "-";
-
-        const wadi =
-            getMemberWadi(member) || "-";
-
-        const mobile =
-            getMemberMobile(member) || "-";
-
-
-        button.innerHTML = `
-
-            <div>
-
-                <div class="result-name">
-                    ${escapeHtml(name)}
-                </div>
-
-                <div class="result-info">
-                    ID: ${escapeHtml(id)}
-                    &nbsp; | &nbsp;
-                    वाडी: ${escapeHtml(wadi)}
-                </div>
-
-            </div>
-
-            <div class="result-info">
-                ${escapeHtml(mobile)}
-            </div>
-
-        `;
-
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                selectMember(member);
-
-                searchResults.style.display =
-                    "none";
-
-                searchInput.value =
-                    getMemberName(member);
-
-            }
+    const memberId =
+        getMemberId(
+            member
         );
 
 
-        searchResults.appendChild(button);
+    if (!memberId) {
 
-    });
+        return 0;
+
+    }
 
 
-    searchResults.style.display = "block";
+    return detailSubscriptions
+        .filter(
+            function(item) {
+
+                const transactionMemberId =
+                    getSubscriptionMemberId(
+                        item
+                    );
+
+
+                if (
+                    transactionMemberId !==
+                    memberId
+                ) {
+
+                    return false;
+
+                }
+
+
+                /*
+                   Subscription.js uses
+                   paymentDate.
+                */
+
+                return isFrom2026(
+                    item.paymentDate
+                );
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.paidAmount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
 }
 
 
 /* =========================================================
-   ESCAPE HTML
+   14. GET MEMBER DONATION FROM 2026
 ========================================================= */
 
-function escapeHtml(value) {
+function getMemberDonationFrom2026(
+    member
+) {
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    const memberId =
+        getMemberId(
+            member
+        );
+
+
+    if (!memberId) {
+
+        return 0;
+
+    }
+
+
+    return detailDonations
+        .filter(
+            function(donation) {
+
+                const donationMemberId =
+                    getDonationMemberId(
+                        donation
+                    );
+
+
+                /*
+                   Normal case:
+                   donation.memberId == member.id
+                */
+
+                if (
+                    donationMemberId &&
+                    donationMemberId ===
+                    memberId
+                ) {
+
+                    return isFrom2026(
+                        donation.donationDate
+                    );
+
+                }
+
+
+                /*
+                   Compatibility:
+                   Some old member records may
+                   have donation stored inside
+                   member.donations.
+                   
+                   Those are handled separately
+                   below.
+                */
+
+                return false;
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                donation
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        donation.amount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
 }
 
 
 /* =========================================================
-   SELECT MEMBER
+   15. GET MEMBER DONATION FROM EMBEDDED RECORD
+   members.js / donation.js reflection
 ========================================================= */
 
-function selectMember(member) {
+function getEmbeddedMemberDonationFrom2026(
+    member
+) {
 
-    const name =
-        getMemberName(member) || "-";
+    if (
+        !member ||
+        !Array.isArray(
+            member.donations
+        )
+    ) {
 
-    const id =
-        getMemberId(member) || "-";
+        return 0;
 
-    const wadi =
-        getMemberWadi(member) || "-";
+    }
 
-    const mobile =
-        getMemberMobile(member) || "-";
 
-    const address =
-        getMemberAddress(member) || "-";
+    return member.donations
+        .filter(
+            function(donation) {
+
+                return isFrom2026(
+                    donation.donationDate
+                );
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                donation
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        donation.amount || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+}
+
+
+/* =========================================================
+   16. FINAL DONATION TOTAL
+========================================================= */
+
+function getFinalMemberDonationFrom2026(
+    member
+) {
+
+    const directTotal =
+        getMemberDonationFrom2026(
+            member
+        );
+
+
+    /*
+       If direct donation records are
+       available, use them.
+
+       Embedded records are fallback only.
+       This prevents double counting because
+       donation.js stores the same donation in
+       mgvm_donations AND member.donations.
+    */
+
+    if (
+        directTotal > 0
+    ) {
+
+        return directTotal;
+
+    }
+
+
+    return getEmbeddedMemberDonationFrom2026(
+        member
+    );
+
+}
+
+
+/* =========================================================
+   17. GET MEMBER PENDING
+========================================================= */
+
+function getMemberPending(
+    member
+) {
+
+    if (!member) {
+
+        return 0;
+
+    }
+
+
+    return Math.max(
+        0,
+        Number(
+            member.subscriptionPending
+        ) || 0
+    );
+
+}
+
+
+/* =========================================================
+   18. GET MEMBER BY ID
+========================================================= */
+
+function findDetailMember(
+    id
+) {
+
+    return detailMembers.find(
+        function(member) {
+
+            return (
+                getMemberId(member) ===
+                String(id)
+            );
+
+        }
+    ) || null;
+
+}
+
+
+/* =========================================================
+   19. DISPLAY MEMBERS
+========================================================= */
+
+function displayMemberDetailsList(
+    list
+) {
+
+    const tbody =
+        document.getElementById(
+            "memberTableBody"
+        );
+
+
+    const count =
+        document.getElementById(
+            "memberCount"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    if (count) {
+
+        count.innerText =
+            list.length;
+
+    }
+
+
+    if (
+        !list ||
+        list.length === 0
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="9"
+                    class="empty">
+
+                    <i class="fa-solid fa-user-slash"></i>
+
+                    कोणताही सभासद सापडला नाही.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = "";
+
+
+    list.forEach(
+        function(
+            member,
+            index
+        ) {
+
+            const memberId =
+                getMemberId(
+                    member
+                );
+
+
+            const pending =
+                getMemberPending(
+                    member
+                );
+
+
+            const subscription2026 =
+                getMemberSubscriptionFrom2026(
+                    member
+                );
+
+
+            const donation2026 =
+                getFinalMemberDonationFrom2026(
+                    member
+                );
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+
+                    <strong>
+                        ${escapeDetailHTML(
+                            member.name
+                        )}
+                    </strong>
+
+                </td>
+
+                <td>
+                    ${escapeDetailHTML(
+                        memberId
+                    )}
+                </td>
+
+                <td>
+                    ${escapeDetailHTML(
+                        member.wadi
+                    )}
+                </td>
+
+                <td>
+                    ${escapeDetailHTML(
+                        member.mobile || "-"
+                    )}
+                </td>
+
+                <td class="money pending-money">
+
+                    ${formatDetailMoney(
+                        pending
+                    )}
+
+                </td>
+
+                <td class="money subscription-money">
+
+                    ${formatDetailMoney(
+                        subscription2026
+                    )}
+
+                </td>
+
+                <td class="money donation-money">
+
+                    ${formatDetailMoney(
+                        donation2026
+                    )}
+
+                </td>
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="view-btn"
+                    >
+
+                        <i class="fa-solid fa-eye"></i>
+
+                        View
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            const button =
+                row.querySelector(
+                    ".view-btn"
+                );
+
+
+            if (button) {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        showMemberDetails(
+                            member
+                        );
+
+                    }
+                );
+
+            }
+
+
+            tbody.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   20. SEARCH MEMBERS
+========================================================= */
+
+function searchMemberDetails() {
+
+    loadMemberDetailsData();
+
+
+    const input =
+        document.getElementById(
+            "memberSearch"
+        );
+
+
+    const keyword =
+        normalizeDetailText(
+            input
+                ? input.value
+                : ""
+        );
+
+
+    let filtered =
+        detailMembers;
+
+
+    if (keyword) {
+
+        filtered =
+            detailMembers.filter(
+                function(member) {
+
+                    const name =
+                        normalizeDetailText(
+                            member.name
+                        );
+
+
+                    const id =
+                        normalizeDetailText(
+                            getMemberId(
+                                member
+                            )
+                        );
+
+
+                    const mobile =
+                        normalizeDetailText(
+                            member.mobile
+                        );
+
+
+                    const wadi =
+                        normalizeDetailText(
+                            member.wadi
+                        );
+
+
+                    return (
+
+                        name.includes(
+                            keyword
+                        )
+
+                        ||
+
+                        id.includes(
+                            keyword
+                        )
+
+                        ||
+
+                        mobile.includes(
+                            keyword
+                        )
+
+                        ||
+
+                        wadi.includes(
+                            keyword
+                        )
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "searchStatus"
+        );
+
+
+    if (status) {
+
+        if (keyword) {
+
+            status.innerText =
+                "Search: " +
+                filtered.length +
+                " सभासद";
+
+        }
+        else {
+
+            status.innerText =
+                "सर्व सभासद";
+
+        }
+
+    }
+
+
+    displayMemberDetailsList(
+        filtered
+    );
+
+}
+
+
+/* =========================================================
+   21. SHOW MEMBER DETAILS
+========================================================= */
+
+function showMemberDetails(
+    member
+) {
+
+    const modal =
+        document.getElementById(
+            "memberModal"
+        );
+
+
+    const content =
+        document.getElementById(
+            "memberDetailsContent"
+        );
+
+
+    if (
+        !modal ||
+        !content
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Always reload latest data
+       before opening details.
+    */
+
+    loadMemberDetailsData();
+
+
+    const latestMember =
+        findDetailMember(
+            getMemberId(
+                member
+            )
+        ) || member;
+
+
+    const memberId =
+        getMemberId(
+            latestMember
+        );
 
 
     const pending =
-        getPendingSubscription(member);
+        getMemberPending(
+            latestMember
+        );
+
 
     const subscription2026 =
-        calculateSubscription2026(member);
+        getMemberSubscriptionFrom2026(
+            latestMember
+        );
+
 
     const donation2026 =
-        calculateDonation2026(member);
+        getFinalMemberDonationFrom2026(
+            latestMember
+        );
 
 
-    /*
-       Profile
-    */
+    content.innerHTML = `
 
-    document.getElementById(
-        "memberName"
-    ).textContent = name;
-
-    document.getElementById(
-        "memberId"
-    ).textContent = id;
-
-    document.getElementById(
-        "memberWadi"
-    ).textContent = wadi;
+        <div class="detail-grid">
 
 
-    /*
-       Details
-    */
+            <div class="detail-item">
 
-    document.getElementById(
-        "detailName"
-    ).textContent = name;
+                <div class="detail-label">
+                    सभासद नाव
+                </div>
 
-    document.getElementById(
-        "detailId"
-    ).textContent = id;
+                <div class="detail-value">
+                    ${escapeDetailHTML(
+                        latestMember.name
+                    )}
+                </div>
 
-    document.getElementById(
-        "detailWadi"
-    ).textContent = wadi;
-
-    document.getElementById(
-        "detailMobile"
-    ).textContent = mobile;
-
-    document.getElementById(
-        "detailAddress"
-    ).textContent = address;
+            </div>
 
 
-    /*
-       Financial
-    */
+            <div class="detail-item">
 
-    document.getElementById(
-        "pendingSubscription"
-    ).textContent = money(pending);
+                <div class="detail-label">
+                    Member ID
+                </div>
 
+                <div class="detail-value">
+                    ${escapeDetailHTML(
+                        memberId
+                    )}
+                </div>
 
-    document.getElementById(
-        "subscription2026"
-    ).textContent = money(
-        subscription2026
-    );
-
-
-    document.getElementById(
-        "donation2026"
-    ).textContent = money(
-        donation2026
-    );
+            </div>
 
 
-    /*
-       Show details
-    */
+            <div class="detail-item">
 
-    emptyState.classList.add("hidden");
+                <div class="detail-label">
+                    वाडी
+                </div>
 
-    memberDetails.classList.remove("hidden");
+                <div class="detail-value">
+                    ${escapeDetailHTML(
+                        latestMember.wadi ||
+                        "-"
+                    )}
+                </div>
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+            </div>
+
+
+            <div class="detail-item">
+
+                <div class="detail-label">
+                    Mobile
+                </div>
+
+                <div class="detail-value">
+                    ${escapeDetailHTML(
+                        latestMember.mobile ||
+                        "-"
+                    )}
+                </div>
+
+            </div>
+
+
+            <div class="detail-item detail-full">
+
+                <div class="detail-label">
+                    पत्ता
+                </div>
+
+                <div class="detail-value">
+                    ${escapeDetailHTML(
+                        latestMember.address ||
+                        "-"
+                    )}
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="amount-section">
+
+            <div class="amount-section-title">
+
+                आर्थिक माहिती
+
+            </div>
+
+
+            <div class="amount-grid">
+
+
+                <div class="amount-card">
+
+                    <div class="label">
+                        बाकी वर्गणी
+                    </div>
+
+                    <div class="amount pending-money">
+                        ${formatDetailMoney(
+                            pending
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="amount-card">
+
+                    <div class="label">
+                        2026 पासून जमा वर्गणी
+                    </div>
+
+                    <div class="amount subscription-money">
+                        ${formatDetailMoney(
+                            subscription2026
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="amount-card">
+
+                    <div class="label">
+                        2026 पासून जमा देणगी
+                    </div>
+
+                    <div class="amount donation-money">
+                        ${formatDetailMoney(
+                            donation2026
+                        )}
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    modal.style.display =
+        "block";
+
 }
 
 
 /* =========================================================
-   SEARCH EVENT
+   22. CLOSE MODAL
 ========================================================= */
 
-searchInput.addEventListener(
-    "input",
-    function () {
+function closeMemberDetailsModal() {
 
-        const query =
-            this.value.trim();
-
-
-        if (!query) {
-
-            searchResults.innerHTML = "";
-
-            searchResults.style.display =
-                "none";
-
-            return;
-        }
+    const modal =
+        document.getElementById(
+            "memberModal"
+        );
 
 
-        const results =
-            searchMembers(query);
+    if (modal) {
 
-        showSearchResults(results);
-    }
-);
-
-
-/* =========================================================
-   CLEAR
-========================================================= */
-
-clearSearch.addEventListener(
-    "click",
-    function () {
-
-        searchInput.value = "";
-
-        searchResults.innerHTML = "";
-
-        searchResults.style.display =
+        modal.style.display =
             "none";
 
-        memberDetails.classList.add(
-            "hidden"
-        );
-
-        emptyState.classList.remove(
-            "hidden"
-        );
-
-        searchInput.focus();
     }
-);
+
+}
 
 
 /* =========================================================
-   CLOSE SEARCH WHEN CLICK OUTSIDE
-========================================================= */
-
-document.addEventListener(
-    "click",
-    function (event) {
-
-        if (
-            !event.target.closest(
-                ".search-card"
-            )
-        ) {
-
-            searchResults.style.display =
-                "none";
-        }
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL CHECK
+   23. SEARCH EVENT
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    function() {
 
-        const members = getMembers();
+        loadMemberDetailsData();
 
-        console.log(
-            "Member Details loaded."
+        displayMemberDetailsList(
+            detailMembers
         );
 
-        console.log(
-            "Members found:",
-            members.length
-        );
 
-        console.log(
-            "Subscription transactions:",
-            getSubscriptionTransactions().length
-        );
+        const search =
+            document.getElementById(
+                "memberSearch"
+            );
 
-        console.log(
-            "Donation transactions:",
-            getDonationTransactions().length
-        );
+
+        if (search) {
+
+            search.addEventListener(
+                "input",
+                searchMemberDetails
+            );
+
+        }
+
+
+        const clearButton =
+            document.getElementById(
+                "clearSearch"
+            );
+
+
+        if (clearButton) {
+
+            clearButton.addEventListener(
+                "click",
+                function() {
+
+                    if (search) {
+
+                        search.value =
+                            "";
+
+                    }
+
+                    searchMemberDetails();
+
+                    if (search) {
+
+                        search.focus();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        const closeButton =
+            document.getElementById(
+                "closeModal"
+            );
+
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
+                "click",
+                closeMemberDetailsModal
+            );
+
+        }
+
+
+        const modal =
+            document.getElementById(
+                "memberModal"
+            );
+
+
+        if (modal) {
+
+            modal.addEventListener(
+                "click",
+                function(event) {
+
+                    if (
+                        event.target ===
+                        modal
+                    ) {
+
+                        closeMemberDetailsModal();
+
+                    }
+
+                }
+            );
+
+        }
 
     }
+);
+
+
+/* =========================================================
+   24. ESC KEY
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            closeMemberDetailsModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   25. STORAGE CHANGE
+========================================================= */
+
+window.addEventListener(
+    "storage",
+    function() {
+
+        loadMemberDetailsData();
+
+        searchMemberDetails();
+
+    }
+);
+
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+console.log(
+    "MGVM Member Details page loaded successfully."
 );
