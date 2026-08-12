@@ -1,0 +1,619 @@
+/* =========================================================
+   member-details.css
+   मोर्डे ग्राम विकास मंडळ, मुंबई
+   सभासद Details Page
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    font-family: "Noto Sans Devanagari", sans-serif;
+
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+.page {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: auto;
+    padding: 20px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.page-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.small-title {
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #64748b;
+
+    margin-bottom: 4px;
+}
+
+.page-header h1 {
+    margin: 0;
+
+    font-size: 28px;
+    font-weight: 800;
+
+    color: #111827;
+}
+
+.page-header p {
+    margin: 5px 0 0;
+
+    color: #64748b;
+    font-size: 14px;
+}
+
+.back-btn {
+    text-decoration: none;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    border: 1px solid #dbe2ea;
+
+    padding: 10px 16px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.back-btn:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.search-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 16px;
+
+    padding: 18px;
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+
+    margin-bottom: 20px;
+}
+
+.search-card label {
+    display: block;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.search-row {
+    display: flex;
+
+    gap: 10px;
+}
+
+.search-row input {
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 14px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    background: #ffffff;
+}
+
+.search-row input:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.clear-btn {
+    height: 46px;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #64748b;
+
+    color: #ffffff;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.clear-btn:hover {
+    background: #475569;
+}
+
+
+/* =========================================================
+   SEARCH RESULTS
+========================================================= */
+
+.search-results {
+    margin-top: 8px;
+
+    display: none;
+
+    max-height: 300px;
+
+    overflow-y: auto;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+}
+
+.search-result {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border: none;
+
+    border-bottom: 1px solid #eef2f7;
+
+    background: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.search-result:hover {
+    background: #f8fafc;
+}
+
+.result-name {
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.result-info {
+    font-size: 12px;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px dashed #cbd5e1;
+
+    border-radius: 16px;
+
+    padding: 50px 20px;
+
+    color: #64748b;
+}
+
+.empty-icon {
+    font-size: 45px;
+
+    margin-bottom: 10px;
+}
+
+.empty-state h2 {
+    margin: 0 0 5px;
+
+    color: #334155;
+
+    font-size: 20px;
+}
+
+.empty-state p {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   MEMBER DETAILS
+========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+.member-details {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.profile-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.profile-icon {
+    width: 65px;
+    height: 65px;
+
+    border-radius: 50%;
+
+    background: #eff6ff;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+
+    flex-shrink: 0;
+}
+
+.profile-main h2 {
+    margin: 0;
+
+    font-size: 24px;
+
+    color: #111827;
+}
+
+.profile-meta {
+    display: flex;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    margin-top: 7px;
+
+    font-size: 14px;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   SECTION CARD
+========================================================= */
+
+.section-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.section-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #eef2f7;
+}
+
+.section-title span {
+    font-size: 20px;
+}
+
+.section-title h3 {
+    margin: 0;
+
+    font-size: 18px;
+
+    color: #1e293b;
+}
+
+
+/* =========================================================
+   INFORMATION
+========================================================= */
+
+.info-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+}
+
+.info-box {
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    padding: 13px 14px;
+
+    min-height: 70px;
+}
+
+.info-box.full {
+    grid-column: 1 / -1;
+}
+
+.label {
+    display: block;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    margin-bottom: 4px;
+}
+
+.info-box strong {
+    display: block;
+
+    font-size: 15px;
+
+    color: #1e293b;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   FINANCIAL
+========================================================= */
+
+.finance-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 14px;
+}
+
+.finance-box {
+    border-radius: 14px;
+
+    padding: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    border: 1px solid #e2e8f0;
+}
+
+.finance-icon {
+    width: 45px;
+    height: 45px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+
+    background: #ffffff;
+}
+
+.finance-label {
+    display: block;
+
+    font-size: 12px;
+
+    color: #64748b;
+
+    margin-bottom: 3px;
+}
+
+.finance-box strong {
+    display: block;
+
+    font-size: 22px;
+
+    color: #111827;
+}
+
+.finance-box.pending {
+    background: #fff7ed;
+}
+
+.finance-box.subscription {
+    background: #eff6ff;
+}
+
+.finance-box.donation {
+    background: #f0fdf4;
+}
+
+
+/* =========================================================
+   NOTE
+========================================================= */
+
+.year-note {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    padding: 13px 15px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.year-note strong {
+    color: #334155;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .page {
+        padding: 12px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .page-header h1 {
+        font-size: 23px;
+    }
+
+    .back-btn {
+        width: 100%;
+
+        text-align: center;
+    }
+
+    .search-row {
+        flex-direction: column;
+    }
+
+    .clear-btn {
+        width: 100%;
+    }
+
+    .profile-card {
+        padding: 15px;
+    }
+
+    .profile-main h2 {
+        font-size: 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-box.full {
+        grid-column: auto;
+    }
+
+    .finance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .finance-box {
+        padding: 15px;
+    }
+
+    .finance-box strong {
+        font-size: 20px;
+    }
+}
