@@ -2,29 +2,32 @@
    expense.js
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
-   EXPENSE MANAGEMENT
+   EXPENSE MANAGEMENT - CORRECTED FINAL
+
+   Compatible with current expense.html
 
    Features:
    ✅ Expense Save
    ✅ Expense Date
-   ✅ Expense Head / Category
-   ✅ Description
+   ✅ Expense Type
+   ✅ Paid To / Name
    ✅ Amount
    ✅ Bill / Reference No.
    ✅ Payment Mode
-   ✅ Paid To
+   ✅ Description
    ✅ Entered By
    ✅ LocalStorage
    ✅ Expense History
    ✅ Search
    ✅ Total Expense
+   ✅ Today Expense
    ✅ Delete Expense
    ✅ Dashboard Compatible
 ========================================================= */
 
 
 /* =========================================================
-   1. GLOBAL
+   1. STORAGE KEY
 ========================================================= */
 
 const EXPENSE_KEY = "mgvm_expenses";
@@ -39,16 +42,14 @@ function getExpenses() {
     try {
 
         const data =
-            localStorage.getItem(
-                EXPENSE_KEY
-            );
+            localStorage.getItem(EXPENSE_KEY);
 
+        if (!data) {
+            return [];
+        }
 
         const parsed =
-            data
-                ? JSON.parse(data)
-                : [];
-
+            JSON.parse(data);
 
         return Array.isArray(parsed)
             ? parsed
@@ -70,12 +71,10 @@ function getExpenses() {
 
 
 /* =========================================================
-   3. SAVE EXPENSES
+   3. SAVE EXPENSE LIST
 ========================================================= */
 
-function saveExpenseList(
-    list
-) {
+function saveExpenseList(list) {
 
     try {
 
@@ -109,33 +108,14 @@ function saveExpenseList(
    4. HTML ESCAPE
 ========================================================= */
 
-function escapeExpenseHTML(
-    value
-) {
+function escapeExpenseHTML(value) {
 
-    return String(
-        value || ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -144,15 +124,10 @@ function escapeExpenseHTML(
    5. FORMAT NUMBER
 ========================================================= */
 
-function formatExpenseNumber(
-    number
-) {
+function formatExpenseNumber(number) {
 
-    return Number(
-        number || 0
-    ).toLocaleString(
-        "en-IN"
-    );
+    return Number(number || 0)
+        .toLocaleString("en-IN");
 
 }
 
@@ -161,26 +136,16 @@ function formatExpenseNumber(
    6. FORMAT DATE
 ========================================================= */
 
-function formatExpenseDate(
-    dateString
-) {
+function formatExpenseDate(dateString) {
 
     if (!dateString) {
-
         return "-";
-
     }
 
-
     const parts =
-        String(
-            dateString
-        ).split("-");
+        String(dateString).split("-");
 
-
-    if (
-        parts.length === 3
-    ) {
+    if (parts.length === 3) {
 
         return (
             parts[2] +
@@ -191,7 +156,6 @@ function formatExpenseDate(
         );
 
     }
-
 
     return dateString;
 
@@ -209,39 +173,25 @@ function setExpenseTodayDate() {
             "expenseDate"
         );
 
-
     if (!input) {
-
         return;
-
     }
-
 
     const today =
         new Date();
 
-
     const yyyy =
         today.getFullYear();
-
 
     const mm =
         String(
             today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
+        ).padStart(2, "0");
 
     const dd =
         String(
             today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
+        ).padStart(2, "0");
 
     input.value =
         `${yyyy}-${mm}-${dd}`;
@@ -258,62 +208,41 @@ function generateExpenseNumber() {
     const expenses =
         getExpenses();
 
-
     let maxNumber = 0;
 
+    expenses.forEach(function(item) {
 
-    expenses.forEach(
-        function(item) {
+        const ref =
+            String(
+                item.referenceNo || ""
+            );
 
-            const ref =
-                String(
-                    item.referenceNo || ""
-                );
+        const match =
+            ref.match(
+                /MGVM-EXP-(\d+)/i
+            );
 
-
-            const match =
-                ref.match(
-                    /MGVM-EXP-(\d+)/i
-                );
-
-
-            if (!match) {
-
-                return;
-
-            }
-
-
-            const number =
-                parseInt(
-                    match[1],
-                    10
-                );
-
-
-            if (
-                number >
-                maxNumber
-            ) {
-
-                maxNumber =
-                    number;
-
-            }
-
+        if (!match) {
+            return;
         }
-    );
 
+        const number =
+            parseInt(
+                match[1],
+                10
+            );
+
+        if (number > maxNumber) {
+            maxNumber = number;
+        }
+
+    });
 
     return (
         "MGVM-EXP-" +
         String(
             maxNumber + 1
-        )
-        .padStart(
-            4,
-            "0"
-        )
+        ).padStart(4, "0")
     );
 
 }
@@ -325,21 +254,25 @@ function generateExpenseNumber() {
 
 function saveExpense() {
 
+    /* -----------------------------------------------------
+       GET VALUES FROM CURRENT HTML
+    ----------------------------------------------------- */
+
     const date =
         document.getElementById(
             "expenseDate"
         )?.value || "";
 
 
-    const category =
+    const expenseType =
         document.getElementById(
-            "expenseCategory"
+            "expenseType"
         )?.value.trim() || "";
 
 
-    const description =
+    const expenseName =
         document.getElementById(
-            "expenseDescription"
+            "expenseName"
         )?.value.trim() || "";
 
 
@@ -351,21 +284,21 @@ function saveExpense() {
         );
 
 
-    const referenceInput =
-        document.getElementById(
-            "expenseReferenceNo"
-        );
-
-
     const paymentMode =
         document.getElementById(
             "expensePaymentMode"
         )?.value || "";
 
 
-    const paidTo =
+    const billNo =
         document.getElementById(
-            "expensePaidTo"
+            "expenseBillNo"
+        )?.value.trim() || "";
+
+
+    const description =
+        document.getElementById(
+            "expenseDescription"
         )?.value.trim() || "";
 
 
@@ -375,10 +308,9 @@ function saveExpense() {
         )?.value.trim() || "";
 
 
-
-    /* =====================================================
+    /* -----------------------------------------------------
        VALIDATION
-    ===================================================== */
+    ----------------------------------------------------- */
 
     if (!date) {
 
@@ -391,10 +323,21 @@ function saveExpense() {
     }
 
 
-    if (!category) {
+    if (!expenseType) {
 
         alert(
-            "कृपया खर्चाचा प्रकार निवडा."
+            "कृपया खर्च प्रकार निवडा."
+        );
+
+        return;
+
+    }
+
+
+    if (!expenseName) {
+
+        alert(
+            "कृपया खर्च करणारे / ज्यांना पैसे दिले त्यांचे नाव टाका."
         );
 
         return;
@@ -427,16 +370,17 @@ function saveExpense() {
     }
 
 
-
-    /* =====================================================
+    /* -----------------------------------------------------
        REFERENCE NUMBER
-    ===================================================== */
+    ----------------------------------------------------- */
 
     let referenceNo =
-        referenceInput
-            ? referenceInput.value.trim()
-            : "";
+        billNo;
 
+    /*
+       Bill No. रिकामा असेल तर
+       System automatically number तयार करेल.
+    */
 
     if (!referenceNo) {
 
@@ -446,50 +390,54 @@ function saveExpense() {
     }
 
 
-
-    /* =====================================================
-       DUPLICATE REFERENCE
-    ===================================================== */
+    /* -----------------------------------------------------
+       CHECK DUPLICATE BILL NO.
+       
+       फक्त user ने Bill No. दिला असेल तर
+       duplicate check करणे.
+    ----------------------------------------------------- */
 
     const expenses =
         getExpenses();
 
+    if (billNo) {
 
-    const duplicate =
-        expenses.some(
-            function(item) {
+        const duplicate =
+            expenses.some(function(item) {
 
                 return (
                     String(
                         item.referenceNo || ""
                     )
+                    .trim()
                     .toLowerCase()
                     ===
                     String(
-                        referenceNo
+                        billNo
                     )
+                    .trim()
                     .toLowerCase()
                 );
 
-            }
-        );
+            });
 
 
-    if (duplicate) {
+        if (duplicate) {
 
-        alert(
-            "हा Bill / Reference Number आधीपासून वापरलेला आहे."
-        );
+            alert(
+                "हा Bill / Reference Number आधीपासून वापरलेला आहे."
+            );
 
-        return;
+            return;
+
+        }
 
     }
 
 
-
-    /* =====================================================
-       CREATE OBJECT
-    ===================================================== */
+    /* -----------------------------------------------------
+       CREATE TRANSACTION
+    ----------------------------------------------------- */
 
     const transaction = {
 
@@ -498,17 +446,35 @@ function saveExpense() {
             Date.now() +
             "-" +
             Math.floor(
-                Math.random() * 1000
+                Math.random() * 10000
             ),
 
         date:
             date,
 
+        /*
+           Current field
+        */
         category:
-            category,
+            expenseType,
 
-        description:
-            description,
+        /*
+           Compatibility
+        */
+        expenseType:
+            expenseType,
+
+        /*
+           Current HTML name
+        */
+        paidTo:
+            expenseName,
+
+        /*
+           Compatibility
+        */
+        name:
+            expenseName,
 
         amount:
             amount,
@@ -516,47 +482,54 @@ function saveExpense() {
         referenceNo:
             referenceNo,
 
+        /*
+           Bill number compatibility
+        */
+        billNo:
+            billNo,
+
         paymentMode:
             paymentMode,
 
-        paidTo:
-            paidTo,
+        description:
+            description,
 
         enteredBy:
             enteredBy,
 
         createdAt:
-            new Date()
-                .toISOString()
+            new Date().toISOString()
 
     };
 
 
-
-    /* =====================================================
-       SAVE
-    ===================================================== */
+    /* -----------------------------------------------------
+       ADD
+    ----------------------------------------------------- */
 
     expenses.push(
         transaction
     );
 
 
-    if (
-        !saveExpenseList(
+    /* -----------------------------------------------------
+       SAVE
+    ----------------------------------------------------- */
+
+    const saved =
+        saveExpenseList(
             expenses
-        )
-    ) {
+        );
 
+
+    if (!saved) {
         return;
-
     }
 
 
-
-    /* =====================================================
+    /* -----------------------------------------------------
        SUCCESS
-    ===================================================== */
+    ----------------------------------------------------- */
 
     showExpenseToast(
         "खर्चाची नोंद यशस्वीरित्या सेव्ह झाली."
@@ -565,9 +538,7 @@ function saveExpense() {
 
     clearExpenseForm();
 
-
     displayExpenseHistory();
-
 
     updateExpenseDashboard();
 
@@ -582,35 +553,29 @@ function clearExpenseForm() {
 
     const fields = [
 
-        "expenseCategory",
-        "expenseDescription",
+        "expenseType",
+        "expenseName",
         "expenseAmount",
-        "expenseReferenceNo",
         "expensePaymentMode",
-        "expensePaidTo",
+        "expenseBillNo",
+        "expenseDescription",
         "expenseEnteredBy"
 
     ];
 
 
-    fields.forEach(
-        function(id) {
+    fields.forEach(function(id) {
 
-            const element =
-                document.getElementById(
-                    id
-                );
+        const element =
+            document.getElementById(id);
 
+        if (element) {
 
-            if (element) {
-
-                element.value =
-                    "";
-
-            }
+            element.value = "";
 
         }
-    );
+
+    });
 
 
     setExpenseTodayDate();
@@ -629,11 +594,8 @@ function displayExpenseHistory() {
             "expenseTableBody"
         );
 
-
     if (!tbody) {
-
         return;
-
     }
 
 
@@ -655,104 +617,102 @@ function displayExpenseHistory() {
         getExpenses();
 
 
+    /* -----------------------------------------------------
+       SEARCH
+    ----------------------------------------------------- */
+
     if (keyword) {
 
         data =
-            data.filter(
-                function(item) {
+            data.filter(function(item) {
 
-                    return (
+                return (
 
-                        String(
-                            item.category || ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            keyword
-                        )
+                    String(
+                        item.category ||
+                        item.expenseType ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
 
-                        ||
+                    ||
 
-                        String(
-                            item.description || ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            keyword
-                        )
+                    String(
+                        item.paidTo ||
+                        item.name ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
 
-                        ||
+                    ||
 
-                        String(
-                            item.referenceNo || ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            keyword
-                        )
+                    String(
+                        item.referenceNo ||
+                        item.billNo ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
 
-                        ||
+                    ||
 
-                        String(
-                            item.paymentMode || ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            keyword
-                        )
+                    String(
+                        item.paymentMode ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
 
-                        ||
+                    ||
 
-                        String(
-                            item.paidTo || ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            keyword
-                        )
+                    String(
+                        item.description ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
 
-                    );
+                );
 
-                }
-            );
+            });
 
     }
 
 
-    data.sort(
-        function(a, b) {
+    /* -----------------------------------------------------
+       SORT - NEWEST FIRST
+    ----------------------------------------------------- */
+
+    data.sort(function(a, b) {
+
+        return (
+            new Date(b.date) -
+            new Date(a.date)
+        );
+
+    });
+
+
+    /* -----------------------------------------------------
+       TOTAL
+    ----------------------------------------------------- */
+
+    const total =
+        data.reduce(function(
+            sum,
+            item
+        ) {
 
             return (
-                new Date(
-                    b.date
-                )
-                -
-                new Date(
-                    a.date
+                sum +
+                Number(
+                    item.amount || 0
                 )
             );
 
-        }
-    );
-
-
-    const total =
-        data.reduce(
-            function(
-                sum,
-                item
-            ) {
-
-                return (
-                    sum +
-                    Number(
-                        item.amount || 0
-                    )
-                );
-
-            },
-            0
-        );
+        }, 0);
 
 
     const totalElement =
@@ -763,30 +723,38 @@ function displayExpenseHistory() {
 
     if (totalElement) {
 
-        totalElement.innerHTML =
-            `एकूण खर्च: ₹${formatExpenseNumber(total)}`;
+        totalElement.innerText =
+            "₹" +
+            formatExpenseNumber(
+                total
+            );
 
     }
 
 
-    tbody.innerHTML =
-        "";
+    /* -----------------------------------------------------
+       CLEAR TABLE
+    ----------------------------------------------------- */
+
+    tbody.innerHTML = "";
 
 
-    if (
-        data.length === 0
-    ) {
+    /* -----------------------------------------------------
+       EMPTY
+    ----------------------------------------------------- */
+
+    if (data.length === 0) {
 
         tbody.innerHTML = `
 
             <tr>
 
                 <td
-                    colspan="10"
+                    colspan="9"
                     style="text-align:center;"
                 >
 
-                    कोणतीही खर्च नोंद सापडली नाही.
+                    अद्याप कोणतीही खर्च नोंद नाही.
 
                 </td>
 
@@ -799,95 +767,131 @@ function displayExpenseHistory() {
     }
 
 
-    data.forEach(
-        function(
-            item,
-            index
-        ) {
+    /* -----------------------------------------------------
+       TABLE
+    ----------------------------------------------------- */
 
-            const tr =
-                document.createElement(
-                    "tr"
-                );
+    data.forEach(function(
+        item,
+        index
+    ) {
 
-
-            tr.innerHTML = `
-
-                <td>
-                    ${index + 1}
-                </td>
-
-                <td>
-                    ${formatExpenseDate(
-                        item.date
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.category
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.description || "-"
-                    )}
-                </td>
-
-                <td>
-                    ₹${formatExpenseNumber(
-                        item.amount
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.referenceNo || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.paymentMode || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.paidTo || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeExpenseHTML(
-                        item.enteredBy || "-"
-                    )}
-                </td>
-
-                <td>
-
-                    <button
-                        type="button"
-                        class="btn btn-danger"
-                        onclick="deleteExpense('${escapeExpenseHTML(item.id)}')"
-                    >
-
-                        <i class="fa fa-trash"></i>
-
-                    </button>
-
-                </td>
-
-            `;
+        const tr =
+            document.createElement(
+                "tr"
+            );
 
 
-            tbody.appendChild(
-                tr
+        const category =
+            item.category ||
+            item.expenseType ||
+            "-";
+
+
+        const paidTo =
+            item.paidTo ||
+            item.name ||
+            "-";
+
+
+        const bill =
+            item.billNo ||
+            item.referenceNo ||
+            "-";
+
+
+        tr.innerHTML = `
+
+            <td>
+                ${index + 1}
+            </td>
+
+            <td>
+                ${formatExpenseDate(
+                    item.date
+                )}
+            </td>
+
+            <td>
+                ${escapeExpenseHTML(
+                    category
+                )}
+            </td>
+
+            <td>
+                ${escapeExpenseHTML(
+                    paidTo
+                )}
+            </td>
+
+            <td>
+                ₹${formatExpenseNumber(
+                    item.amount
+                )}
+            </td>
+
+            <td>
+                ${escapeExpenseHTML(
+                    item.paymentMode ||
+                    "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeExpenseHTML(
+                    bill
+                )}
+            </td>
+
+            <td>
+                ${escapeExpenseHTML(
+                    item.description ||
+                    "-"
+                )}
+            </td>
+
+            <td>
+
+                <button
+                    type="button"
+                    class="btn btn-danger expense-delete-btn"
+                    data-id="${escapeExpenseHTML(item.id)}"
+                >
+
+                    <i class="fa fa-trash"></i>
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        const deleteButton =
+            tr.querySelector(
+                ".expense-delete-btn"
+            );
+
+
+        if (deleteButton) {
+
+            deleteButton.addEventListener(
+                "click",
+                function() {
+
+                    deleteExpense(
+                        item.id
+                    );
+
+                }
             );
 
         }
-    );
+
+
+        tbody.appendChild(tr);
+
+    });
 
 }
 
@@ -896,9 +900,7 @@ function displayExpenseHistory() {
    12. DELETE EXPENSE
 ========================================================= */
 
-function deleteExpense(
-    expenseId
-) {
+function deleteExpense(expenseId) {
 
     const confirmDelete =
         confirm(
@@ -907,9 +909,7 @@ function deleteExpense(
 
 
     if (!confirmDelete) {
-
         return;
-
     }
 
 
@@ -918,20 +918,14 @@ function deleteExpense(
 
 
     const exists =
-        expenses.some(
-            function(item) {
+        expenses.some(function(item) {
 
-                return (
-                    String(
-                        item.id
-                    ) ===
-                    String(
-                        expenseId
-                    )
-                );
+            return (
+                String(item.id) ===
+                String(expenseId)
+            );
 
-            }
-        );
+        });
 
 
     if (!exists) {
@@ -946,25 +940,25 @@ function deleteExpense(
 
 
     expenses =
-        expenses.filter(
-            function(item) {
+        expenses.filter(function(item) {
 
-                return (
-                    String(
-                        item.id
-                    ) !==
-                    String(
-                        expenseId
-                    )
-                );
+            return (
+                String(item.id) !==
+                String(expenseId)
+            );
 
-            }
-        );
+        });
 
 
-    saveExpenseList(
-        expenses
-    );
+    if (
+        !saveExpenseList(
+            expenses
+        )
+    ) {
+
+        return;
+
+    }
 
 
     displayExpenseHistory();
@@ -990,27 +984,29 @@ function updateExpenseDashboard() {
 
 
     const total =
-        expenses.reduce(
-            function(
-                sum,
-                item
-            ) {
+        expenses.reduce(function(
+            sum,
+            item
+        ) {
 
-                return (
-                    sum +
-                    Number(
-                        item.amount || 0
-                    )
-                );
+            return (
+                sum +
+                Number(
+                    item.amount || 0
+                )
+            );
 
-            },
-            0
-        );
+        }, 0);
 
+
+    /*
+       Current HTML:
+       totalExpense
+    */
 
     const totalElement =
         document.getElementById(
-            "totalExpenseDashboard"
+            "totalExpense"
         );
 
 
@@ -1025,47 +1021,37 @@ function updateExpenseDashboard() {
     }
 
 
-
-    /* =====================================================
+    /* -----------------------------------------------------
        TODAY EXPENSE
-    ===================================================== */
+    ----------------------------------------------------- */
 
     const today =
-        new Date()
-            .toISOString()
-            .slice(
-                0,
-                10
-            );
+        getTodayExpenseDate();
 
 
     const todayTotal =
-        expenses.reduce(
-            function(
-                sum,
-                item
+        expenses.reduce(function(
+            sum,
+            item
+        ) {
+
+            if (
+                String(item.date) ===
+                today
             ) {
 
-                if (
-                    item.date ===
-                    today
-                ) {
+                return (
+                    sum +
+                    Number(
+                        item.amount || 0
+                    )
+                );
 
-                    return (
-                        sum +
-                        Number(
-                            item.amount || 0
-                        )
-                    );
+            }
 
-                }
+            return sum;
 
-
-                return sum;
-
-            },
-            0
-        );
+        }, 0);
 
 
     const todayElement =
@@ -1088,16 +1074,55 @@ function updateExpenseDashboard() {
 
 
 /* =========================================================
-   14. SEARCH EVENT
+   14. TODAY DATE - SAFE
 ========================================================= */
 
-const expenseSearch =
-    document.getElementById(
-        "expenseSearch"
+function getTodayExpenseDate() {
+
+    const today =
+        new Date();
+
+    const yyyy =
+        today.getFullYear();
+
+    const mm =
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dd =
+        String(
+            today.getDate()
+        ).padStart(2, "0");
+
+
+    return (
+        yyyy +
+        "-" +
+        mm +
+        "-" +
+        dd
     );
 
+}
 
-if (expenseSearch) {
+
+/* =========================================================
+   15. SEARCH
+========================================================= */
+
+function initializeExpenseSearch() {
+
+    const expenseSearch =
+        document.getElementById(
+            "expenseSearch"
+        );
+
+
+    if (!expenseSearch) {
+        return;
+    }
+
 
     expenseSearch.addEventListener(
         "input",
@@ -1112,12 +1137,82 @@ if (expenseSearch) {
 
 
 /* =========================================================
-   15. TOAST
+   16. FORM SUBMIT
 ========================================================= */
 
-function showExpenseToast(
-    message
-) {
+function initializeExpenseForm() {
+
+    const form =
+        document.getElementById(
+            "expenseForm"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener(
+        "submit",
+        function(event) {
+
+            /*
+               Prevent page reload
+            */
+
+            event.preventDefault();
+
+
+            saveExpense();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   17. RESET FORM
+========================================================= */
+
+function initializeExpenseReset() {
+
+    const form =
+        document.getElementById(
+            "expenseForm"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener(
+        "reset",
+        function() {
+
+            setTimeout(
+                function() {
+
+                    setExpenseTodayDate();
+
+                },
+                0
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   18. TOAST
+========================================================= */
+
+function showExpenseToast(message) {
 
     const toast =
         document.getElementById(
@@ -1135,7 +1230,9 @@ function showExpenseToast(
 
 
     toast.innerHTML =
-        message;
+        escapeExpenseHTML(
+            message
+        );
 
 
     toast.style.display =
@@ -1156,12 +1253,18 @@ function showExpenseToast(
 
 
 /* =========================================================
-   16. INITIALIZE
+   19. INITIALIZE
 ========================================================= */
 
 function initializeExpensePage() {
 
     setExpenseTodayDate();
+
+    initializeExpenseForm();
+
+    initializeExpenseSearch();
+
+    initializeExpenseReset();
 
     displayExpenseHistory();
 
@@ -1171,7 +1274,7 @@ function initializeExpensePage() {
 
 
 /* =========================================================
-   17. DOM READY
+   20. DOM READY
 ========================================================= */
 
 if (
@@ -1197,5 +1300,5 @@ else {
 ========================================================= */
 
 console.log(
-    "MGVM expense.js loaded successfully."
+    "MGVM expense.js - corrected version loaded successfully."
 );
