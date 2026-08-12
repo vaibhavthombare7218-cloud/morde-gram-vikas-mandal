@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>सभासद माहिती | मोर्डे ग्राम विकास मंडळ</title>
+
+    <link rel="stylesheet" href="member-details.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="page">
+
+        <!-- Header -->
+        <header class="page-header">
+            <div>
+                <div class="small-title">मोर्डे ग्राम विकास मंडळ, मुंबई</div>
+                <h1>सभासद माहिती</h1>
+                <p>सभासदाची सविस्तर माहिती व आर्थिक नोंद</p>
+            </div>
+
+            <a href="members.html" class="back-btn">
+                ← सभासद यादी
+            </a>
+        </header>
+
+
+        <!-- Search -->
+        <section class="search-card">
+
+            <label for="memberSearch">
+                🔎 सभासद शोधा
+            </label>
+
+            <div class="search-row">
+
+                <input
+                    type="text"
+                    id="memberSearch"
+                    placeholder="सभासद नाव / Member ID / Mobile शोधा..."
+                    autocomplete="off"
+                >
+
+                <button type="button" id="clearSearch" class="clear-btn">
+                    Clear
+                </button>
+
+            </div>
+
+            <div id="searchResults" class="search-results"></div>
+
+        </section>
+
+
+        <!-- No member selected -->
+        <section id="emptyState" class="empty-state">
+
+            <div class="empty-icon">👤</div>
+
+            <h2>सभासद निवडा</h2>
+
+            <p>
+                वरील Search Box मधून सभासदाचे नाव, ID किंवा Mobile Number शोधा.
+            </p>
+
+        </section>
+
+
+        <!-- Member Details -->
+        <main id="memberDetails" class="member-details hidden">
+
+            <!-- Profile Header -->
+            <section class="profile-card">
+
+                <div class="profile-icon">
+                    👤
+                </div>
+
+                <div class="profile-main">
+
+                    <h2 id="memberName">-</h2>
+
+                    <div class="profile-meta">
+
+                        <span>
+                            🆔 <b id="memberId">-</b>
+                        </span>
+
+                        <span>
+                            🏠 <b id="memberWadi">-</b>
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Basic Information -->
+            <section class="section-card">
+
+                <div class="section-title">
+                    <span>📋</span>
+                    <h3>सभासदाची माहिती</h3>
+                </div>
+
+                <div class="info-grid">
+
+                    <div class="info-box">
+                        <span class="label">सभासद नाव</span>
+                        <strong id="detailName">-</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="label">सभासद ID</span>
+                        <strong id="detailId">-</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="label">वाडी</span>
+                        <strong id="detailWadi">-</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="label">Mobile</span>
+                        <strong id="detailMobile">-</strong>
+                    </div>
+
+                    <div class="info-box full">
+                        <span class="label">पत्ता</span>
+                        <strong id="detailAddress">-</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Financial Summary -->
+            <section class="section-card">
+
+                <div class="section-title">
+                    <span>💰</span>
+                    <h3>आर्थिक माहिती</h3>
+                </div>
+
+                <div class="finance-grid">
+
+                    <!-- Pending -->
+                    <div class="finance-box pending">
+
+                        <div class="finance-icon">⏳</div>
+
+                        <div>
+                            <span class="finance-label">
+                                बाकी वर्गणी
+                            </span>
+
+                            <strong id="pendingSubscription">
+                                ₹0
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Subscription -->
+                    <div class="finance-box subscription">
+
+                        <div class="finance-icon">💳</div>
+
+                        <div>
+                            <span class="finance-label">
+                                2026 पासून जमा वर्गणी
+                            </span>
+
+                            <strong id="subscription2026">
+                                ₹0
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Donation -->
+                    <div class="finance-box donation">
+
+                        <div class="finance-icon">🎁</div>
+
+                        <div>
+                            <span class="finance-label">
+                                2026 पासून जमा देणगी
+                            </span>
+
+                            <strong id="donation2026">
+                                ₹0
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Year Information -->
+            <section class="year-note">
+
+                <strong>📅 आर्थिक नोंद</strong>
+
+                <span>
+                    वरील जमा वर्गणी व देणगीची गणना
+                    <b>01 जानेवारी 2026</b> पासून करण्यात आली आहे.
+                </span>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="member-details.js"></script>
+
+</body>
+
+ </html>
