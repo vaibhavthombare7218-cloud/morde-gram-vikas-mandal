@@ -2,24 +2,99 @@
 <html lang="mr">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Meeting Report</title>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>सभा नोंदी | मोर्डे ग्राम विकास मंडळ</title>
 
 <link rel="stylesheet" href="style.css">
 
 <style>
-.meeting-card{
-    background:white;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:10px;
+
+.meeting-card {
+
+    background: #fff;
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    padding: 16px;
+
+    margin-bottom: 14px;
+
+    cursor: pointer;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+    transition: 0.2s;
 }
-.meeting-card img{
-    width:200px;
-    border:1px solid #ccc;
+
+
+.meeting-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.12);
 }
+
+
+.meeting-date {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+
+.meeting-info {
+
+    line-height: 1.7;
+
+}
+
+
+.no-data {
+
+    text-align: center;
+
+    padding: 30px;
+
+    color: #777;
+}
+
+
+.btn-row {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+}
+
+
+.btn-row button {
+
+    padding: 10px 16px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
 </style>
 
 </head>
@@ -27,9 +102,10 @@
 
 <body>
 
-
 <header>
-<h1>📋 सभा रिपोर्ट</h1>
+
+<h1>📋 सभा नोंदी</h1>
+
 </header>
 
 
@@ -37,117 +113,161 @@
 
 <div class="card">
 
-<div id="meetingList"></div>
+<div class="btn-row">
 
-
-<br>
+<button onclick="location.href='meeting.html'">
+➕ नवीन सभा नोंद
+</button>
 
 <button onclick="location.href='index.html'">
 🏠 Dashboard
 </button>
 
+</div>
+
+
+<h2>आधी झालेल्या सभा</h2>
+
+
+<div id="meetingList"></div>
 
 </div>
 
 </div>
-
 
 
 <script>
 
 
-let meetings =
-JSON.parse(localStorage.getItem("meetings")) || [];
+function escapeHTML(value) {
 
-
-let html="";
-
-
-if(meetings.length==0){
-
-html="<h3>कोणतीही सभा नोंद उपलब्ध नाही.</h3>";
-
-}
-
-else{
-
-
-meetings.forEach(function(m,index){
-
-
-html += `
-
-<div class="meeting-card">
-
-
-<h3>📅 सभा ${index+1}</h3>
-
-
-<p>
-<b>तारीख:</b> ${m.date}
-</p>
-
-
-<p>
-<b>ठिकाण:</b> ${m.place}
-</p>
-
-
-<p>
-<b>अध्यक्ष:</b> ${m.chairman}
-</p>
-
-
-<p>
-<b>विषय / अजेंडा:</b><br>
-${m.subject}
-</p>
-
-
-<p>
-<b>उपस्थित संख्या:</b>
-${m.count}
-</p>
-
-
-<p>
-<b>निर्णय / ठराव:</b><br>
-${m.decision}
-</p>
-
-
-${
-m.signature ?
-
-`<p>
-<b>✍️ सही:</b><br>
-<img src="${m.signature}">
-</p>`
-
-:
-
-""
-
-}
-
-
-</div>
-
-`;
-
-});
-
-
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
 
-document.getElementById("meetingList").innerHTML=html;
+function formatDate(dateString) {
+
+    if (!dateString) return "-";
+
+    const parts =
+        dateString.split("-");
+
+    if (parts.length !== 3)
+        return dateString;
+
+    return (
+        parts[2] +
+        "/" +
+        parts[1] +
+        "/" +
+        parts[0]
+    );
+}
 
 
+
+function loadMeetings() {
+
+    const meetings =
+        JSON.parse(
+            localStorage.getItem("meetings")
+        ) || [];
+
+
+    const list =
+        document.getElementById("meetingList");
+
+
+    if (meetings.length === 0) {
+
+        list.innerHTML = `
+            <div class="no-data">
+                📋 अजून कोणतीही सभा नोंद उपलब्ध नाही.
+                <br><br>
+                <button onclick="location.href='meeting.html'">
+                    ➕ पहिली सभा नोंद करा
+                </button>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    // नवीन सभा वरती दिसेल
+    meetings.sort(function(a, b) {
+
+        return new Date(b.date) - new Date(a.date);
+
+    });
+
+
+    list.innerHTML = "";
+
+
+    meetings.forEach(function(meeting) {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "meeting-card";
+
+
+        card.onclick = function() {
+
+            location.href =
+                "meeting-details.html?id=" +
+                encodeURIComponent(meeting.id);
+
+        };
+
+
+        card.innerHTML = `
+
+            <div class="meeting-date">
+                📅 ${escapeHTML(formatDate(meeting.date))}
+            </div>
+
+            <div class="meeting-info">
+
+                <strong>📍 ठिकाण:</strong>
+                ${escapeHTML(meeting.place || "-")}
+                <br>
+
+                <strong>🪑 अध्यक्ष:</strong>
+                ${escapeHTML(meeting.chairman || "-")}
+                <br>
+
+                <strong>📝 विषय:</strong>
+                ${escapeHTML(meeting.subject || "-")}
+                <br>
+
+                <strong>👥 उपस्थित:</strong>
+                ${escapeHTML(meeting.count || "0")}
+
+            </div>
+
+        `;
+
+
+        list.appendChild(card);
+
+    });
+
+}
+
+
+loadMeetings();
 
 </script>
-
 
 </body>
 
