@@ -1,74 +1,480 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>जमा नोंद</title>
-<link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>जमा व्यवस्थापन | मोर्डे ग्राम विकास मंडळ</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 </head>
+
 
 <body>
 
-<header>
-    <h1>➕ जमा नोंद</h1>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="page-header">
+
+    <div>
+
+        <h1>
+            <i class="fa-solid fa-arrow-down-to-line"></i>
+            जमा व्यवस्थापन
+        </h1>
+
+        <p>
+            मोर्डे ग्राम विकास मंडळ, मुंबई
+        </p>
+
+    </div>
+
+
+    <a href="index.html"
+       class="btn btn-secondary">
+
+        <i class="fa fa-home"></i>
+        Dashboard
+
+    </a>
+
 </header>
 
-<div class="container">
 
-<div class="card">
 
-<label><b>तारीख</b></label><br><br>
-<input type="date" id="date" style="width:100%;padding:12px;"><br><br>
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
-<label><b>तपशील</b></label><br><br>
-<input type="text" id="details"
-placeholder="उदा. वर्गणी / देणगी"
-style="width:100%;padding:12px;"><br><br>
+<main class="container">
 
-<label><b>रक्कम</b></label><br><br>
-<input type="number" id="amount"
-placeholder="₹"
-style="width:100%;padding:12px;"><br><br>
 
-<button onclick="saveIncome()">💾 Save</button>
+    <!-- =================================================
+         FORM SECTION
+    ================================================== -->
 
-<br><br>
+    <section class="card">
 
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
+        <div class="card-header">
+
+            <h2>
+                <i class="fa fa-plus-circle"></i>
+                नवीन जमा नोंद
+            </h2>
+
+        </div>
+
+
+        <form id="incomeForm">
+
+
+            <!-- जमा प्रकार -->
+
+            <div class="form-group">
+
+                <label for="incomeType">
+                    जमा प्रकार
+                </label>
+
+                <select id="incomeType"
+                        required>
+
+                    <option value="">
+                        प्रकार निवडा
+                    </option>
+
+                    <option value="वर्गणी">
+                        वर्गणी
+                    </option>
+
+                    <option value="देणगी">
+                        देणगी
+                    </option>
+
+                    <option value="सभेचा जमा">
+                        सभेचा जमा
+                    </option>
+
+                    <option value="इतर जमा">
+                        इतर जमा
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- जमा करणाऱ्याचे नाव -->
+
+            <div class="form-group">
+
+                <label for="incomeName">
+                    जमा करणाऱ्याचे / देणगीदाराचे नाव
+                </label>
+
+                <input type="text"
+                       id="incomeName"
+                       placeholder="नाव टाका">
+
+            </div>
+
+
+
+            <!-- Member ID -->
+
+            <div class="form-group">
+
+                <label for="incomeMemberId">
+                    Member ID
+                </label>
+
+                <input type="text"
+                       id="incomeMemberId"
+                       placeholder="उदा. MGVM-0001">
+
+            </div>
+
+
+
+            <!-- Mobile -->
+
+            <div class="form-group">
+
+                <label for="incomeMobile">
+                    मोबाईल
+                </label>
+
+                <input type="tel"
+                       id="incomeMobile"
+                       maxlength="10"
+                       placeholder="मोबाईल नंबर">
+
+            </div>
+
+
+
+            <!-- Date -->
+
+            <div class="form-group">
+
+                <label for="incomeDate">
+                    तारीख
+                </label>
+
+                <input type="date"
+                       id="incomeDate"
+                       required>
+
+            </div>
+
+
+
+            <!-- Amount -->
+
+            <div class="form-group">
+
+                <label for="incomeAmount">
+                    रक्कम ₹
+                </label>
+
+                <input type="number"
+                       id="incomeAmount"
+                       min="1"
+                       step="1"
+                       placeholder="रक्कम टाका"
+                       required>
+
+            </div>
+
+
+
+            <!-- Payment Mode -->
+
+            <div class="form-group">
+
+                <label for="incomePaymentMode">
+                    Payment Mode
+                </label>
+
+                <select id="incomePaymentMode"
+                        required>
+
+                    <option value="">
+                        Payment Mode निवडा
+                    </option>
+
+                    <option value="रोख">
+                        रोख
+                    </option>
+
+                    <option value="UPI">
+                        UPI
+                    </option>
+
+                    <option value="Bank Transfer">
+                        Bank Transfer
+                    </option>
+
+                    <option value="Cheque">
+                        Cheque
+                    </option>
+
+                    <option value="इतर">
+                        इतर
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- Receipt -->
+
+            <div class="form-group">
+
+                <label for="incomeReceiptNo">
+                    पावती / संदर्भ क्रमांक
+                </label>
+
+                <input type="text"
+                       id="incomeReceiptNo"
+                       placeholder="Receipt / Reference No.">
+
+            </div>
+
+
+
+            <!-- Description -->
+
+            <div class="form-group">
+
+                <label for="incomeDescription">
+                    जमा तपशील
+                </label>
+
+                <textarea id="incomeDescription"
+                          rows="3"
+                          placeholder="जमा रक्कम कशासाठी आहे ते लिहा"></textarea>
+
+            </div>
+
+
+
+            <!-- Entered By -->
+
+            <div class="form-group">
+
+                <label for="incomeEnteredBy">
+                    नोंद करणारे
+                </label>
+
+                <input type="text"
+                       id="incomeEnteredBy"
+                       placeholder="नाव">
+
+            </div>
+
+
+
+            <!-- Buttons -->
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        class="btn btn-success">
+
+                    <i class="fa fa-save"></i>
+                    जमा सेव्ह करा
+
+                </button>
+
+
+                <button type="reset"
+                        class="btn btn-secondary">
+
+                    <i class="fa fa-refresh"></i>
+                    Clear
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- =================================================
+         DASHBOARD
+    ================================================== -->
+
+    <section class="dashboard-grid">
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                <i class="fa fa-wallet"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    एकूण जमा
+                </span>
+
+                <strong id="totalIncome">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                <i class="fa fa-calendar"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    आजची जमा
+                </span>
+
+                <strong id="todayIncome">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         HISTORY
+    ================================================== -->
+
+    <section class="card">
+
+        <div class="card-header">
+
+            <h2>
+                <i class="fa fa-list"></i>
+                जमा नोंदी
+            </h2>
+
+
+            <input type="search"
+                   id="incomeSearch"
+                   placeholder="नाव / Member ID / Receipt शोधा">
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>क्र.</th>
+
+                        <th>तारीख</th>
+
+                        <th>प्रकार</th>
+
+                        <th>नाव</th>
+
+                        <th>Member ID</th>
+
+                        <th>रक्कम</th>
+
+                        <th>Payment Mode</th>
+
+                        <th>Receipt</th>
+
+                        <th>तपशील</th>
+
+                        <th>Delete</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="incomeTableBody">
+
+                    <tr>
+
+                        <td colspan="10"
+                            style="text-align:center;">
+
+                            अद्याप कोणतीही जमा नोंद नाही.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div id="toast"
+     class="toast">
 
 </div>
 
-</div>
 
-<script>
 
-function saveIncome(){
-
-let list=JSON.parse(localStorage.getItem("transactions"))||[];
-
-list.push({
-
-type:"income",
-
-date:document.getElementById("date").value,
-
-details:document.getElementById("details").value,
-
-amount:document.getElementById("amount").value
-
-});
-
-localStorage.setItem("transactions",JSON.stringify(list));
-
-alert("जमा यशस्वीरीत्या सेव्ह झाली.");
-
-location.href="index.html";
-
-}
-
-</script>
+<script src="income.js"></script>
 
 </body>
+
 </html>
