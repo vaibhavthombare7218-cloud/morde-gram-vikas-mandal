@@ -1,177 +1,241 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>वाडीनुसार बाकी रिपोर्ट</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="style.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>वाडीनुसार बाकी रिपोर्ट</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <style>
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .report-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            padding: 18px;
+            border-radius: 12px;
+            background: #f5f5f5;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .summary-box h3 {
+            margin: 0 0 8px 0;
+        }
+
+        .summary-box .amount {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .wadi-card {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .wadi-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .wadi-title h2 {
+            margin: 0;
+        }
+
+        .wadi-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .pending-amount {
+            font-weight: bold;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .report-table th {
+            background: #f1f1f1;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            font-weight: bold;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+
+            .report-table {
+                font-size: 13px;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 6px;
+            }
+
+        }
+
+        @media print {
+
+            header,
+            .report-actions,
+            .search-section {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .wadi-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
+
 <header>
-<h1>🏘️ वाडीनुसार बाकी रिपोर्ट</h1>
+
+    <h1>
+        🏘️ वाडीनुसार बाकी वर्गणी रिपोर्ट
+    </h1>
+
 </header>
+
 
 <div class="container">
 
-<div class="card">
 
-<label>🔍 वाडी / सभासद शोधा</label><br>
+    <!-- SEARCH -->
 
-<input type="text"
-id="search"
-placeholder="वाडी किंवा सभासद नाव"
-onkeyup="loadReport()"
-style="width:100%;padding:10px;">
+    <div class="card search-section">
 
-<br><br>
+        <label>
+            🔍 वाडी / सभासद / Member ID / मोबाईल शोधा
+        </label>
 
-<div id="report"></div>
+        <input
+            type="text"
+            id="search"
+            placeholder="शोधण्यासाठी येथे लिहा..."
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:8px;
+            "
+        >
 
-<br>
+    </div>
 
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
 
-</div>
+    <!-- GRAND SUMMARY -->
 
-</div>
+    <div
+        class="report-summary"
+        id="grandSummary"
+    >
+    </div>
 
-<script>
 
-let pending =
-JSON.parse(localStorage.getItem("pending")) || [];
+    <!-- REPORT -->
 
-function loadReport(){
+    <div id="report"></div>
 
-let search =
-document.getElementById("search")
-.value.toLowerCase();
 
-let group={};
+    <!-- ACTIONS -->
 
-pending.forEach(function(item){
+    <div class="report-actions">
 
-if(
-(item.wadi || "").toLowerCase().includes(search) ||
-(item.member || "").toLowerCase().includes(search)
-){
+        <button
+            type="button"
+            onclick="printWadiReport()"
+        >
+            🖨️ Print Report
+        </button>
 
-let wadi=item.wadi || "वाडी नाही";
 
-if(!group[wadi]){
+        <button
+            type="button"
+            onclick="loadReport()"
+        >
+            🔄 Refresh
+        </button>
 
-group[wadi]={
-members:0,
-amount:0,
-list:[]
-};
 
-}
+        <button
+            type="button"
+            onclick="location.href='index.html'"
+        >
+            🏠 Dashboard
+        </button>
 
-group[wadi].members++;
+    </div>
 
-group[wadi].amount+=Number(item.amount)||0;
-
-group[wadi].list.push(item);
-
-}
-
-});
-
-let html="";
-
-let grandMembers=0;
-let grandAmount=0;
-
-for(let wadi in group){
-
-html+=`
-
-<div class="card">
-
-<h2>🏘️ ${wadi}</h2>
-
-<p>
-<b>👥 सभासद :</b>
-${group[wadi].members}
-</p>
-
-<p>
-<b>💰 बाकी :</b>
-₹${group[wadi].amount}
-</p>
-
-<table border="1"
-width="100%"
-cellpadding="6">
-
-<tr>
-
-<th>सभासद</th>
-
-<th>बाकी</th>
-
-</tr>
-
-`;
-
-group[wadi].list.forEach(function(m){
-
-html+=`
-
-<tr>
-
-<td>${m.member}</td>
-
-<td>₹${m.amount}</td>
-
-</tr>
-
-`;
-
-});
-
-html+=`
-
-</table>
 
 </div>
 
-`;
 
-grandMembers+=group[wadi].members;
+<script src="wadi_report.js"></script>
 
-grandAmount+=group[wadi].amount;
-
-}
-
-html=`
-
-<div class="card">
-
-<h2>📊 एकूण सारांश</h2>
-
-<p><b>एकूण सभासद :</b> ${grandMembers}</p>
-
-<p><b>एकूण बाकी :</b> ₹${grandAmount}</p>
-
-</div>
-
-`+html;
-
-document.getElementById("report").innerHTML=html;
-
-}
-
-loadReport();
-
-</script>
 
 </body>
-</html>
+
+  </html>
