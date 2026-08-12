@@ -1,34 +1,26 @@
 /* =========================================================
    member-details.css
    मोर्डे ग्राम विकास मंडळ, मुंबई
-   सभासद Details Page
 ========================================================= */
 
 * {
     box-sizing: border-box;
 }
 
-body {
-    margin: 0;
-    padding: 0;
 
-    font-family: "Noto Sans Devanagari", sans-serif;
+body {
+
+    margin: 0;
+
+    font-family:
+        "Noto Sans Devanagari",
+        Arial,
+        sans-serif;
 
     background: #f4f7fb;
-    color: #1f2937;
-}
 
-button,
-input {
-    font-family: inherit;
-}
+    color: #222;
 
-.page {
-    width: 100%;
-    max-width: 1100px;
-
-    margin: auto;
-    padding: 20px;
 }
 
 
@@ -37,521 +29,679 @@ input {
 ========================================================= */
 
 .page-header {
+
+    background:
+        linear-gradient(
+            135deg,
+            #173b72,
+            #2563a8
+        );
+
+    color: white;
+
+    padding: 18px 20px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0,0,0,0.15);
+
+}
+
+
+.header-content {
+
+    max-width: 1400px;
+
+    margin: auto;
+
     display: flex;
 
-    justify-content: space-between;
     align-items: center;
 
     gap: 15px;
 
-    margin-bottom: 20px;
-}
-
-.small-title {
-    font-size: 14px;
-    font-weight: 600;
-
-    color: #64748b;
-
-    margin-bottom: 4px;
-}
-
-.page-header h1 {
-    margin: 0;
-
-    font-size: 28px;
-    font-weight: 800;
-
-    color: #111827;
-}
-
-.page-header p {
-    margin: 5px 0 0;
-
-    color: #64748b;
-    font-size: 14px;
-}
-
-.back-btn {
-    text-decoration: none;
-
-    background: #ffffff;
-
-    color: #334155;
-
-    border: 1px solid #dbe2ea;
-
-    padding: 10px 16px;
-
-    border-radius: 10px;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    white-space: nowrap;
-}
-
-.back-btn:hover {
-    background: #f8fafc;
 }
 
 
-/* =========================================================
-   SEARCH
-========================================================= */
+.header-icon {
 
-.search-card {
-    background: #ffffff;
+    width: 52px;
 
-    border: 1px solid #e2e8f0;
+    height: 52px;
 
-    border-radius: 16px;
+    border-radius: 14px;
 
-    padding: 18px;
-
-    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
-
-    margin-bottom: 20px;
-}
-
-.search-card label {
-    display: block;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    margin-bottom: 8px;
-}
-
-.search-row {
-    display: flex;
-
-    gap: 10px;
-}
-
-.search-row input {
-    width: 100%;
-
-    height: 46px;
-
-    padding: 0 14px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 10px;
-
-    outline: none;
-
-    font-size: 15px;
-
-    background: #ffffff;
-}
-
-.search-row input:focus {
-    border-color: #2563eb;
-
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
-}
-
-.clear-btn {
-    height: 46px;
-
-    padding: 0 18px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #64748b;
-
-    color: #ffffff;
-
-    font-weight: 700;
-
-    cursor: pointer;
-}
-
-.clear-btn:hover {
-    background: #475569;
-}
-
-
-/* =========================================================
-   SEARCH RESULTS
-========================================================= */
-
-.search-results {
-    margin-top: 8px;
-
-    display: none;
-
-    max-height: 300px;
-
-    overflow-y: auto;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 10px;
-
-    background: #ffffff;
-}
-
-.search-result {
-    width: 100%;
-
-    padding: 12px 14px;
-
-    border: none;
-
-    border-bottom: 1px solid #eef2f7;
-
-    background: #ffffff;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 10px;
-}
-
-.search-result:last-child {
-    border-bottom: none;
-}
-
-.search-result:hover {
-    background: #f8fafc;
-}
-
-.result-name {
-    font-weight: 700;
-
-    color: #111827;
-}
-
-.result-info {
-    font-size: 12px;
-
-    color: #64748b;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.empty-state {
-    text-align: center;
-
-    background: #ffffff;
-
-    border: 1px dashed #cbd5e1;
-
-    border-radius: 16px;
-
-    padding: 50px 20px;
-
-    color: #64748b;
-}
-
-.empty-icon {
-    font-size: 45px;
-
-    margin-bottom: 10px;
-}
-
-.empty-state h2 {
-    margin: 0 0 5px;
-
-    color: #334155;
-
-    font-size: 20px;
-}
-
-.empty-state p {
-    margin: 0;
-
-    font-size: 14px;
-}
-
-
-/* =========================================================
-   MEMBER DETAILS
-========================================================= */
-
-.hidden {
-    display: none !important;
-}
-
-.member-details {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 18px;
-}
-
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-.profile-card {
-    background: #ffffff;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 16px;
-
-    padding: 20px;
+    background:
+        rgba(255,255,255,0.15);
 
     display: flex;
 
     align-items: center;
 
-    gap: 16px;
-
-    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
-}
-
-.profile-icon {
-    width: 65px;
-    height: 65px;
-
-    border-radius: 50%;
-
-    background: #eff6ff;
-
-    display: flex;
-
-    align-items: center;
     justify-content: center;
 
-    font-size: 30px;
+    font-size: 25px;
 
-    flex-shrink: 0;
 }
 
-.profile-main h2 {
+
+.page-header h1 {
+
     margin: 0;
 
     font-size: 24px;
 
-    color: #111827;
+    font-weight: 800;
+
 }
 
-.profile-meta {
-    display: flex;
 
-    gap: 15px;
+.page-header p {
 
-    flex-wrap: wrap;
+    margin: 3px 0 0;
 
-    margin-top: 7px;
+    font-size: 13px;
 
-    font-size: 14px;
+    opacity: 0.9;
 
-    color: #64748b;
 }
 
 
 /* =========================================================
-   SECTION CARD
+   CONTAINER
 ========================================================= */
 
-.section-card {
-    background: #ffffff;
+.container {
 
-    border: 1px solid #e2e8f0;
+    max-width: 1400px;
 
-    border-radius: 16px;
+    margin: 25px auto;
+
+    padding: 0 15px;
+
+}
+
+
+/* =========================================================
+   SEARCH CARD
+========================================================= */
+
+.search-card {
+
+    background: white;
 
     padding: 20px;
 
-    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0,0,0,0.07);
+
 }
 
+
 .section-title {
+
     display: flex;
 
     align-items: center;
 
-    gap: 8px;
+    gap: 9px;
 
-    margin-bottom: 18px;
+    font-size: 17px;
 
-    padding-bottom: 12px;
+    font-weight: 700;
 
-    border-bottom: 1px solid #eef2f7;
-}
+    margin-bottom: 13px;
 
-.section-title span {
-    font-size: 20px;
-}
+    color: #173b72;
 
-.section-title h3 {
-    margin: 0;
-
-    font-size: 18px;
-
-    color: #1e293b;
 }
 
 
-/* =========================================================
-   INFORMATION
-========================================================= */
+.search-wrapper {
 
-.info-grid {
-    display: grid;
+    position: relative;
 
-    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
 
-    gap: 12px;
 }
 
-.info-box {
-    background: #f8fafc;
 
-    border: 1px solid #e2e8f0;
+.search-wrapper input {
+
+    width: 100%;
+
+    height: 48px;
+
+    padding:
+        0 48px;
+
+    border:
+        1px solid #d4dbe5;
 
     border-radius: 10px;
-
-    padding: 13px 14px;
-
-    min-height: 70px;
-}
-
-.info-box.full {
-    grid-column: 1 / -1;
-}
-
-.label {
-    display: block;
-
-    color: #64748b;
-
-    font-size: 12px;
-
-    margin-bottom: 4px;
-}
-
-.info-box strong {
-    display: block;
 
     font-size: 15px;
 
-    color: #1e293b;
+    outline: none;
 
-    word-break: break-word;
+    transition: 0.2s;
+
+}
+
+
+.search-wrapper input:focus {
+
+    border-color: #2563a8;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,168,0.12);
+
+}
+
+
+.search-icon {
+
+    position: absolute;
+
+    left: 17px;
+
+    top: 16px;
+
+    color: #777;
+
+}
+
+
+.clear-search {
+
+    position: absolute;
+
+    right: 10px;
+
+    top: 8px;
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #777;
+
+    cursor: pointer;
+
+}
+
+
+.clear-search:hover {
+
+    background: #f0f2f5;
+
 }
 
 
 /* =========================================================
-   FINANCIAL
+   RESULT INFO
 ========================================================= */
 
-.finance-grid {
-    display: grid;
+.result-info {
 
-    grid-template-columns: repeat(3, 1fr);
+    margin:
+        16px 2px;
 
-    gap: 14px;
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 14px;
+
+    color: #555;
+
 }
 
-.finance-box {
+
+.result-info strong {
+
+    color: #173b72;
+
+}
+
+
+#searchStatus {
+
+    background: #e9f1ff;
+
+    color: #2563a8;
+
+    padding:
+        5px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   TABLE CARD
+========================================================= */
+
+.table-card {
+
+    background: white;
+
     border-radius: 14px;
 
-    padding: 18px;
+    box-shadow:
+        0 3px 15px
+        rgba(0,0,0,0.07);
 
-    display: flex;
+    overflow: hidden;
 
-    align-items: center;
-
-    gap: 12px;
-
-    border: 1px solid #e2e8f0;
 }
 
-.finance-icon {
-    width: 45px;
-    height: 45px;
 
-    border-radius: 10px;
+.table-wrapper {
 
-    display: flex;
+    width: 100%;
 
-    align-items: center;
-    justify-content: center;
+    overflow-x: auto;
 
-    font-size: 22px;
-
-    background: #ffffff;
 }
 
-.finance-label {
-    display: block;
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 1050px;
+
+}
+
+
+thead {
+
+    background: #173b72;
+
+    color: white;
+
+}
+
+
+th {
+
+    padding: 13px 10px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+td {
+
+    padding: 11px 10px;
+
+    border-bottom:
+        1px solid #edf0f4;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+
+}
+
+
+tbody tr:hover {
+
+    background: #f8fbff;
+
+}
+
+
+/* =========================================================
+   MONEY
+========================================================= */
+
+.money {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.pending-money {
+
+    color: #c62828;
+
+}
+
+
+.subscription-money {
+
+    color: #176b3a;
+
+}
+
+
+.donation-money {
+
+    color: #7b3f98;
+
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.view-btn {
+
+    border: none;
+
+    background: #2563a8;
+
+    color: white;
+
+    padding:
+        8px 12px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-family: inherit;
 
     font-size: 12px;
 
-    color: #64748b;
+    white-space: nowrap;
 
-    margin-bottom: 3px;
 }
 
-.finance-box strong {
-    display: block;
 
-    font-size: 22px;
+.view-btn:hover {
 
-    color: #111827;
-}
+    background: #173b72;
 
-.finance-box.pending {
-    background: #fff7ed;
-}
-
-.finance-box.subscription {
-    background: #eff6ff;
-}
-
-.finance-box.donation {
-    background: #f0fdf4;
 }
 
 
 /* =========================================================
-   NOTE
+   EMPTY / LOADING
 ========================================================= */
 
-.year-note {
-    background: #ffffff;
+.loading,
+.empty {
 
-    border: 1px solid #e2e8f0;
+    text-align: center;
 
-    border-radius: 12px;
+    padding: 35px !important;
 
-    padding: 13px 15px;
+    color: #777;
+
+}
+
+
+.empty i {
+
+    font-size: 35px;
+
+    margin-bottom: 10px;
+
+    display: block;
+
+    color: #aaa;
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    z-index: 9999;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.55);
+
+    padding: 20px;
+
+    overflow-y: auto;
+
+}
+
+
+.modal-content {
+
+    background: white;
+
+    max-width: 700px;
+
+    margin:
+        30px auto;
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 40px
+        rgba(0,0,0,0.25);
+
+}
+
+
+.modal-header {
+
+    background:
+        linear-gradient(
+            135deg,
+            #173b72,
+            #2563a8
+        );
+
+    color: white;
+
+    padding: 16px 20px;
 
     display: flex;
 
-    flex-direction: column;
+    align-items: center;
 
-    gap: 3px;
+    justify-content: space-between;
 
-    color: #64748b;
-
-    font-size: 13px;
 }
 
-.year-note strong {
-    color: #334155;
+
+.modal-header h2 {
+
+    margin: 0;
+
+    font-size: 19px;
+
+}
+
+
+.modal-close {
+
+    width: 35px;
+
+    height: 35px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.15);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 18px;
+
+}
+
+
+.member-details-content {
+
+    padding: 20px;
+
+}
+
+
+/* =========================================================
+   DETAIL GRID
+========================================================= */
+
+.detail-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+
+}
+
+
+.detail-item {
+
+    background: #f7f9fc;
+
+    border:
+        1px solid #e7ebf1;
+
+    border-radius: 10px;
+
+    padding: 13px;
+
+}
+
+
+.detail-label {
+
+    color: #777;
+
+    font-size: 12px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.detail-value {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    color: #222;
+
+    word-break: break-word;
+
+}
+
+
+.detail-full {
+
+    grid-column:
+        1 / -1;
+
+}
+
+
+.amount-section {
+
+    margin-top: 18px;
+
+}
+
+
+.amount-section-title {
+
+    font-weight: 700;
+
+    color: #173b72;
+
+    margin-bottom: 10px;
+
+}
+
+
+.amount-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+}
+
+
+.amount-card {
+
+    padding: 15px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    background: #f7f9fc;
+
+    border:
+        1px solid #e6eaf0;
+
+}
+
+
+.amount-card .label {
+
+    font-size: 12px;
+
+    color: #777;
+
+}
+
+
+.amount-card .amount {
+
+    margin-top: 5px;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
 }
 
 
@@ -561,59 +711,70 @@ input {
 
 @media (max-width: 700px) {
 
-    .page {
-        padding: 12px;
+    .page-header h1 {
+
+        font-size: 20px;
+
     }
 
-    .page-header {
+
+    .container {
+
+        margin-top: 15px;
+
+    }
+
+
+    .search-card {
+
+        padding: 15px;
+
+    }
+
+
+    .result-info {
+
+        flex-direction: column;
+
         align-items: flex-start;
 
-        flex-direction: column;
+        gap: 8px;
+
     }
 
-    .page-header h1 {
-        font-size: 23px;
-    }
 
-    .back-btn {
-        width: 100%;
+    .detail-grid {
 
-        text-align: center;
-    }
-
-    .search-row {
-        flex-direction: column;
-    }
-
-    .clear-btn {
-        width: 100%;
-    }
-
-    .profile-card {
-        padding: 15px;
-    }
-
-    .profile-main h2 {
-        font-size: 20px;
-    }
-
-    .info-grid {
         grid-template-columns: 1fr;
+
     }
 
-    .info-box.full {
+
+    .detail-full {
+
         grid-column: auto;
+
     }
 
-    .finance-grid {
+
+    .amount-grid {
+
         grid-template-columns: 1fr;
+
     }
 
-    .finance-box {
-        padding: 15px;
+
+    .modal {
+
+        padding: 10px;
+
     }
 
-    .finance-box strong {
-        font-size: 20px;
+
+    .modal-content {
+
+        margin: 10px auto;
+
     }
+
 }
