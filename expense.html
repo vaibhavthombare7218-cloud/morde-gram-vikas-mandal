@@ -1,74 +1,474 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>खर्च नोंद</title>
-<link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>खर्च व्यवस्थापन | मोर्डे ग्राम विकास मंडळ</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 </head>
+
 
 <body>
 
-<header>
-    <h1>➖ खर्च नोंद</h1>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="page-header">
+
+    <div>
+
+        <h1>
+
+            <i class="fa-solid fa-arrow-up-from-line"></i>
+
+            खर्च व्यवस्थापन
+
+        </h1>
+
+        <p>
+            मोर्डे ग्राम विकास मंडळ, मुंबई
+        </p>
+
+    </div>
+
+
+    <a href="index.html"
+       class="btn btn-secondary">
+
+        <i class="fa fa-home"></i>
+
+        Dashboard
+
+    </a>
+
 </header>
 
-<div class="container">
 
-<div class="card">
 
-<label><b>तारीख</b></label><br><br>
-<input type="date" id="date" style="width:100%;padding:12px;"><br><br>
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
-<label><b>तपशील</b></label><br><br>
-<input type="text" id="details"
-placeholder="उदा. वीज बिल / कार्यक्रम खर्च"
-style="width:100%;padding:12px;"><br><br>
+<main class="container">
 
-<label><b>रक्कम</b></label><br><br>
-<input type="number" id="amount"
-placeholder="₹"
-style="width:100%;padding:12px;"><br><br>
 
-<button onclick="saveExpense()">💾 Save</button>
+    <!-- =================================================
+         EXPENSE FORM
+    ================================================== -->
 
-<br><br>
+    <section class="card">
 
-<button onclick="location.href='index.html'">
-🏠 Dashboard
-</button>
+        <div class="card-header">
+
+            <h2>
+
+                <i class="fa fa-plus-circle"></i>
+
+                नवीन खर्च नोंद
+
+            </h2>
+
+        </div>
+
+
+        <form id="expenseForm">
+
+
+            <!-- खर्च प्रकार -->
+
+            <div class="form-group">
+
+                <label for="expenseType">
+                    खर्च प्रकार
+                </label>
+
+                <select id="expenseType"
+                        required>
+
+                    <option value="">
+                        प्रकार निवडा
+                    </option>
+
+                    <option value="सभेचा खर्च">
+                        सभेचा खर्च
+                    </option>
+
+                    <option value="कार्यक्रम">
+                        कार्यक्रम
+                    </option>
+
+                    <option value="सामान">
+                        सामान / साहित्य
+                    </option>
+
+                    <option value="प्रवास">
+                        प्रवास
+                    </option>
+
+                    <option value="भोजन">
+                        भोजन
+                    </option>
+
+                    <option value="मंडळ खर्च">
+                        मंडळाचा खर्च
+                    </option>
+
+                    <option value="इतर खर्च">
+                        इतर खर्च
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- खर्चाचे नाव -->
+
+            <div class="form-group">
+
+                <label for="expenseName">
+                    खर्च करणारे / ज्यांना पैसे दिले
+                </label>
+
+                <input type="text"
+                       id="expenseName"
+                       placeholder="नाव टाका"
+                       required>
+
+            </div>
+
+
+
+            <!-- Date -->
+
+            <div class="form-group">
+
+                <label for="expenseDate">
+                    तारीख
+                </label>
+
+                <input type="date"
+                       id="expenseDate"
+                       required>
+
+            </div>
+
+
+
+            <!-- Amount -->
+
+            <div class="form-group">
+
+                <label for="expenseAmount">
+                    खर्च रक्कम ₹
+                </label>
+
+                <input type="number"
+                       id="expenseAmount"
+                       min="1"
+                       step="1"
+                       placeholder="रक्कम टाका"
+                       required>
+
+            </div>
+
+
+
+            <!-- Payment Mode -->
+
+            <div class="form-group">
+
+                <label for="expensePaymentMode">
+                    Payment Mode
+                </label>
+
+                <select id="expensePaymentMode"
+                        required>
+
+                    <option value="">
+                        Payment Mode निवडा
+                    </option>
+
+                    <option value="रोख">
+                        रोख
+                    </option>
+
+                    <option value="UPI">
+                        UPI
+                    </option>
+
+                    <option value="Bank Transfer">
+                        Bank Transfer
+                    </option>
+
+                    <option value="Cheque">
+                        Cheque
+                    </option>
+
+                    <option value="इतर">
+                        इतर
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- Bill Number -->
+
+            <div class="form-group">
+
+                <label for="expenseBillNo">
+                    बिल / पावती क्रमांक
+                </label>
+
+                <input type="text"
+                       id="expenseBillNo"
+                       placeholder="Bill / Reference No.">
+
+            </div>
+
+
+
+            <!-- Description -->
+
+            <div class="form-group">
+
+                <label for="expenseDescription">
+                    खर्च तपशील
+                </label>
+
+                <textarea id="expenseDescription"
+                          rows="3"
+                          placeholder="खर्चाचा तपशील लिहा"></textarea>
+
+            </div>
+
+
+
+            <!-- Entered By -->
+
+            <div class="form-group">
+
+                <label for="expenseEnteredBy">
+                    नोंद करणारे
+                </label>
+
+                <input type="text"
+                       id="expenseEnteredBy"
+                       placeholder="नाव">
+
+            </div>
+
+
+
+            <!-- Buttons -->
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        class="btn btn-danger">
+
+                    <i class="fa fa-save"></i>
+
+                    खर्च सेव्ह करा
+
+                </button>
+
+
+                <button type="reset"
+                        class="btn btn-secondary">
+
+                    <i class="fa fa-refresh"></i>
+
+                    Clear
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- =================================================
+         DASHBOARD
+    ================================================== -->
+
+    <section class="dashboard-grid">
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+
+                <i class="fa fa-money-bill-wave"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    एकूण खर्च
+                </span>
+
+                <strong id="totalExpense">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+
+                <i class="fa fa-calendar"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    आजचा खर्च
+                </span>
+
+                <strong id="todayExpense">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         EXPENSE HISTORY
+    ================================================== -->
+
+    <section class="card">
+
+        <div class="card-header">
+
+            <h2>
+
+                <i class="fa fa-list"></i>
+
+                खर्च नोंदी
+
+            </h2>
+
+
+            <input type="search"
+                   id="expenseSearch"
+                   placeholder="नाव / प्रकार / बिल शोधा">
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>क्र.</th>
+
+                        <th>तारीख</th>
+
+                        <th>खर्च प्रकार</th>
+
+                        <th>नाव</th>
+
+                        <th>रक्कम</th>
+
+                        <th>Payment Mode</th>
+
+                        <th>Bill No.</th>
+
+                        <th>तपशील</th>
+
+                        <th>Delete</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="expenseTableBody">
+
+                    <tr>
+
+                        <td colspan="9"
+                            style="text-align:center;">
+
+                            अद्याप कोणतीही खर्च नोंद नाही.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div id="toast"
+     class="toast">
 
 </div>
 
-</div>
 
-<script>
 
-function saveExpense(){
-
-let list=JSON.parse(localStorage.getItem("transactions"))||[];
-
-list.push({
-
-type:"expense",
-
-date:document.getElementById("date").value,
-
-details:document.getElementById("details").value,
-
-amount:document.getElementById("amount").value
-
-});
-
-localStorage.setItem("transactions",JSON.stringify(list));
-
-alert("खर्च यशस्वीरीत्या सेव्ह झाला.");
-
-location.href="index.html";
-
-}
-
-</script>
+<script src="expense.js"></script>
 
 </body>
+
 </html>
