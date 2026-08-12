@@ -1,52 +1,39 @@
 /* =========================================================
-   script.js - Part 1
-   MGVM Dashboard
+   script.js
+   MGVM DASHBOARD
    मोर्डे ग्राम विकास मंडळ, मुंबई
+
+   IMPORTANT:
+   This file ONLY READS existing LocalStorage data.
+   Existing save/edit/delete logic is NOT changed.
 ========================================================= */
 
 
 /* =========================================================
-   DATABASE DATA
+   DATABASE KEYS
 ========================================================= */
 
-let dashboardMembers =
-    JSON.parse(
-        localStorage.getItem(
-            "mgvm_members"
-        )
-    ) || [];
+const MGVM_DASHBOARD_KEYS = {
 
+    MEMBERS:
+        "mgvm_members",
 
-let dashboardSubscriptions =
-    JSON.parse(
-        localStorage.getItem(
-            "mgvm_subscriptions"
-        )
-    ) || [];
+    SUBSCRIPTIONS:
+        "mgvm_subscriptions",
 
+    DONATIONS:
+        "mgvm_donations",
 
-let dashboardDonations =
-    JSON.parse(
-        localStorage.getItem(
-            "mgvm_donations"
-        )
-    ) || [];
+    INCOME:
+        "mgvm_income",
 
+    EXPENSE:
+        "mgvm_expense",
 
-let dashboardIncome =
-    JSON.parse(
-        localStorage.getItem(
-            "mgvm_income"
-        )
-    ) || [];
+    MEETINGS:
+        "mgvm_meetings"
 
-
-let dashboardExpense =
-    JSON.parse(
-        localStorage.getItem(
-            "mgvm_expense"
-        )
-    ) || [];
+};
 
 
 /* =========================================================
@@ -57,67 +44,446 @@ const DASHBOARD_ANNUAL_AMOUNT = 200;
 
 
 /* =========================================================
-   CURRENCY FORMAT
+   READ LOCAL STORAGE SAFELY
 ========================================================= */
 
-function formatDashboardAmount(amount) {
+function dashboardRead(key) {
+
+    try {
+
+        const data =
+            localStorage.getItem(key);
+
+        if (!data) {
+
+            return [];
+
+        }
+
+        const parsed =
+            JSON.parse(data);
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
+
+    }
+    catch (error) {
+
+        console.error(
+            "Dashboard Read Error:",
+            key,
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD ALL DATA
+========================================================= */
+
+function loadDashboardData() {
+
+    return {
+
+        members:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.MEMBERS
+            ),
+
+        subscriptions:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.SUBSCRIPTIONS
+            ),
+
+        donations:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.DONATIONS
+            ),
+
+        income:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.INCOME
+            ),
+
+        expense:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.EXPENSE
+            ),
+
+        meetings:
+            dashboardRead(
+                MGVM_DASHBOARD_KEYS.MEETINGS
+            )
+
+    };
+
+}
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let dashboardData =
+    loadDashboardData();
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+function refreshDashboardData() {
+
+    dashboardData =
+        loadDashboardData();
+
+}
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+function dashboardNumber(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return 0;
+
+    }
+
+
+    const number =
+        Number(
+            String(value)
+                .replace(/,/g, "")
+                .replace(/[₹]/g, "")
+                .trim()
+        );
+
+
+    return isNaN(number)
+        ? 0
+        : number;
+
+}
+
+
+/* =========================================================
+   AMOUNT FORMAT
+========================================================= */
+
+function formatDashboardAmount(value) {
 
     return (
         "₹" +
-        Number(
-            amount || 0
-        ).toLocaleString(
-            "en-IN"
-        )
+        dashboardNumber(value)
+            .toLocaleString("en-IN")
     );
 
 }
 
 
 /* =========================================================
-   REFRESH DATABASE DATA
+   HTML ESCAPE
 ========================================================= */
 
-function refreshDashboardData() {
+function escapeDashboardHTML(value) {
 
-    dashboardMembers =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_members"
-            )
-        ) || [];
+    return String(
+        value ?? ""
+    )
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
-
-    dashboardSubscriptions =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_subscriptions"
-            )
-        ) || [];
+}
 
 
-    dashboardDonations =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_donations"
-            )
-        ) || [];
+/* =========================================================
+   DATE HELPERS
+========================================================= */
+
+function getDashboardTodayString() {
+
+    const date =
+        new Date();
 
 
-    dashboardIncome =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_income"
-            )
-        ) || [];
+    return (
+        date.getFullYear() +
+        "-" +
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            date.getDate()
+        ).padStart(2, "0")
+    );
+
+}
 
 
-    dashboardExpense =
-        JSON.parse(
-            localStorage.getItem(
-                "mgvm_expense"
-            )
-        ) || [];
+/* =========================================================
+   DATE NORMALIZER
+========================================================= */
+
+function normalizeDashboardDate(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    const text =
+        String(value).trim();
+
+
+    if (
+        /^\d{4}-\d{2}-\d{2}$/.test(text)
+    ) {
+
+        return text;
+
+    }
+
+
+    const date =
+        new Date(text);
+
+
+    if (isNaN(date.getTime())) {
+
+        return "";
+
+    }
+
+
+    return (
+        date.getFullYear() +
+        "-" +
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            date.getDate()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* =========================================================
+   DATE FROM OBJECT
+========================================================= */
+
+function getItemDate(item) {
+
+    return normalizeDashboardDate(
+
+        item.paymentDate ||
+
+        item.date ||
+
+        item.transactionDate ||
+
+        item.meetingDate ||
+
+        item.createdAt ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   MEMBER ID
+========================================================= */
+
+function getMemberId(member) {
+
+    return (
+
+        member.id ||
+
+        member.memberId ||
+
+        member.memberID ||
+
+        member.member_id ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   MEMBER NAME
+========================================================= */
+
+function getMemberName(member) {
+
+    return (
+
+        member.name ||
+
+        member.memberName ||
+
+        member.fullName ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   MEMBER WADI
+========================================================= */
+
+function getMemberWadi(member) {
+
+    return (
+
+        member.wadi ||
+
+        member.Wadi ||
+
+        member.village ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   MEMBER MOBILE
+========================================================= */
+
+function getMemberMobile(member) {
+
+    return (
+
+        member.mobile ||
+
+        member.mobileNo ||
+
+        member.phone ||
+
+        member.contact ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   SUBSCRIPTION MEMBER ID
+========================================================= */
+
+function getSubscriptionMemberId(item) {
+
+    return (
+
+        item.memberId ||
+
+        item.memberID ||
+
+        item.member_id ||
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   SUBSCRIPTION AMOUNT
+========================================================= */
+
+function getSubscriptionAmount(item) {
+
+    return dashboardNumber(
+
+        item.paidAmount ??
+
+        item.amount ??
+
+        item.paymentAmount ??
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   DONATION AMOUNT
+========================================================= */
+
+function getDonationAmount(item) {
+
+    return dashboardNumber(
+
+        item.amount ??
+
+        item.paidAmount ??
+
+        item.donationAmount ??
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   GENERIC AMOUNT
+========================================================= */
+
+function getGenericAmount(item) {
+
+    return dashboardNumber(
+
+        item.amount ??
+
+        item.paidAmount ??
+
+        item.totalAmount ??
+
+        item.value ??
+
+        0
+
+    );
 
 }
 
@@ -126,19 +492,9 @@ function refreshDashboardData() {
    TOTAL MEMBERS
 ========================================================= */
 
-function updateTotalMembers() {
+function calculateTotalMembers() {
 
-    const element =
-        document.getElementById(
-            "totalMembers"
-        );
-
-
-    if (!element) return;
-
-
-    element.innerText =
-        dashboardMembers.length;
+    return dashboardData.members.length;
 
 }
 
@@ -149,21 +505,19 @@ function updateTotalMembers() {
 
 function calculateTotalSubscription() {
 
-    return dashboardSubscriptions.reduce(
-        function(
-            total,
-            item
-        ) {
+    return dashboardData.subscriptions.reduce(
+
+        function(total, item) {
 
             return (
                 total +
-                Number(
-                    item.paidAmount || 0
-                )
+                getSubscriptionAmount(item)
             );
 
         },
+
         0
+
     );
 
 }
@@ -175,21 +529,19 @@ function calculateTotalSubscription() {
 
 function calculateTotalDonation() {
 
-    return dashboardDonations.reduce(
-        function(
-            total,
-            item
-        ) {
+    return dashboardData.donations.reduce(
+
+        function(total, item) {
 
             return (
                 total +
-                Number(
-                    item.amount || 0
-                )
+                getDonationAmount(item)
             );
 
         },
+
         0
+
     );
 
 }
@@ -201,21 +553,19 @@ function calculateTotalDonation() {
 
 function calculateTotalIncome() {
 
-    return dashboardIncome.reduce(
-        function(
-            total,
-            item
-        ) {
+    return dashboardData.income.reduce(
+
+        function(total, item) {
 
             return (
                 total +
-                Number(
-                    item.amount || 0
-                )
+                getGenericAmount(item)
             );
 
         },
+
         0
+
     );
 
 }
@@ -227,251 +577,405 @@ function calculateTotalIncome() {
 
 function calculateTotalExpense() {
 
-    return dashboardExpense.reduce(
-        function(
-            total,
-            item
-        ) {
+    return dashboardData.expense.reduce(
+
+        function(total, item) {
 
             return (
                 total +
-                Number(
-                    item.amount || 0
-                )
+                getGenericAmount(item)
             );
 
         },
+
         0
+
     );
 
 }
 
 
 /* =========================================================
-   UPDATE TOTAL SUBSCRIPTION
+   TOTAL COLLECTION
 ========================================================= */
 
-function updateTotalSubscription() {
+function calculateTotalCollection() {
 
-    const element =
+    return (
+
+        calculateTotalSubscription() +
+
+        calculateTotalDonation() +
+
+        calculateTotalIncome()
+
+    );
+
+}
+
+
+/* =========================================================
+   BALANCE
+========================================================= */
+
+function calculateBalance() {
+
+    return (
+
+        calculateTotalCollection() -
+
+        calculateTotalExpense()
+
+    );
+
+}
+
+
+/* =========================================================
+   UPDATE MAIN CARDS
+========================================================= */
+
+function updateMainCards() {
+
+    const members =
+        document.getElementById(
+            "totalMembers"
+        );
+
+
+    const subscription =
         document.getElementById(
             "totalSubscription"
         );
 
 
-    if (!element) return;
-
-
-    const total =
-        calculateTotalSubscription();
-
-
-    element.innerText =
-        formatDashboardAmount(
-            total
-        );
-
-}
-
-
-/* =========================================================
-   UPDATE TOTAL DONATION
-========================================================= */
-
-function updateTotalDonation() {
-
-    const element =
+    const donation =
         document.getElementById(
             "totalDonation"
         );
 
 
-    if (!element) return;
-
-
-    const total =
-        calculateTotalDonation();
-
-
-    element.innerText =
-        formatDashboardAmount(
-            total
-        );
-
-}
-
-
-/* =========================================================
-   UPDATE TOTAL INCOME
-========================================================= */
-
-function updateTotalIncome() {
-
-    const element =
+    const income =
         document.getElementById(
             "totalIncome"
         );
 
 
-    if (!element) return;
-
-
-    const total =
-        calculateTotalIncome();
-
-
-    element.innerText =
-        formatDashboardAmount(
-            total
-        );
-
-}
-
-
-/* =========================================================
-   UPDATE TOTAL EXPENSE
-========================================================= */
-
-function updateTotalExpense() {
-
-    const element =
+    const expense =
         document.getElementById(
             "totalExpense"
         );
 
 
-    if (!element) return;
-
-
-    const total =
-        calculateTotalExpense();
-
-
-    element.innerText =
-        formatDashboardAmount(
-            total
+    const collection =
+        document.getElementById(
+            "totalCollection"
         );
+
+
+    const balance =
+        document.getElementById(
+            "balanceAmount"
+        );
+
+
+    if (members) {
+
+        members.innerText =
+            calculateTotalMembers();
+
+    }
+
+
+    if (subscription) {
+
+        subscription.innerText =
+            formatDashboardAmount(
+                calculateTotalSubscription()
+            );
+
+    }
+
+
+    if (donation) {
+
+        donation.innerText =
+            formatDashboardAmount(
+                calculateTotalDonation()
+            );
+
+    }
+
+
+    if (income) {
+
+        income.innerText =
+            formatDashboardAmount(
+                calculateTotalIncome()
+            );
+
+    }
+
+
+    if (expense) {
+
+        expense.innerText =
+            formatDashboardAmount(
+                calculateTotalExpense()
+            );
+
+    }
+
+
+    if (collection) {
+
+        collection.innerText =
+            formatDashboardAmount(
+                calculateTotalCollection()
+            );
+
+    }
+
+
+    if (balance) {
+
+        balance.innerText =
+            formatDashboardAmount(
+                calculateBalance()
+            );
+
+    }
 
 }
 
 
 /* =========================================================
-   CALCULATE PENDING SUBSCRIPTION
+   MEMBER PAID AMOUNT
 ========================================================= */
 
-function calculateDashboardPending() {
+function getMemberPaidAmount(memberId) {
 
-    let totalPending = 0;
+    return dashboardData.subscriptions.reduce(
+
+        function(total, item) {
+
+            if (
+
+                String(
+                    getSubscriptionMemberId(item)
+                ) ===
+
+                String(memberId)
+
+            ) {
+
+                return (
+
+                    total +
+                    getSubscriptionAmount(item)
+
+                );
+
+            }
+
+
+            return total;
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   GET MEMBER PENDING
+========================================================= */
+
+function getMemberPending(member) {
+
+    /*
+       सर्वात आधी existing
+       subscriptionPending check.
+       Excel import मधील बाकी सुरक्षित राहते.
+    */
+
+    const storedPending =
+        dashboardNumber(
+            member.subscriptionPending
+        );
 
 
     /*
-       प्रत्येक सदस्यासाठी
-       त्याच्या भरलेल्या वर्षांची
-       बाकी रक्कम calculate केली जाते.
+       जर member मध्ये pending उपलब्ध असेल
+       तर तेच दाखवणे.
     */
 
+    if (
+        storedPending > 0
+    ) {
 
-    dashboardMembers.forEach(
-        function(member) {
+        return storedPending;
 
-            const memberSubscriptions =
-                dashboardSubscriptions.filter(
-                    function(item) {
+    }
 
-                        return (
-                            String(
-                                item.memberId
-                            ) ===
-                            String(
-                                member.id
-                            )
-                        );
 
-                    }
+    /*
+       Subscription records वरून
+       pending calculate.
+    */
+
+    const memberId =
+        getMemberId(member);
+
+
+    const subscriptions =
+        dashboardData.subscriptions.filter(
+
+            function(item) {
+
+                return (
+
+                    String(
+                        getSubscriptionMemberId(item)
+                    ) ===
+
+                    String(memberId)
+
                 );
 
+            }
 
-            const years = [];
-
-
-            memberSubscriptions.forEach(
-                function(item) {
-
-                    if (
-                        item.year &&
-                        !years.includes(
-                            item.year
-                        )
-                    ) {
-
-                        years.push(
-                            item.year
-                        );
-
-                    }
-
-                }
-            );
+        );
 
 
-            years.forEach(
-                function(year) {
+    /*
+       Subscription records नसतील
+       आणि pending 0 असेल तर 0.
+    */
 
-                    const paid =
-                        memberSubscriptions
-                            .filter(
-                                function(item) {
+    if (!subscriptions.length) {
 
-                                    return (
-                                        item.year ===
-                                        year
-                                    );
+        return 0;
 
-                                }
-                            )
-                            .reduce(
-                                function(
-                                    total,
-                                    item
-                                ) {
-
-                                    return (
-                                        total +
-                                        Number(
-                                            item.paidAmount ||
-                                            0
-                                        )
-                                    );
-
-                                },
-                                0
-                            );
+    }
 
 
-                    totalPending +=
-                        Math.max(
-                            0,
-                            DASHBOARD_ANNUAL_AMOUNT -
-                            paid
-                        );
+    const years = [];
 
-                }
-            );
+
+    subscriptions.forEach(
+
+        function(item) {
+
+            if (
+                item.year &&
+                !years.includes(
+                    String(item.year)
+                )
+            ) {
+
+                years.push(
+                    String(item.year)
+                );
+
+            }
 
         }
+
     );
 
 
-    return totalPending;
+    let pending = 0;
+
+
+    years.forEach(
+
+        function(year) {
+
+            const paid =
+                subscriptions
+                    .filter(
+
+                        function(item) {
+
+                            return (
+                                String(
+                                    item.year
+                                ) ===
+                                String(year)
+                            );
+
+                        }
+
+                    )
+                    .reduce(
+
+                        function(total, item) {
+
+                            return (
+                                total +
+                                getSubscriptionAmount(item)
+                            );
+
+                        },
+
+                        0
+
+                    );
+
+
+            pending +=
+                Math.max(
+
+                    0,
+
+                    DASHBOARD_ANNUAL_AMOUNT -
+                    paid
+
+                );
+
+        }
+
+    );
+
+
+    return pending;
 
 }
 
 
 /* =========================================================
-   UPDATE PENDING SUBSCRIPTION
+   TOTAL PENDING
 ========================================================= */
 
-function updatePendingSubscription() {
+function calculateTotalPending() {
+
+    return dashboardData.members.reduce(
+
+        function(total, member) {
+
+            return (
+                total +
+                getMemberPending(member)
+            );
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   UPDATE PENDING
+========================================================= */
+
+function updatePendingCard() {
 
     const element =
         document.getElementById(
@@ -482,70 +986,35 @@ function updatePendingSubscription() {
     if (!element) return;
 
 
-    const pending =
-        calculateDashboardPending();
-
-
     element.innerText =
         formatDashboardAmount(
-            pending
+            calculateTotalPending()
         );
 
 }
 
 
 /* =========================================================
-   CALCULATE TODAY SUBSCRIPTION
+   TODAY SUBSCRIPTION
 ========================================================= */
 
 function calculateTodaySubscription() {
 
     const today =
-        new Date();
+        getDashboardTodayString();
 
 
-    const yyyy =
-        today.getFullYear();
+    return dashboardData.subscriptions.reduce(
 
-
-    const mm =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const dd =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const todayString =
-        `${yyyy}-${mm}-${dd}`;
-
-
-    return dashboardSubscriptions.reduce(
-        function(
-            total,
-            item
-        ) {
+        function(total, item) {
 
             if (
-                item.paymentDate ===
-                todayString
+                getItemDate(item) === today
             ) {
 
                 return (
                     total +
-                    Number(
-                        item.paidAmount || 0
-                    )
+                    getSubscriptionAmount(item)
                 );
 
             }
@@ -554,54 +1023,220 @@ function calculateTodaySubscription() {
             return total;
 
         },
+
         0
+
     );
 
 }
 
 
 /* =========================================================
-   UPDATE TODAY SUBSCRIPTION
+   TODAY DONATION
 ========================================================= */
 
-function updateTodaySubscription() {
+function calculateTodayDonation() {
 
-    const element =
-        document.getElementById(
-            "todaySubscription"
-        );
+    const today =
+        getDashboardTodayString();
 
 
-    if (!element) return;
+    return dashboardData.donations.reduce(
+
+        function(total, item) {
+
+            if (
+                getItemDate(item) === today
+            ) {
+
+                return (
+                    total +
+                    getDonationAmount(item)
+                );
+
+            }
 
 
-    element.innerText =
-        formatDashboardAmount(
-            calculateTodaySubscription()
+            return total;
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   TODAY INCOME
+========================================================= */
+
+function calculateTodayIncome() {
+
+    const today =
+        getDashboardTodayString();
+
+
+    return dashboardData.income.reduce(
+
+        function(total, item) {
+
+            if (
+                getItemDate(item) === today
+            ) {
+
+                return (
+                    total +
+                    getGenericAmount(item)
+                );
+
+            }
+
+
+            return total;
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   TODAY EXPENSE
+========================================================= */
+
+function calculateTodayExpense() {
+
+    const today =
+        getDashboardTodayString();
+
+
+    return dashboardData.expense.reduce(
+
+        function(total, item) {
+
+            if (
+                getItemDate(item) === today
+            ) {
+
+                return (
+                    total +
+                    getGenericAmount(item)
+                );
+
+            }
+
+
+            return total;
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =========================================================
+   TODAY SUMMARY
+========================================================= */
+
+function updateTodaySummary() {
+
+    const subscription =
+        calculateTodaySubscription();
+
+
+    const donation =
+        calculateTodayDonation();
+
+
+    const income =
+        calculateTodayIncome();
+
+
+    const expense =
+        calculateTodayExpense();
+
+
+    const balance =
+        subscription +
+        donation +
+        income -
+        expense;
+
+
+    const elements = {
+
+        todaySubscription:
+            subscription,
+
+        todayDonation:
+            donation,
+
+        todayIncome:
+            income,
+
+        todayExpense:
+            expense,
+
+        todayBalance:
+            balance
+
+    };
+
+
+    Object.keys(elements)
+        .forEach(
+
+            function(id) {
+
+                const element =
+                    document.getElementById(id);
+
+
+                if (element) {
+
+                    element.innerText =
+                        formatDashboardAmount(
+                            elements[id]
+                        );
+
+                }
+
+            }
+
         );
 
 }
 
 
 /* =========================================================
-   CURRENT FINANCIAL YEAR
+   FINANCIAL YEAR
 ========================================================= */
 
 function getCurrentFinancialYear() {
 
-    const today =
+    const date =
         new Date();
 
 
     const year =
-        today.getFullYear();
+        date.getFullYear();
 
 
     const month =
-        today.getMonth() + 1;
+        date.getMonth() + 1;
 
 
-    if (month >= 4) {
+    if (
+        month >= 4
+    ) {
 
         return (
             year +
@@ -624,7 +1259,7 @@ function getCurrentFinancialYear() {
 
 
 /* =========================================================
-   THIS YEAR SUBSCRIPTION
+   YEAR SUBSCRIPTION
 ========================================================= */
 
 function calculateYearSubscription() {
@@ -633,22 +1268,18 @@ function calculateYearSubscription() {
         getCurrentFinancialYear();
 
 
-    return dashboardSubscriptions.reduce(
-        function(
-            total,
-            item
-        ) {
+    return dashboardData.subscriptions.reduce(
+
+        function(total, item) {
 
             if (
-                item.year ===
-                currentFY
+                String(item.year) ===
+                String(currentFY)
             ) {
 
                 return (
                     total +
-                    Number(
-                        item.paidAmount || 0
-                    )
+                    getSubscriptionAmount(item)
                 );
 
             }
@@ -657,14 +1288,16 @@ function calculateYearSubscription() {
             return total;
 
         },
+
         0
+
     );
 
 }
 
 
 /* =========================================================
-   UPDATE YEAR SUBSCRIPTION
+   UPDATE YEAR
 ========================================================= */
 
 function updateYearSubscription() {
@@ -687,157 +1320,66 @@ function updateYearSubscription() {
 
 
 /* =========================================================
-   BALANCE
+   MEMBER STATUS
 ========================================================= */
 
-function calculateBalance() {
+function updateMemberStatus() {
 
-    const subscription =
-        calculateTotalSubscription();
+    let pendingCount = 0;
 
-
-    const donation =
-        calculateTotalDonation();
+    let paidCount = 0;
 
 
-    const income =
-        calculateTotalIncome();
+    dashboardData.members.forEach(
 
+        function(member) {
 
-    const expense =
-        calculateTotalExpense();
+            if (
+                getMemberPending(member) > 0
+            ) {
 
+                pendingCount++;
 
-    return (
-        subscription +
-        donation +
-        income -
-        expense
-    );
+            }
+            else {
 
-}
+                paidCount++;
 
-
-/* =========================================================
-   UPDATE BALANCE
-========================================================= */
-
-function updateBalance() {
-
-    const element =
-        document.getElementById(
-            "balanceAmount"
-        );
-
-
-    if (!element) return;
-
-
-    element.innerText =
-        formatDashboardAmount(
-            calculateBalance()
-        );
-
-}
-
-
-/* =========================================================
-   UPDATE COMPLETE DASHBOARD
-========================================================= */
-
-function updateDashboard() {
-
-    refreshDashboardData();
-
-
-    updateTotalMembers();
-
-    updateTotalSubscription();
-
-    updatePendingSubscription();
-
-    updateTotalDonation();
-
-    updateTodaySubscription();
-
-    updateYearSubscription();
-
-    updateTotalIncome();
-
-    updateTotalExpense();
-
-    updateBalance();
-
-}
-
-
-/* =========================================================
-   PAGE LOAD
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        updateDashboard();
-
-    }
-);
-
-
-/* =========================================================
-   AUTO REFRESH
-========================================================= */
-
-window.addEventListener(
-    "storage",
-    function(event) {
-
-        if (
-            event.key ===
-                "mgvm_members" ||
-
-            event.key ===
-                "mgvm_subscriptions" ||
-
-            event.key ===
-                "mgvm_donations" ||
-
-            event.key ===
-                "mgvm_income" ||
-
-            event.key ===
-                "mgvm_expense"
-        ) {
-
-            updateDashboard();
+            }
 
         }
 
+    );
+
+
+    const pending =
+        document.getElementById(
+            "pendingMembersCount"
+        );
+
+
+    const paid =
+        document.getElementById(
+            "paidMembersCount"
+        );
+
+
+    if (pending) {
+
+        pending.innerText =
+            pendingCount;
+
     }
-);
-
-/* =========================================================
-   script.js - Part 2
-   Member Search + Wadi Search
-   Pending Subscription + Recent Activity
-========================================================= */
 
 
-/* =========================================================
-   MEMBER SEARCH
-========================================================= */
+    if (paid) {
 
-const dashboardMemberSearch =
-    document.getElementById(
-        "memberSearch"
-    );
+        paid.innerText =
+            paidCount;
 
+    }
 
-const dashboardSearchResult =
-    document.getElementById(
-        "searchResult"
-    );
+}
 
 
 /* =========================================================
@@ -849,26 +1391,35 @@ function searchMember() {
     refreshDashboardData();
 
 
-    if (!dashboardMemberSearch) {
+    const input =
+        document.getElementById(
+            "memberSearch"
+        );
+
+
+    const result =
+        document.getElementById(
+            "searchResult"
+        );
+
+
+    if (
+        !input ||
+        !result
+    ) {
+
         return;
+
     }
 
 
     const keyword =
-        dashboardMemberSearch.value
+        input.value
             .trim()
             .toLowerCase();
 
 
-    if (
-        !dashboardSearchResult
-    ) {
-        return;
-    }
-
-
-    dashboardSearchResult.innerHTML =
-        "";
+    result.innerHTML = "";
 
 
     if (!keyword) {
@@ -878,49 +1429,48 @@ function searchMember() {
     }
 
 
-    const results =
-        dashboardMembers.filter(
+    const members =
+        dashboardData.members.filter(
+
             function(member) {
 
                 const name =
-                    String(
-                        member.name || ""
-                    ).toLowerCase();
+                    getMemberName(member)
+                        .toLowerCase();
 
 
                 const id =
                     String(
-                        member.id || ""
-                    ).toLowerCase();
+                        getMemberId(member)
+                    )
+                    .toLowerCase();
 
 
                 const mobile =
                     String(
-                        member.mobile || ""
-                    ).toLowerCase();
+                        getMemberMobile(member)
+                    )
+                    .toLowerCase();
 
 
                 return (
-                    name.includes(
-                        keyword
-                    ) ||
 
-                    id.includes(
-                        keyword
-                    ) ||
+                    name.includes(keyword) ||
 
-                    mobile.includes(
-                        keyword
-                    )
+                    id.includes(keyword) ||
+
+                    mobile.includes(keyword)
+
                 );
 
             }
+
         );
 
 
-    if (!results.length) {
+    if (!members.length) {
 
-        dashboardSearchResult.innerHTML = `
+        result.innerHTML = `
 
             <div class="card">
 
@@ -937,16 +1487,11 @@ function searchMember() {
     }
 
 
-    results
+    members
         .slice(0, 10)
         .forEach(
+
             function(member) {
-
-                const pending =
-                    getMemberDashboardPending(
-                        member.id
-                    );
-
 
                 const div =
                     document.createElement(
@@ -956,6 +1501,10 @@ function searchMember() {
 
                 div.className =
                     "member-search-result";
+
+
+                const pending =
+                    getMemberPending(member);
 
 
                 div.innerHTML = `
@@ -1001,45 +1550,55 @@ function searchMember() {
                     <div>
 
                         <strong>
+
                             ${escapeDashboardHTML(
-                                member.name
+                                getMemberName(member)
                             )}
+
                         </strong>
 
                         <br>
 
                         <small>
+
                             ID:
                             ${escapeDashboardHTML(
-                                member.id
+                                getMemberId(member)
                             )}
+
                         </small>
 
                         <br>
 
                         <small>
+
                             वाडी:
                             ${escapeDashboardHTML(
-                                member.wadi
+                                getMemberWadi(member)
                             )}
+
                         </small>
 
                         <br>
 
                         <small>
+
                             मोबाईल:
                             ${escapeDashboardHTML(
-                                member.mobile
+                                getMemberMobile(member)
                             )}
+
                         </small>
 
                         <br>
 
                         <strong>
+
                             बाकी:
                             ${formatDashboardAmount(
                                 pending
                             )}
+
                         </strong>
 
                     </div>
@@ -1047,179 +1606,11 @@ function searchMember() {
                 `;
 
 
-                dashboardSearchResult.appendChild(
-                    div
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeDashboardHTML(
-    value
-) {
-
-    return String(
-        value || ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-/* =========================================================
-   GET MEMBER PENDING
-========================================================= */
-
-function getMemberDashboardPending(
-    memberId
-) {
-
-    const member =
-        dashboardMembers.find(
-            function(item) {
-
-                return (
-                    String(
-                        item.id
-                    ) ===
-                    String(
-                        memberId
-                    )
-                );
-
-            }
-        );
-
-
-    if (
-        member &&
-        Number(
-            member.subscriptionPending
-        ) > 0
-    ) {
-
-        return Number(
-            member.subscriptionPending
-        );
-
-    }
-
-
-    const memberSubscriptions =
-        dashboardSubscriptions.filter(
-            function(item) {
-
-                return (
-                    String(
-                        item.memberId
-                    ) ===
-                    String(
-                        memberId
-                    )
-                );
-
-            }
-        );
-
-
-    const years = [];
-
-
-    memberSubscriptions.forEach(
-        function(item) {
-
-            if (
-                item.year &&
-                !years.includes(
-                    item.year
-                )
-            ) {
-
-                years.push(
-                    item.year
-                );
+                result.appendChild(div);
 
             }
 
-        }
-    );
-
-
-    let pending = 0;
-
-
-    years.forEach(
-        function(year) {
-
-            const paid =
-                memberSubscriptions
-                    .filter(
-                        function(item) {
-
-                            return (
-                                item.year ===
-                                year
-                            );
-
-                        }
-                    )
-                    .reduce(
-                        function(
-                            total,
-                            item
-                        ) {
-
-                            return (
-                                total +
-                                Number(
-                                    item.paidAmount ||
-                                    0
-                                )
-                            );
-
-                        },
-                        0
-                    );
-
-
-            pending +=
-                Math.max(
-                    0,
-                    DASHBOARD_ANNUAL_AMOUNT -
-                    paid
-                );
-
-        }
-    );
-
-
-    return pending;
+        );
 
 }
 
@@ -1228,30 +1619,26 @@ function getMemberDashboardPending(
    WADI FILTER
 ========================================================= */
 
-const dashboardWadiFilter =
-    document.getElementById(
-        "wadiFilter"
-    );
-
-
-const dashboardWadiMembers =
-    document.getElementById(
-        "wadiMembers"
-    );
-
-
-/* =========================================================
-   FILTER WADI
-========================================================= */
-
 function filterWadi() {
 
     refreshDashboardData();
 
 
+    const select =
+        document.getElementById(
+            "wadiFilter"
+        );
+
+
+    const container =
+        document.getElementById(
+            "wadiMembers"
+        );
+
+
     if (
-        !dashboardWadiFilter ||
-        !dashboardWadiMembers
+        !select ||
+        !container
     ) {
 
         return;
@@ -1259,42 +1646,43 @@ function filterWadi() {
     }
 
 
-    const selectedWadi =
-        dashboardWadiFilter.value;
+    const selected =
+        select.value;
 
 
-    dashboardWadiMembers.innerHTML =
-        "";
+    let members =
+        dashboardData.members;
 
 
-    let filteredMembers =
-        dashboardMembers;
+    if (selected) {
 
+        members =
+            members.filter(
 
-    if (selectedWadi) {
-
-        filteredMembers =
-            dashboardMembers.filter(
                 function(member) {
 
                     return (
+
                         String(
-                            member.wadi || ""
+                            getMemberWadi(member)
                         ) ===
-                        String(
-                            selectedWadi
-                        )
+                        String(selected)
+
                     );
 
                 }
+
             );
 
     }
 
 
-    if (!filteredMembers.length) {
+    container.innerHTML = "";
 
-        dashboardWadiMembers.innerHTML = `
+
+    if (!members.length) {
+
+        container.innerHTML = `
 
             <div class="card">
 
@@ -1347,7 +1735,6 @@ function filterWadi() {
 
         </thead>
 
-
         <tbody></tbody>
 
     `;
@@ -1359,14 +1746,9 @@ function filterWadi() {
         );
 
 
-    filteredMembers.forEach(
+    members.forEach(
+
         function(member) {
-
-            const pending =
-                getMemberDashboardPending(
-                    member.id
-                );
-
 
             const row =
                 document.createElement(
@@ -1378,71 +1760,208 @@ function filterWadi() {
 
                 <td>
                     ${escapeDashboardHTML(
-                        member.id
+                        getMemberId(member)
                     )}
                 </td>
 
                 <td>
                     ${escapeDashboardHTML(
-                        member.name
+                        getMemberName(member)
                     )}
                 </td>
 
                 <td>
                     ${escapeDashboardHTML(
-                        member.mobile
+                        getMemberMobile(member)
                     )}
                 </td>
 
                 <td>
-                    ${formatDashboardAmount(
-                        pending
-                    )}
+                    <strong>
+                        ${formatDashboardAmount(
+                            getMemberPending(member)
+                        )}
+                    </strong>
                 </td>
 
             `;
 
 
-            tbody.appendChild(
-                row
-            );
+            tbody.appendChild(row);
 
         }
+
     );
 
 
-    dashboardWadiMembers.appendChild(
-        table
-    );
+    container.appendChild(table);
 
 }
 
 
 /* =========================================================
-   PENDING SUBSCRIPTION TABLE
+   WADI STATISTICS
 ========================================================= */
 
-function displayDashboardPendingTable() {
+function displayWadiStatistics() {
 
-    const tableBody =
+    const container =
+        document.getElementById(
+            "wadiStatistics"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const statistics = {};
+
+
+    dashboardData.members.forEach(
+
+        function(member) {
+
+            const wadi =
+                getMemberWadi(member) ||
+                "वाडी उपलब्ध नाही";
+
+
+            if (
+                !statistics[wadi]
+            ) {
+
+                statistics[wadi] = {
+
+                    members:
+                        0,
+
+                    pending:
+                        0,
+
+                    paid:
+                        0
+
+                };
+
+            }
+
+
+            statistics[wadi].members++;
+
+
+            statistics[wadi].pending +=
+                getMemberPending(member);
+
+
+            statistics[wadi].paid +=
+                getMemberPaidAmount(
+                    getMemberId(member)
+                );
+
+        }
+
+    );
+
+
+    container.innerHTML = "";
+
+
+    Object.keys(statistics)
+        .sort()
+        .forEach(
+
+            function(wadi) {
+
+                const data =
+                    statistics[wadi];
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "stat-card";
+
+
+                card.innerHTML = `
+
+                    <h3>
+                        🏡
+                        ${escapeDashboardHTML(
+                            wadi
+                        )}
+                    </h3>
+
+                    <p>
+                        सभासद:
+                        <strong>
+                            ${data.members}
+                        </strong>
+                    </p>
+
+                    <p>
+                        जमा वर्गणी:
+                        <strong>
+                            ${formatDashboardAmount(
+                                data.paid
+                            )}
+                        </strong>
+                    </p>
+
+                    <p>
+                        बाकी:
+                        <strong>
+                            ${formatDashboardAmount(
+                                data.pending
+                            )}
+                        </strong>
+                    </p>
+
+                `;
+
+
+                container.appendChild(card);
+
+            }
+
+        );
+
+}
+
+
+/* =========================================================
+   PENDING TABLE
+========================================================= */
+
+function displayPendingTable() {
+
+    const tbody =
         document.getElementById(
             "pendingTable"
         );
 
 
-    if (!tableBody) return;
+    if (!tbody) {
+
+        return;
+
+    }
 
 
-    tableBody.innerHTML =
-        "";
-
-
-    refreshDashboardData();
+    tbody.innerHTML = "";
 
 
     const pendingMembers =
-        dashboardMembers
+        dashboardData.members
             .map(
+
                 function(member) {
 
                     return {
@@ -1451,15 +1970,15 @@ function displayDashboardPendingTable() {
                             member,
 
                         pending:
-                            getMemberDashboardPending(
-                                member.id
-                            )
+                            getMemberPending(member)
 
                     };
 
                 }
+
             )
             .filter(
+
                 function(item) {
 
                     return (
@@ -1467,8 +1986,10 @@ function displayDashboardPendingTable() {
                     );
 
                 }
+
             )
             .sort(
+
                 function(a, b) {
 
                     return (
@@ -1477,17 +1998,17 @@ function displayDashboardPendingTable() {
                     );
 
                 }
+
             );
 
 
     if (!pendingMembers.length) {
 
-        tableBody.innerHTML = `
+        tbody.innerHTML = `
 
             <tr>
 
-                <td
-                    colspan="3"
+                <td colspan="3"
                     align="center">
 
                     🎉 कोणतीही बाकी वर्गणी नाही.
@@ -1504,6 +2025,7 @@ function displayDashboardPendingTable() {
 
 
     pendingMembers.forEach(
+
         function(item) {
 
             const member =
@@ -1520,13 +2042,13 @@ function displayDashboardPendingTable() {
 
                 <td>
                     ${escapeDashboardHTML(
-                        member.name
+                        getMemberName(member)
                     )}
                 </td>
 
                 <td>
                     ${escapeDashboardHTML(
-                        member.wadi
+                        getMemberWadi(member)
                     )}
                 </td>
 
@@ -1545,11 +2067,10 @@ function displayDashboardPendingTable() {
             `;
 
 
-            tableBody.appendChild(
-                row
-            );
+            tbody.appendChild(row);
 
         }
+
     );
 
 }
@@ -1567,20 +2088,22 @@ function displayRecentActivity() {
         );
 
 
-    if (!container) return;
+    if (!container) {
 
+        return;
 
-    refreshDashboardData();
+    }
 
 
     const activities = [];
 
 
     /* -----------------------------
-       Subscription
+       SUBSCRIPTIONS
     ----------------------------- */
 
-    dashboardSubscriptions.forEach(
+    dashboardData.subscriptions.forEach(
+
         function(item) {
 
             activities.push({
@@ -1590,34 +2113,34 @@ function displayRecentActivity() {
 
                 title:
                     item.memberName ||
+                    item.name ||
                     "सभासद",
 
                 amount:
-                    Number(
-                        item.paidAmount ||
-                        0
-                    ),
+                    getSubscriptionAmount(item),
 
                 date:
-                    item.paymentDate ||
-                    "",
+                    getItemDate(item),
 
                 timestamp:
                     item.createdAt ||
                     item.paymentDate ||
+                    item.date ||
                     ""
 
             });
 
         }
+
     );
 
 
     /* -----------------------------
-       Donation
+       DONATIONS
     ----------------------------- */
 
-    dashboardDonations.forEach(
+    dashboardData.donations.forEach(
+
         function(item) {
 
             activities.push({
@@ -1626,19 +2149,16 @@ function displayRecentActivity() {
                     "देणगी",
 
                 title:
-                    item.name ||
                     item.donorName ||
+                    item.name ||
+                    item.donationName ||
                     "देणगीदार",
 
                 amount:
-                    Number(
-                        item.amount ||
-                        0
-                    ),
+                    getDonationAmount(item),
 
                 date:
-                    item.date ||
-                    "",
+                    getItemDate(item),
 
                 timestamp:
                     item.createdAt ||
@@ -1648,14 +2168,16 @@ function displayRecentActivity() {
             });
 
         }
+
     );
 
 
     /* -----------------------------
-       Income
+       INCOME
     ----------------------------- */
 
-    dashboardIncome.forEach(
+    dashboardData.income.forEach(
+
         function(item) {
 
             activities.push({
@@ -1665,18 +2187,16 @@ function displayRecentActivity() {
 
                 title:
                     item.title ||
+                    item.incomeHead ||
+                    item.category ||
                     item.description ||
                     "उत्पन्न",
 
                 amount:
-                    Number(
-                        item.amount ||
-                        0
-                    ),
+                    getGenericAmount(item),
 
                 date:
-                    item.date ||
-                    "",
+                    getItemDate(item),
 
                 timestamp:
                     item.createdAt ||
@@ -1686,14 +2206,16 @@ function displayRecentActivity() {
             });
 
         }
+
     );
 
 
     /* -----------------------------
-       Expense
+       EXPENSE
     ----------------------------- */
 
-    dashboardExpense.forEach(
+    dashboardData.expense.forEach(
+
         function(item) {
 
             activities.push({
@@ -1703,18 +2225,16 @@ function displayRecentActivity() {
 
                 title:
                     item.title ||
+                    item.expenseHead ||
+                    item.category ||
                     item.description ||
                     "खर्च",
 
                 amount:
-                    Number(
-                        item.amount ||
-                        0
-                    ),
+                    getGenericAmount(item),
 
                 date:
-                    item.date ||
-                    "",
+                    getItemDate(item),
 
                 timestamp:
                     item.createdAt ||
@@ -1724,14 +2244,12 @@ function displayRecentActivity() {
             });
 
         }
+
     );
 
-
-    /* -----------------------------
-       Sort Latest First
-    ----------------------------- */
 
     activities.sort(
+
         function(a, b) {
 
             return (
@@ -1744,6 +2262,7 @@ function displayRecentActivity() {
             );
 
         }
+
     );
 
 
@@ -1752,6 +2271,9 @@ function displayRecentActivity() {
             0,
             10
         );
+
+
+    container.innerHTML = "";
 
 
     if (!latest.length) {
@@ -1769,11 +2291,8 @@ function displayRecentActivity() {
     }
 
 
-    container.innerHTML =
-        "";
-
-
     latest.forEach(
+
         function(activity) {
 
             const div =
@@ -1786,7 +2305,8 @@ function displayRecentActivity() {
                 "activity-item";
 
 
-            let icon = "📝";
+            let icon =
+                "📝";
 
 
             if (
@@ -1794,7 +2314,8 @@ function displayRecentActivity() {
                 "वर्गणी"
             ) {
 
-                icon = "💰";
+                icon =
+                    "💰";
 
             }
             else if (
@@ -1802,7 +2323,8 @@ function displayRecentActivity() {
                 "देणगी"
             ) {
 
-                icon = "❤️";
+                icon =
+                    "❤️";
 
             }
             else if (
@@ -1810,7 +2332,8 @@ function displayRecentActivity() {
                 "उत्पन्न"
             ) {
 
-                icon = "📈";
+                icon =
+                    "📈";
 
             }
             else if (
@@ -1818,7 +2341,8 @@ function displayRecentActivity() {
                 "खर्च"
             ) {
 
-                icon = "📉";
+                icon =
+                    "📉";
 
             }
 
@@ -1874,141 +2398,26 @@ function displayRecentActivity() {
             `;
 
 
-            container.appendChild(
-                div
-            );
+            container.appendChild(div);
 
         }
+
     );
 
 }
 
 
 /* =========================================================
-   INITIAL DASHBOARD LOAD
+   RECENT MEETINGS
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        displayDash
-/* =========================================================
-   script.js - Part 3
-   Wadi Statistics + Today's Activity + Dashboard Helpers
-========================================================= */
-
-
-/* =========================================================
-   WADI-WISE STATISTICS
-========================================================= */
-
-function calculateWadiStatistics() {
-
-    refreshDashboardData();
-
-
-    const statistics = {};
-
-
-    dashboardMembers.forEach(
-        function(member) {
-
-            const wadiName =
-                member.wadi ||
-                "वाडी उपलब्ध नाही";
-
-
-            if (
-                !statistics[wadiName]
-            ) {
-
-                statistics[wadiName] = {
-
-                    members: 0,
-
-                    pending: 0,
-
-                    paid: 0
-
-                };
-
-            }
-
-
-            statistics[wadiName].members++;
-
-
-            statistics[wadiName].pending +=
-                getMemberDashboardPending(
-                    member.id
-                );
-
-
-            const paid =
-                dashboardSubscriptions
-                    .filter(
-                        function(item) {
-
-                            return (
-                                String(
-                                    item.memberId
-                                ) ===
-                                String(
-                                    member.id
-                                )
-                            );
-
-                        }
-                    )
-                    .reduce(
-                        function(
-                            total,
-                            item
-                        ) {
-
-                            return (
-                                total +
-                                Number(
-                                    item.paidAmount ||
-                                    0
-                                )
-                            );
-
-                        },
-                        0
-                    );
-
-
-            statistics[wadiName].paid +=
-                paid;
-
-        }
-    );
-
-
-    return statistics;
-
-}
-
-
-/* =========================================================
-   SHOW WADI STATISTICS
-========================================================= */
-
-function displayWadiStatistics() {
+function displayRecentMeetings() {
 
     const container =
         document.getElementById(
-            "wadiStatistics"
+            "recentMeetings"
         );
 
-
-    /*
-       जर index.html मध्ये
-       wadiStatistics नसतील तर
-       function काही करणार नाही.
-    */
 
     if (!container) {
 
@@ -2017,26 +2426,44 @@ function displayWadiStatistics() {
     }
 
 
-    const statistics =
-        calculateWadiStatistics();
+    const meetings =
+        [...dashboardData.meetings];
 
 
-    container.innerHTML =
-        "";
+    meetings.sort(
+
+        function(a, b) {
+
+            return (
+                new Date(
+                    getItemDate(b)
+                ) -
+                new Date(
+                    getItemDate(a)
+                )
+            );
+
+        }
+
+    );
 
 
-    const wadiNames =
-        Object.keys(
-            statistics
+    const latest =
+        meetings.slice(
+            0,
+            5
         );
 
 
-    if (!wadiNames.length) {
+    container.innerHTML = "";
+
+
+    if (!latest.length) {
 
         container.innerHTML = `
 
             <p>
-                अद्याप वाडी नुसार डेटा उपलब्ध नाही.
+                अद्याप कोणतीही सभा नोंद उपलब्ध नाही.
             </p>
 
         `;
@@ -2046,548 +2473,86 @@ function displayWadiStatistics() {
     }
 
 
-    wadiNames.sort();
+    latest.forEach(
 
+        function(meeting) {
 
-    wadiNames.forEach(
-        function(wadiName) {
-
-            const data =
-                statistics[wadiName];
-
-
-            const card =
+            const div =
                 document.createElement(
                     "div"
                 );
 
 
-            card.className =
-                "stat-card";
+            div.className =
+                "activity-item";
 
 
-            card.innerHTML = `
+            const meetingName =
 
-                <h3>
-                    🏡
-                    ${escapeDashboardHTML(
-                        wadiName
-                    )}
-                </h3>
+                meeting.name ||
+
+                meeting.meetingName ||
+
+                meeting.title ||
+
+                "सभा";
 
 
-                <p>
-                    सभासद:
+            const meetingDate =
+                getItemDate(meeting);
+
+
+            const place =
+
+                meeting.place ||
+
+                meeting.location ||
+
+                meeting.venue ||
+
+                "";
+
+
+            div.innerHTML = `
+
+                <div>
+
                     <strong>
-                        ${data.members}
-                    </strong>
-                </p>
-
-
-                <p>
-                    जमा वर्गणी:
-                    <strong>
-                        ${formatDashboardAmount(
-                            data.paid
+                        🤝
+                        ${escapeDashboardHTML(
+                            meetingName
                         )}
                     </strong>
-                </p>
+
+                    <br>
+
+                    <small>
+                        ${escapeDashboardHTML(
+                            place
+                        )}
+                    </small>
+
+                </div>
 
 
-                <p>
-                    बाकी:
+                <div>
+
                     <strong>
-                        ${formatDashboardAmount(
-                            data.pending
+                        ${escapeDashboardHTML(
+                            meetingDate
                         )}
                     </strong>
-                </p>
+
+                </div>
 
             `;
 
 
-            container.appendChild(
-                card
-            );
+            container.appendChild(div);
 
         }
+
     );
-
-}
-
-
-/* =========================================================
-   TODAY DATE
-========================================================= */
-
-function getDashboardTodayString() {
-
-    const today =
-        new Date();
-
-
-    const yyyy =
-        today.getFullYear();
-
-
-    const mm =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const dd =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return (
-        yyyy +
-        "-" +
-        mm +
-        "-" +
-        dd
-    );
-
-}
-
-
-/* =========================================================
-   TODAY'S TOTAL COLLECTION
-========================================================= */
-
-function calculateTodayCollection() {
-
-    refreshDashboardData();
-
-
-    const today =
-        getDashboardTodayString();
-
-
-    let total = 0;
-
-
-    dashboardSubscriptions.forEach(
-        function(item) {
-
-            if (
-                item.paymentDate ===
-                today
-            ) {
-
-                total +=
-                    Number(
-                        item.paidAmount ||
-                        0
-                    );
-
-            }
-
-        }
-    );
-
-
-    dashboardDonations.forEach(
-        function(item) {
-
-            if (
-                item.date ===
-                today
-            ) {
-
-                total +=
-                    Number(
-                        item.amount ||
-                        0
-                    );
-
-            }
-
-        }
-    );
-
-
-    dashboardIncome.forEach(
-        function(item) {
-
-            if (
-                item.date ===
-                today
-            ) {
-
-                total +=
-                    Number(
-                        item.amount ||
-                        0
-                    );
-
-            }
-
-        }
-    );
-
-
-    return total;
-
-}
-
-
-/* =========================================================
-   TODAY'S EXPENSE
-========================================================= */
-
-function calculateTodayExpense() {
-
-    refreshDashboardData();
-
-
-    const today =
-        getDashboardTodayString();
-
-
-    return dashboardExpense.reduce(
-        function(
-            total,
-            item
-        ) {
-
-            if (
-                item.date ===
-                today
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        item.amount ||
-                        0
-                    )
-                );
-
-            }
-
-
-            return total;
-
-        },
-        0
-    );
-
-}
-
-
-/* =========================================================
-   TODAY'S BALANCE
-========================================================= */
-
-function calculateTodayBalance() {
-
-    return (
-        calculateTodayCollection() -
-        calculateTodayExpense()
-    );
-
-}
-
-
-/* =========================================================
-   SHOW TODAY SUMMARY
-========================================================= */
-
-function displayTodaySummary() {
-
-    const collectionElement =
-        document.getElementById(
-            "todayCollection"
-        );
-
-
-    const expenseElement =
-        document.getElementById(
-            "todayExpense"
-        );
-
-
-    const balanceElement =
-        document.getElementById(
-            "todayBalance"
-        );
-
-
-    if (
-        collectionElement
-    ) {
-
-        collectionElement.innerText =
-            formatDashboardAmount(
-                calculateTodayCollection()
-            );
-
-    }
-
-
-    if (
-        expenseElement
-    ) {
-
-        expenseElement.innerText =
-            formatDashboardAmount(
-                calculateTodayExpense()
-            );
-
-    }
-
-
-    if (
-        balanceElement
-    ) {
-
-        balanceElement.innerText =
-            formatDashboardAmount(
-                calculateTodayBalance()
-            );
-
-    }
-
-}
-
-
-/* =========================================================
-   MEMBER COUNT BY WADI
-========================================================= */
-
-function getMemberCountByWadi(
-    wadiName
-) {
-
-    refreshDashboardData();
-
-
-    return dashboardMembers.filter(
-        function(member) {
-
-            return (
-                String(
-                    member.wadi || ""
-                ) ===
-                String(
-                    wadiName || ""
-                )
-            );
-
-        }
-    ).length;
-
-}
-
-
-/* =========================================================
-   TOTAL PENDING MEMBER COUNT
-========================================================= */
-
-function getPendingMemberCount() {
-
-    refreshDashboardData();
-
-
-    return dashboardMembers.filter(
-        function(member) {
-
-            return (
-                getMemberDashboardPending(
-                    member.id
-                ) > 0
-            );
-
-        }
-    ).length;
-
-}
-
-
-/* =========================================================
-   TOTAL PAID MEMBER COUNT
-========================================================= */
-
-function getPaidMemberCount() {
-
-    refreshDashboardData();
-
-
-    return dashboardMembers.filter(
-        function(member) {
-
-            return (
-                getMemberDashboardPending(
-                    member.id
-                ) <= 0
-            );
-
-        }
-    ).length;
-
-}
-
-
-/* =========================================================
-   DASHBOARD EXTRA COUNTERS
-========================================================= */
-
-function updateExtraDashboardCounters() {
-
-    const pendingMembers =
-        document.getElementById(
-            "pendingMembersCount"
-        );
-
-
-    const paidMembers =
-        document.getElementById(
-            "paidMembersCount"
-        );
-
-
-    if (
-        pendingMembers
-    ) {
-
-        pendingMembers.innerText =
-            getPendingMemberCount();
-
-    }
-
-
-    if (
-        paidMembers
-    ) {
-
-        paidMembers.innerText =
-            getPaidMemberCount();
-
-    }
-
-}
-
-
-/* =========================================================
-   EXPORT DASHBOARD DATA
-========================================================= */
-
-function getDashboardBackupData() {
-
-    refreshDashboardData();
-
-
-    return {
-
-        exportedAt:
-            new Date().toISOString(),
-
-        members:
-            dashboardMembers,
-
-        subscriptions:
-            dashboardSubscriptions,
-
-        donations:
-            dashboardDonations,
-
-        income:
-            dashboardIncome,
-
-        expense:
-            dashboardExpense
-
-    };
-
-}
-
-
-/* =========================================================
-   DOWNLOAD BACKUP
-========================================================= */
-
-function downloadDashboardBackup() {
-
-    const data =
-        getDashboardBackupData();
-
-
-    const json =
-        JSON.stringify(
-            data,
-            null,
-            2
-        );
-
-
-    const blob =
-        new Blob(
-            [json],
-            {
-                type:
-                    "application/json"
-            }
-        );
-
-
-    const url =
-        URL.createObjectURL(
-            blob
-        );
-
-
-    const link =
-        document.createElement(
-            "a"
-        );
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        "MGVM_Backup_" +
-        getDashboardTodayString() +
-        ".json";
-
-
-    document.body.appendChild(
-        link
-    );
-
-
-    link.click();
-
-
-    document.body.removeChild(
-        link
-    );
-
-
-    URL.revokeObjectURL(
-        url
-    );
-
-}
-
-
-/* =========================================================
-   PRINT DASHBOARD
-========================================================= */
-
-function printDashboard() {
-
-    window.print();
 
 }
 
@@ -2611,14 +2576,17 @@ function displayDashboardDate() {
     }
 
 
-    const today =
+    const date =
         new Date();
 
 
     element.innerText =
-        today.toLocaleDateString(
+        date.toLocaleDateString(
+
             "mr-IN",
+
             {
+
                 day:
                     "2-digit",
 
@@ -2627,14 +2595,16 @@ function displayDashboardDate() {
 
                 year:
                     "numeric"
+
             }
+
         );
 
 }
 
 
 /* =========================================================
-   FINAL DASHBOARD REFRESH
+   COMPLETE DASHBOARD
 ========================================================= */
 
 function refreshDashboardEverything() {
@@ -2642,25 +2612,34 @@ function refreshDashboardEverything() {
     refreshDashboardData();
 
 
-    updateDashboard();
+    updateMainCards();
 
 
-    displayDashboardPendingTable();
+    updatePendingCard();
+
+
+    updateTodaySummary();
+
+
+    updateYearSubscription();
+
+
+    updateMemberStatus();
+
+
+    displayPendingTable();
 
 
     displayRecentActivity();
 
 
-    filterWadi();
+    displayRecentMeetings();
 
 
     displayWadiStatistics();
 
 
-    displayTodaySummary();
-
-
-    updateExtraDashboardCounters();
+    filterWadi();
 
 
     displayDashboardDate();
@@ -2669,25 +2648,62 @@ function refreshDashboardEverything() {
 
 
 /* =========================================================
-   PAGE READY
+   MEMBER SEARCH EVENT
 ========================================================= */
 
 document.addEventListener(
+
     "DOMContentLoaded",
+
     function() {
+
+        const search =
+            document.getElementById(
+                "memberSearch"
+            );
+
+
+        if (search) {
+
+            search.addEventListener(
+                "input",
+                searchMember
+            );
+
+        }
+
+
+        const wadi =
+            document.getElementById(
+                "wadiFilter"
+            );
+
+
+        if (wadi) {
+
+            wadi.addEventListener(
+                "change",
+                filterWadi
+            );
+
+        }
+
 
         refreshDashboardEverything();
 
     }
+
 );
 
 
 /* =========================================================
-   STORAGE CHANGE
+   AUTO REFRESH
 ========================================================= */
 
 window.addEventListener(
+
     "storage",
+
     function(event) {
 
         const validKeys = [
@@ -2700,7 +2716,9 @@ window.addEventListener(
 
             "mgvm_income",
 
-            "mgvm_expense"
+            "mgvm_expense",
+
+            "mgvm_meetings"
 
         ];
 
@@ -2716,4 +2734,24 @@ window.addEventListener(
         }
 
     }
+
+);
+
+
+/* =========================================================
+   PERIODIC REFRESH
+   Same browser मध्ये दुसऱ्या page वरून data save
+   झाल्यास dashboard refresh करण्यासाठी.
+========================================================= */
+
+setInterval(
+
+    function() {
+
+        refreshDashboardEverything();
+
+    },
+
+    5000
+
 );
