@@ -3,15 +3,18 @@
    CORRECTED FINAL VERSION
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
-   IMPORTANT FIX:
-   ✅ Member Search logic सुरक्षित ठेवली आहे
-   ✅ Excel मधील subscriptionPending consider होईल
-   ✅ Excel मध्ये ₹1500 बाकी असेल तर Subscription मध्ये ₹1500
-   ✅ ₹200 payment केल्यावर बाकी ₹1300
-   ✅ Partial Payment supported
-   ✅ Delete केल्यावर बाकी पुन्हा योग्य होईल
-   ✅ Existing subscription transactions सुरक्षित
-   ========================================================= */
+   LOGIC:
+   ✅ mgvm_members compatible
+   ✅ Excel imported subscriptionPending supported
+   ✅ Old pending preserved
+   ✅ New financial year ₹200 supported
+   ✅ Partial payment supported
+   ✅ Payment reduces member pending
+   ✅ Delete payment restores member pending
+   ✅ Existing transactions preserved
+   ✅ Member search सुरक्षित
+   ✅ Wadi Report compatible
+========================================================= */
 
 
 /* =========================================================
@@ -27,6 +30,14 @@ let selectedMember = null;
 const DEFAULT_ANNUAL_AMOUNT = 200;
 
 
+/*
+   प्रत्येक member साठी कोणत्या financial year ची
+   annual liability system ने add केली आहे हे track करण्यासाठी.
+   
+   हे field member मध्ये internally save होईल.
+*/
+
+
 /* =========================================================
    2. LOAD LOCAL STORAGE
 ========================================================= */
@@ -35,12 +46,20 @@ function loadSubscriptionData() {
 
     try {
 
+        const storedMembers =
+            localStorage.getItem(
+                "mgvm_members"
+            );
+
+        const parsedMembers =
+            storedMembers
+                ? JSON.parse(storedMembers)
+                : [];
+
         members =
-            JSON.parse(
-                localStorage.getItem(
-                    "mgvm_members"
-                )
-            ) || [];
+            Array.isArray(parsedMembers)
+                ? parsedMembers
+                : [];
 
     }
     catch (error) {
@@ -57,12 +76,24 @@ function loadSubscriptionData() {
 
     try {
 
-        subscriptions =
-            JSON.parse(
-                localStorage.getItem(
-                    "mgvm_subscriptions"
+        const storedSubscriptions =
+            localStorage.getItem(
+                "mgvm_subscriptions"
+            );
+
+        const parsedSubscriptions =
+            storedSubscriptions
+                ? JSON.parse(
+                    storedSubscriptions
                 )
-            ) || [];
+                : [];
+
+        subscriptions =
+            Array.isArray(
+                parsedSubscriptions
+            )
+                ? parsedSubscriptions
+                : [];
 
     }
     catch (error) {
@@ -85,12 +116,32 @@ function loadSubscriptionData() {
 
 function saveMembers() {
 
-    localStorage.setItem(
-        "mgvm_members",
-        JSON.stringify(
-            members
-        )
-    );
+    try {
+
+        localStorage.setItem(
+            "mgvm_members",
+            JSON.stringify(
+                members
+            )
+        );
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Save Members Error:",
+            error
+        );
+
+        alert(
+            "सभासद data save करताना समस्या आली."
+        );
+
+        return false;
+
+    }
 
 }
 
@@ -101,12 +152,32 @@ function saveMembers() {
 
 function saveSubscriptions() {
 
-    localStorage.setItem(
-        "mgvm_subscriptions",
-        JSON.stringify(
-            subscriptions
-        )
-    );
+    try {
+
+        localStorage.setItem(
+            "mgvm_subscriptions",
+            JSON.stringify(
+                subscriptions
+            )
+        );
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Save Subscriptions Error:",
+            error
+        );
+
+        alert(
+            "वर्गणी data save करताना समस्या आली."
+        );
+
+        return false;
+
+    }
 
 }
 
@@ -267,7 +338,7 @@ function loadSubscriptionYears() {
 
 
 /* =========================================================
-   9. LOAD TRANSACTION YEAR FILTER
+   9. LOAD TRANSACTION YEARS
 ========================================================= */
 
 function loadTransactionYears() {
@@ -480,17 +551,37 @@ function escapeSubscriptionJS(
 
 
 /* =========================================================
-   14. MEMBER SEARCH
-   IMPORTANT:
-   Existing search logic preserved.
+   14. GET MEMBER BY ID
+========================================================= */
+
+function findMemberById(id) {
+
+    return (
+        members.find(
+            function(member) {
+
+                return (
+                    String(
+                        member.id
+                    ) ===
+                    String(
+                        id
+                    )
+                );
+
+            }
+        ) ||
+        null
+    );
+
+}
+
+
+/* =========================================================
+   15. MEMBER SEARCH
 ========================================================= */
 
 function searchSubscriptionMembers() {
-
-    /*
-       नवीन member data मिळण्यासाठी
-       latest LocalStorage data load करतो.
-    */
 
     loadSubscriptionData();
 
@@ -700,7 +791,7 @@ function searchSubscriptionMembers() {
 
 
 /* =========================================================
-   15. SEARCH EVENT
+   16. SEARCH EVENT
 ========================================================= */
 
 if (
@@ -716,32 +807,19 @@ if (
 
 
 /* =========================================================
-   16. SELECT MEMBER
+   17. SELECT MEMBER
 ========================================================= */
 
 function selectSubscriptionMember(
     member
 ) {
 
-    /*
-       LocalStorage मधून latest member object
-       घेण्याचा प्रयत्न.
-    */
+    loadSubscriptionData();
+
 
     const latestMember =
-        members.find(
-            function(item) {
-
-                return (
-                    String(
-                        item.id
-                    ) ===
-                    String(
-                        member.id
-                    )
-                );
-
-            }
+        findMemberById(
+            member.id
         );
 
 
@@ -793,6 +871,8 @@ function selectSubscriptionMember(
     }
 
 
+    updateSubscriptionYearStatus();
+
     updateMemberSubscriptionSummary();
 
     updatePendingAmount();
@@ -801,39 +881,7 @@ function selectSubscriptionMember(
 
 
 /* =========================================================
-   17. FIND MEMBER
-========================================================= */
-
-function findMemberById(
-    id
-) {
-
-    loadSubscriptionData();
-
-
-    return (
-        members.find(
-            function(member) {
-
-                return (
-                    String(
-                        member.id
-                    ) ===
-                    String(
-                        id
-                    )
-                );
-
-            }
-        ) ||
-        null
-    );
-
-}
-
-
-/* =========================================================
-   18. GET EXCEL / MEMBER IMPORTED PENDING
+   18. GET MEMBER IMPORTED PENDING
 ========================================================= */
 
 function getImportedMemberPending(
@@ -871,44 +919,27 @@ function getImportedMemberPending(
 
 
 /* =========================================================
-   19. GET TOTAL PAID TRANSACTIONS
+   19. GET MEMBER PAYMENTS
 ========================================================= */
 
-function getMemberTotalPaid(
+function getMemberPayments(
     memberId
 ) {
 
-    return subscriptions
-        .filter(
-            function(item) {
+    return subscriptions.filter(
+        function(item) {
 
-                return (
-                    String(
-                        item.memberId
-                    ) ===
-                    String(
-                        memberId
-                    )
-                );
+            return (
+                String(
+                    item.memberId
+                ) ===
+                String(
+                    memberId
+                )
+            );
 
-            }
-        )
-        .reduce(
-            function(
-                total,
-                item
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        item.paidAmount || 0
-                    )
-                );
-
-            },
-            0
-        );
+        }
+    );
 
 }
 
@@ -922,52 +953,152 @@ function getMemberYearPayment(
     year
 ) {
 
-    return subscriptions
-        .filter(
-            function(item) {
+    return getMemberPayments(
+        memberId
+    )
+    .filter(
+        function(item) {
 
-                return (
+            return (
+                item.year ===
+                year
+            );
 
-                    String(
-                        item.memberId
-                    ) ===
-                    String(
-                        memberId
-                    ) &&
+        }
+    )
+    .reduce(
+        function(
+            total,
+            item
+        ) {
 
-                    item.year ===
-                    year
+            return (
+                total +
+                Number(
+                    item.paidAmount || 0
+                )
+            );
 
-                );
+        },
+        0
+    );
 
-            }
-        )
-        .reduce(
-            function(
-                total,
-                item
-            ) {
-
-                return (
-                    total +
-                    Number(
-                        item.paidAmount || 0
-                    )
-                );
-
-            },
-            0
-        );
-
- }
+}
 
 
 /* =========================================================
-   21. GET CURRENT MEMBER PENDING
-   MAIN FIX
+   21. CHECK YEAR PAYMENT
 ========================================================= */
 
-function getCurrentMemberPending() {
+function hasMemberYearPayment(
+    memberId,
+    year
+) {
+
+    return (
+        getMemberYearPayment(
+            memberId,
+            year
+        ) > 0
+    );
+
+}
+
+
+/* =========================================================
+   22. YEAR LIABILITY STATUS
+========================================================= */
+
+function updateSubscriptionYearStatus() {
+
+    if (
+        !selectedMember ||
+        !subscriptionYear
+    ) {
+
+        return;
+
+    }
+
+
+    const year =
+        subscriptionYear.value;
+
+
+    if (!year) {
+
+        return;
+
+    }
+
+
+    const alreadyPaid =
+        hasMemberYearPayment(
+            selectedMember.id,
+            year
+        );
+
+
+    /*
+       Existing year payment असेल तर
+       पुन्हा automatic ₹200 add करू नये.
+    */
+
+    const info =
+        document.getElementById(
+            "subscriptionYearStatus"
+        );
+
+
+    if (!info) {
+
+        return;
+
+    }
+
+
+    if (alreadyPaid) {
+
+        info.innerHTML = `
+
+            <span style="color:green;">
+
+                ✅ ${escapeSubscriptionHTML(
+                    year
+                )}
+                या वर्षासाठी payment नोंद उपलब्ध आहे.
+
+            </span>
+
+        `;
+
+    }
+    else {
+
+        info.innerHTML = `
+
+            <span>
+
+                ℹ️ ${escapeSubscriptionHTML(
+                    year
+                )}
+                या वर्षाची वार्षिक वर्गणी:
+                ₹${DEFAULT_ANNUAL_AMOUNT}
+
+            </span>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   23. CALCULATE CURRENT PENDING
+========================================================= */
+
+function calculateCurrentPending() {
 
     if (!selectedMember) {
 
@@ -976,9 +1107,31 @@ function getCurrentMemberPending() {
     }
 
 
+    loadSubscriptionData();
+
+
+    const latestMember =
+        findMemberById(
+            selectedMember.id
+        );
+
+
+    if (latestMember) {
+
+        selectedMember =
+            latestMember;
+
+    }
+
+
     /*
-       selectedMember मध्ये Excel import केलेली
-       subscriptionPending value घेतली जाते.
+       IMPORTANT:
+
+       subscriptionPending मध्ये already
+       current outstanding balance आहे.
+
+       त्यामुळे payment करण्यापूर्वी
+       हाच amount base म्हणून वापरायचा.
     */
 
     const pending =
@@ -996,65 +1149,7 @@ function getCurrentMemberPending() {
 
 
 /* =========================================================
-   22. CALCULATE PAYMENT PENDING
-========================================================= */
-
-function calculatePendingAmount() {
-
-    if (!selectedMember) {
-
-        return 0;
-
-    }
-
-
-    /*
-       IMPORTANT:
-       Excel मधील बाकी रक्कम वापरली जाते.
-
-       उदाहरण:
-       Excel pending = 1500
-       Paid Now = 200
-
-       Result = 1300
-    */
-
-    const currentPending =
-        getCurrentMemberPending();
-
-
-    const paidNow =
-        Number(
-            paidAmount
-            ?
-            paidAmount.value
-            :
-            0
-        );
-
-
-    if (
-        !Number.isFinite(
-            paidNow
-        )
-    ) {
-
-        return currentPending;
-
-    }
-
-
-    return Math.max(
-        0,
-        currentPending -
-        paidNow
-    );
-
-}
-
-
-/* =========================================================
-   23. UPDATE PENDING
+   24. UPDATE PENDING DISPLAY
 ========================================================= */
 
 function updatePendingAmount() {
@@ -1066,14 +1161,47 @@ function updatePendingAmount() {
     }
 
 
+    const currentPending =
+        calculateCurrentPending();
+
+
+    const amount =
+        Number(
+            paidAmount
+            ?
+            paidAmount.value
+            :
+            0
+        );
+
+
+    if (
+        !Number.isFinite(
+            amount
+        ) ||
+        amount <= 0
+    ) {
+
+        pendingAmount.value =
+            currentPending;
+
+        return;
+
+    }
+
+
     pendingAmount.value =
-        calculatePendingAmount();
+        Math.max(
+            0,
+            currentPending -
+            amount
+        );
 
 }
 
 
 /* =========================================================
-   24. MEMBER SUBSCRIPTION SUMMARY
+   25. MEMBER SUMMARY
 ========================================================= */
 
 function updateMemberSubscriptionSummary() {
@@ -1098,27 +1226,16 @@ function updateMemberSubscriptionSummary() {
     }
 
 
+    const currentPending =
+        calculateCurrentPending();
+
+
     const year =
         subscriptionYear
         ?
         subscriptionYear.value
         :
         "";
-
-
-    const importedPending =
-        getCurrentMemberPending();
-
-
-    const yearPaid =
-        year
-        ?
-        getMemberYearPayment(
-            selectedMember.id,
-            year
-        )
-        :
-        0;
 
 
     if (!year) {
@@ -1134,10 +1251,9 @@ function updateMemberSubscriptionSummary() {
                 </strong>
 
                 <div>
-                    Excel/Member मध्ये नोंद असलेली
-                    एकूण बाकी:
+                    सध्याची एकूण बाकी:
                     <strong>
-                        ₹${importedPending}
+                        ₹${currentPending}
                     </strong>
                 </div>
 
@@ -1150,10 +1266,10 @@ function updateMemberSubscriptionSummary() {
     }
 
 
-    const paymentPending =
-        Math.max(
-            0,
-            importedPending
+    const yearPaid =
+        getMemberYearPayment(
+            selectedMember.id,
+            year
         );
 
 
@@ -1185,9 +1301,9 @@ function updateMemberSubscriptionSummary() {
             </div>
 
             <div>
+                सध्याची एकूण बाकी:
                 <strong>
-                    एकूण बाकी:
-                    ₹${paymentPending}
+                    ₹${currentPending}
                 </strong>
             </div>
 
@@ -1199,7 +1315,7 @@ function updateMemberSubscriptionSummary() {
 
 
 /* =========================================================
-   25. YEAR CHANGE
+   26. YEAR CHANGE
 ========================================================= */
 
 if (
@@ -1210,9 +1326,11 @@ if (
         "change",
         function() {
 
-            updatePendingAmount();
+            updateSubscriptionYearStatus();
 
             updateMemberSubscriptionSummary();
+
+            updatePendingAmount();
 
         }
     );
@@ -1221,7 +1339,7 @@ if (
 
 
 /* =========================================================
-   26. PAID AMOUNT CHANGE
+   27. PAYMENT INPUT CHANGE
 ========================================================= */
 
 if (
@@ -1241,7 +1359,7 @@ if (
 
 
 /* =========================================================
-   27. GENERATE RECEIPT NUMBER
+   28. GENERATE RECEIPT NUMBER
 ========================================================= */
 
 function generateReceiptNumber() {
@@ -1252,42 +1370,39 @@ function generateReceiptNumber() {
     subscriptions.forEach(
         function(item) {
 
-            if (
-                !item.receiptNo
-            ) {
+            const receipt =
+                String(
+                    item.receiptNo || ""
+                );
+
+
+            const match =
+                receipt.match(
+                    /MGVM-REC-(\d+)/i
+                );
+
+
+            if (!match) {
 
                 return;
 
             }
 
 
-            const match =
-                String(
-                    item.receiptNo
-                )
-                .match(
-                    /MGVM-REC-(\d+)/i
+            const number =
+                parseInt(
+                    match[1],
+                    10
                 );
 
 
-            if (match) {
+            if (
+                number >
+                maxNumber
+            ) {
 
-                const number =
-                    parseInt(
-                        match[1],
-                        10
-                    );
-
-
-                if (
-                    number >
-                    maxNumber
-                ) {
-
-                    maxNumber =
-                        number;
-
-                }
+                maxNumber =
+                    number;
 
             }
 
@@ -1310,8 +1425,7 @@ function generateReceiptNumber() {
 
 
 /* =========================================================
-   28. UPDATE MEMBER PENDING AFTER PAYMENT
-   MAIN FIX
+   29. REDUCE MEMBER PENDING
 ========================================================= */
 
 function reduceMemberPending(
@@ -1340,7 +1454,7 @@ function reduceMemberPending(
         index === -1
     ) {
 
-        return;
+        return false;
 
     }
 
@@ -1366,11 +1480,6 @@ function reduceMemberPending(
     saveMembers();
 
 
-    /*
-       selectedMember सुद्धा update करा.
-       त्यामुळे लगेच UI मध्ये नवीन pending दिसेल.
-    */
-
     if (
         selectedMember &&
         String(
@@ -1386,11 +1495,14 @@ function reduceMemberPending(
 
     }
 
+
+    return true;
+
 }
 
 
 /* =========================================================
-   29. ADD MEMBER PENDING AFTER DELETE
+   30. RESTORE MEMBER PENDING
 ========================================================= */
 
 function increaseMemberPending(
@@ -1419,7 +1531,7 @@ function increaseMemberPending(
         index === -1
     ) {
 
-        return;
+        return false;
 
     }
 
@@ -1441,11 +1553,14 @@ function increaseMemberPending(
 
     saveMembers();
 
+
+    return true;
+
 }
 
 
 /* =========================================================
-   30. FORM SUBMIT
+   31. FORM SUBMIT
 ========================================================= */
 
 if (
@@ -1495,7 +1610,7 @@ if (
 
 
             /*
-               Latest member data पुन्हा घ्या.
+               Latest member data.
             */
 
             const latestMember =
@@ -1606,22 +1721,49 @@ if (
             ========================================= */
 
             const currentPending =
-                getCurrentMemberPending();
+                calculateCurrentPending();
 
 
             /*
-               Excel pending / current member pending
-               पेक्षा जास्त payment करू देऊ नका.
+               IMPORTANT:
+
+               ₹0 pending असल्यास नवीन financial year
+               साठी ₹200 payment करण्याची परवानगी.
+
+               पण जुनी pending असल्यास
+               त्या pending पेक्षा जास्त payment नाही.
             */
+
+            const yearAlreadyPaid =
+                hasMemberYearPayment(
+                    selectedMember.id,
+                    year
+                );
+
+
+            let maximumAllowed =
+                currentPending;
+
+
+            if (
+                currentPending === 0 &&
+                !yearAlreadyPaid
+            ) {
+
+                maximumAllowed =
+                    DEFAULT_ANNUAL_AMOUNT;
+
+            }
+
 
             if (
                 amount >
-                currentPending
+                maximumAllowed
             ) {
 
                 alert(
-                    "या सभासदाची सध्याची बाकी ₹" +
-                    currentPending +
+                    "या payment साठी कमाल रक्कम ₹" +
+                    maximumAllowed +
                     " आहे."
                 );
 
@@ -1660,7 +1802,7 @@ if (
 
                         return (
                             String(
-                                item.receiptNo
+                                item.receiptNo || ""
                             )
                             .toLowerCase()
                             ===
@@ -1689,12 +1831,39 @@ if (
                NEW PENDING
             ========================================= */
 
-            const newPending =
-                Math.max(
-                    0,
-                    currentPending -
-                    amount
-                );
+            let newPending = 0;
+
+
+            if (
+                currentPending > 0
+            ) {
+
+                /*
+                   Existing pending कमी करणे.
+                */
+
+                newPending =
+                    Math.max(
+                        0,
+                        currentPending -
+                        amount
+                    );
+
+            }
+            else {
+
+                /*
+                   नवीन वर्षाची ₹200 liability.
+                */
+
+                newPending =
+                    Math.max(
+                        0,
+                        DEFAULT_ANNUAL_AMOUNT -
+                        amount
+                    );
+
+            }
 
 
             /* =========================================
@@ -1761,7 +1930,7 @@ if (
 
 
             /* =========================================
-               SAVE TRANSACTION
+               SAVE TRANSACTION FIRST
             ========================================= */
 
             subscriptions.push(
@@ -1769,17 +1938,99 @@ if (
             );
 
 
-            saveSubscriptions();
+            if (
+                !saveSubscriptions()
+            ) {
+
+                /*
+                   Save fail झाल्यास transaction
+                   memory मधून remove करा.
+                */
+
+                subscriptions.pop();
+
+                return;
+
+            }
 
 
             /* =========================================
                UPDATE MEMBER PENDING
             ========================================= */
 
-            reduceMemberPending(
-                selectedMember.id,
-                amount
-            );
+            if (
+                currentPending > 0
+            ) {
+
+                reduceMemberPending(
+                    selectedMember.id,
+                    amount
+                );
+
+            }
+            else {
+
+                /*
+                   नवीन year:
+                   ₹200 liability मधून payment
+                   बाकी member मध्ये save करा.
+                */
+
+                const index =
+                    members.findIndex(
+                        function(member) {
+
+                            return (
+                                String(
+                                    member.id
+                                ) ===
+                                String(
+                                    selectedMember.id
+                                )
+                            );
+
+                        }
+                    );
+
+
+                if (
+                    index !== -1
+                ) {
+
+                    members[index]
+                        .subscriptionPending =
+                        newPending;
+
+
+                    members[index]
+                        .subscriptionPayments =
+                        Array.isArray(
+                            members[index]
+                                .subscriptionPayments
+                        )
+                            ?
+                            members[index]
+                                .subscriptionPayments
+                            :
+                            [];
+
+
+                    members[index]
+                        .subscriptionPayments
+                        .push(
+                            transaction.id
+                        );
+
+
+                    saveMembers();
+
+
+                    selectedMember =
+                        members[index];
+
+                }
+
+            }
 
 
             /* =========================================
@@ -1797,6 +2048,7 @@ if (
 
             displaySubscriptionTransactions();
 
+            updateSubscriptionDashboard();
 
             resetSubscriptionForm();
 
@@ -1807,7 +2059,7 @@ if (
 
 
 /* =========================================================
-   31. RESET FORM
+   32. RESET FORM
 ========================================================= */
 
 function resetSubscriptionForm() {
@@ -1882,9 +2134,40 @@ function resetSubscriptionForm() {
 
     setTodayDate();
 
-    if (pendingAmount) {
+
+    if (
+        pendingAmount
+    ) {
 
         pendingAmount.value =
+            "";
+
+    }
+
+
+    const summary =
+        document.getElementById(
+            "memberSubscriptionSummary"
+        );
+
+
+    if (summary) {
+
+        summary.innerHTML =
+            "";
+
+    }
+
+
+    const yearStatus =
+        document.getElementById(
+            "subscriptionYearStatus"
+        );
+
+
+    if (yearStatus) {
+
+        yearStatus.innerHTML =
             "";
 
     }
@@ -1893,7 +2176,7 @@ function resetSubscriptionForm() {
 
 
 /* =========================================================
-   32. TOAST
+   33. TOAST
 ========================================================= */
 
 function showSubscriptionToast(
@@ -1937,7 +2220,7 @@ function showSubscriptionToast(
 
 
 /* =========================================================
-   33. DISPLAY TRANSACTIONS
+   34. DISPLAY TRANSACTIONS
 ========================================================= */
 
 function displaySubscriptionTransactions(
@@ -2114,7 +2397,7 @@ function displaySubscriptionTransactions(
 
 
 /* =========================================================
-   34. YEAR FILTER
+   35. TRANSACTION YEAR FILTER
 ========================================================= */
 
 const transactionYearFilter =
@@ -2142,7 +2425,7 @@ if (
 
 
 /* =========================================================
-   35. DELETE SUBSCRIPTION
+   36. DELETE SUBSCRIPTION
 ========================================================= */
 
 function deleteSubscription(
@@ -2193,6 +2476,10 @@ function deleteSubscription(
     }
 
 
+    /*
+       Transaction remove.
+    */
+
     subscriptions =
         subscriptions.filter(
             function(item) {
@@ -2214,8 +2501,7 @@ function deleteSubscription(
 
 
     /*
-       Delete केलेली payment amount
-       member pending मध्ये परत add करा.
+       Payment पुन्हा pending मध्ये add करा.
     */
 
     increaseMemberPending(
@@ -2232,16 +2518,18 @@ function deleteSubscription(
 
     displaySubscriptionTransactions();
 
+    updateSubscriptionDashboard();
+
 
     showSubscriptionToast(
-        "वर्गणी नोंद Delete झाली."
+        "वर्गणी नोंद Delete झाली आणि बाकी पुन्हा update झाली."
     );
 
 }
 
 
 /* =========================================================
-   36. DASHBOARD UPDATE
+   37. DASHBOARD UPDATE
 ========================================================= */
 
 function updateSubscriptionDashboard() {
@@ -2278,7 +2566,9 @@ function updateSubscriptionDashboard() {
 
         element.innerText =
             "₹" +
-            totalSubscription;
+            totalSubscription.toLocaleString(
+                "en-IN"
+            );
 
     }
 
@@ -2331,7 +2621,9 @@ function updateSubscriptionDashboard() {
 
         yearElement.innerText =
             "₹" +
-            yearTotal;
+            yearTotal.toLocaleString(
+                "en-IN"
+            );
 
     }
 
@@ -2387,7 +2679,9 @@ function updateSubscriptionDashboard() {
 
         todayElement.innerText =
             "₹" +
-            todayTotal;
+            todayTotal.toLocaleString(
+                "en-IN"
+            );
 
     }
 
@@ -2395,7 +2689,7 @@ function updateSubscriptionDashboard() {
 
 
 /* =========================================================
-   37. CLOSE SEARCH OUTSIDE
+   38. CLOSE SEARCH OUTSIDE
 ========================================================= */
 
 document.addEventListener(
@@ -2430,36 +2724,58 @@ document.addEventListener(
 
 
 /* =========================================================
-   38. PAGE INITIALIZATION
+   39. PAGE INITIALIZATION
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+function initializeSubscriptionPage() {
 
-        loadSubscriptionData();
+    loadSubscriptionData();
 
-        loadSubscriptionYears();
+    loadSubscriptionYears();
 
-        loadTransactionYears();
+    loadTransactionYears();
 
-        setTodayDate();
+    setTodayDate();
 
-        setDefaultAnnualAmount();
+    setDefaultAnnualAmount();
 
-        displaySubscriptionTransactions();
+    displaySubscriptionTransactions();
 
-        updateSubscriptionDashboard();
+    updateSubscriptionDashboard();
 
-        if (pendingAmount) {
 
-            pendingAmount.value =
-                "";
+    if (
+        pendingAmount
+    ) {
 
-        }
+        pendingAmount.value =
+            "";
 
     }
-);
+
+}
+
+
+/* =========================================================
+   40. DOM READY
+========================================================= */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeSubscriptionPage
+    );
+
+}
+else {
+
+    initializeSubscriptionPage();
+
+}
 
 
 /* =========================================================
@@ -2467,5 +2783,5 @@ document.addEventListener(
 ========================================================= */
 
 console.log(
-    "MGVM Corrected subscription.js loaded successfully."
+    "MGVM Corrected Final subscription.js loaded successfully."
 );
