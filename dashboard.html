@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <meta name="theme-color"
+          content="#0d6efd">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="top-header">
+
+    <div class="logo-box">
+
+        <img src="assets/logo.png"
+             id="logo"
+             alt="MGVM Logo">
+
+    </div>
+
+
+    <div class="title-box">
+
+        <h1>
+            मोर्डे ग्राम विकास मंडळ, मुंबई
+        </h1>
+
+        <p>
+            सभासद वर्गणी व्यवस्थापन प्रणाली
+        </p>
+
+    </div>
+
+</header>
+
+<!-- =====================================================
+     DASHBOARD TITLE
+===================================================== -->
+
+<section>
+
+    <h2>
+        📊 Dashboard
+    </h2>
+
+    <p id="dashboardDate"></p>
+
+</section>
+
+<!-- =====================================================
+     MAIN SUMMARY
+===================================================== -->
+
+<div class="dashboard-grid">
+
+
+    <div class="card">
+
+        <h3>
+            👥 एकूण सभासद
+        </h3>
+
+        <h1 id="totalMembers">
+            0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            💰 एकूण वर्गणी
+        </h3>
+
+        <h1 id="totalSubscription">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            ⏳ बाकी वर्गणी
+        </h3>
+
+        <h1 id="pendingSubscription">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            ❤️ एकूण देणगी
+        </h3>
+
+        <h1 id="totalDonation">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            📈 एकूण उत्पन्न
+        </h3>
+
+        <h1 id="totalIncome">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            📉 एकूण खर्च
+        </h3>
+
+        <h1 id="totalExpense">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            💵 एकूण जमा
+        </h3>
+
+        <h1 id="totalCollection">
+            ₹0
+        </h1>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <h3>
+            🏦 शिल्लक रक्कम
+        </h3>
+
+        <h1 id="balanceAmount">
+            ₹0
+        </h1>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     TODAY
+===================================================== -->
+
+<section class="statistics-section">
+
+    <h2>
+        📅 आजचा व्यवहार
+    </h2>
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजची वर्गणी
+            </h3>
+
+            <h1 id="todaySubscription">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजची देणगी
+            </h3>
+
+            <h1 id="todayDonation">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजचे उत्पन्न
+            </h3>
+
+            <h1 id="todayIncome">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजचा खर्च
+            </h3>
+
+            <h1 id="todayExpense">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                आजची शिल्लक
+            </h3>
+
+            <h1 id="todayBalance">
+                ₹0
+            </h1>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     YEAR / MEMBER STATUS
+===================================================== -->
+
+<section class="statistics-section">
+
+    <h2>
+        📌 अतिरिक्त माहिती
+    </h2>
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <h3>
+                चालू वर्षाची वर्गणी जमा
+            </h3>
+
+            <h1 id="yearSubscription">
+                ₹0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+               वर्गणी बाकी असलेले सभासद
+            </h3>
+
+            <h1 id="pendingMembersCount">
+                0
+            </h1>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <h3>
+                वर्गणी पूर्ण भरलेले एकूण सभासद
+            </h3>
+
+            <h1 id="paidMembersCount">
+                0
+            </h1>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+hhhhhhhh
+            <span>
+
+</main>
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+    <p>
+        © 2026 मोर्डे ग्राम विकास मंडळ, मुंबई
+    </p>
+
+    <p>
+        Developed for Digital Member Management System by Vaibhav Thombare
+    </p>
+
+</footer>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script src="database.js"></script>
+
+<script src="script.js"></script>
+
+
+</body>
+
+      </html>
