@@ -1,0 +1,131 @@
+/* =====================================================
+   WADI STATISTICS CARD
+===================================================== */
+
+.stat-card {
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 18px;
+
+    border: 1px solid #e1e7ef;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.08);
+
+    transition: all 0.2s ease;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.stat-card::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 5px;
+    height: 100%;
+
+    background: #0d6efd;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.12);
+}
+
+
+/* WADI NAME */
+
+.stat-card h3 {
+    margin: 0 0 15px 0;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #e8edf3;
+
+    color: #17365d;
+
+    font-size: 19px;
+
+    font-weight: 700;
+}
+
+
+/* INFORMATION ROW */
+
+.stat-card p {
+    margin: 0;
+
+    padding: 9px 0;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom: 1px dashed #e1e5ea;
+
+    font-size: 14px;
+
+    color: #555;
+}
+
+
+.stat-card p:last-child {
+    border-bottom: none;
+}
+
+
+/* VALUE */
+
+.stat-card strong {
+    color: #222;
+
+    font-size: 15px;
+
+    font-weight: 700;
+}
+
+
+/* LAST PENDING ROW */
+
+.stat-card p:last-child strong {
+    color: #c62828;
+
+    font-size: 17px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-card h3 {
+        font-size: 18px;
+    }
+
+    .stat-card p {
+        font-size: 14px;
+    }
+
+    .stat-card strong {
+        font-size: 15px;
+    }
+
+}
