@@ -8,11 +8,9 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>मोर्डे ग्राम विकास मंडळ, मुंबई</title>
+    <title>वाडीनुसार बाकी - मोर्डे ग्राम विकास मंडळ</title>
 
-    <link rel="stylesheet"
-          href="style.css">
-
+    <!-- Google Font -->
     <link rel="preconnect"
           href="https://fonts.googleapis.com">
 
@@ -20,14 +18,398 @@
           href="https://fonts.gstatic.com"
           crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
           rel="stylesheet">
 
+    <!-- Font Awesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
+    <link rel="stylesheet"
+          href="style.css">
+
     <meta name="theme-color"
           content="#0d6efd">
+
+
+    <style>
+
+        /* =====================================================
+           WADI REPORT PAGE
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Noto Sans Devanagari", sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .report-header {
+            background: linear-gradient(135deg, #0d6efd, #084298);
+            color: white;
+            padding: 18px 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .report-header h1 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .report-header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+
+        /* =====================================================
+           BACK BUTTON
+        ===================================================== */
+
+        .back-container {
+            max-width: 1100px;
+            margin: 15px auto 0;
+            padding: 0 15px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            background: white;
+            color: #0d6efd;
+
+            border: 1px solid #d9e2f0;
+            border-radius: 8px;
+
+            padding: 9px 15px;
+
+            text-decoration: none;
+            font-weight: 600;
+
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .back-btn:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .report-container {
+            max-width: 1100px;
+            margin: 15px auto 30px;
+            padding: 0 15px;
+        }
+
+
+        /* =====================================================
+           TITLE CARD
+        ===================================================== */
+
+        .title-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+
+            text-align: center;
+        }
+
+        .title-card h2 {
+            margin: 0;
+            color: #0d6efd;
+            font-size: 21px;
+        }
+
+        .title-card p {
+            margin: 7px 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           WADI STATISTICS GRID
+        ===================================================== */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+
+            gap: 16px;
+        }
+
+
+        /* =====================================================
+           WADI CARD
+        ===================================================== */
+
+        .wadi-card {
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.08);
+
+            border: 1px solid #e4e9f1;
+
+            transition: 0.2s;
+        }
+
+        .wadi-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 7px 18px rgba(0,0,0,0.12);
+        }
+
+
+        .wadi-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding-bottom: 12px;
+
+            margin-bottom: 12px;
+
+            border-bottom: 1px solid #e8edf3;
+        }
+
+        .wadi-title h3 {
+            margin: 0;
+
+            font-size: 19px;
+
+            color: #17365d;
+        }
+
+        .wadi-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            background: #eaf2ff;
+
+            color: #0d6efd;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+        }
+
+
+        /* =====================================================
+           STAT ROW
+        ===================================================== */
+
+        .stat-row {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 8px 0;
+
+            border-bottom: 1px dashed #e3e7ed;
+
+            font-size: 14px;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #555;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #222;
+        }
+
+
+        /* =====================================================
+           PENDING AMOUNT
+        ===================================================== */
+
+        .pending-box {
+            margin-top: 12px;
+
+            background: #fff4f4;
+
+            border: 1px solid #ffd4d4;
+
+            border-radius: 10px;
+
+            padding: 12px;
+
+            text-align: center;
+        }
+
+        .pending-label {
+            display: block;
+
+            color: #c62828;
+
+            font-size: 13px;
+
+            margin-bottom: 3px;
+        }
+
+        .pending-amount {
+            display: block;
+
+            color: #c62828;
+
+            font-size: 22px;
+
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           NOTICE
+        ===================================================== */
+
+        .notice-card {
+            margin-top: 20px;
+
+            background: #fff;
+
+            border-left: 5px solid #0d6efd;
+
+            border-radius: 10px;
+
+            padding: 15px 18px;
+
+            box-shadow:
+                0 3px 10px rgba(0,0,0,0.07);
+        }
+
+        .notice-card p {
+            margin: 5px 0;
+
+            font-size: 14px;
+
+            color: #444;
+        }
+
+
+        /* =====================================================
+           EMPTY MESSAGE
+        ===================================================== */
+
+        .empty-message {
+            background: white;
+
+            padding: 25px;
+
+            text-align: center;
+
+            border-radius: 12px;
+
+            color: #777;
+
+            box-shadow:
+                0 3px 10px rgba(0,0,0,0.07);
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            background: #17202a;
+
+            color: #ddd;
+
+            text-align: center;
+
+            padding: 18px 10px;
+
+            margin-top: 25px;
+
+            font-size: 12px;
+        }
+
+        footer p {
+            margin: 4px 0;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .report-header h1 {
+                font-size: 19px;
+            }
+
+            .report-header p {
+                font-size: 12px;
+            }
+
+            .report-container {
+                padding: 0 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .title-card {
+                padding: 15px;
+            }
+
+            .title-card h2 {
+                font-size: 18px;
+            }
+
+            .wadi-card {
+                padding: 15px;
+            }
+
+            .wadi-title h3 {
+                font-size: 17px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -37,50 +419,106 @@
 
 <!-- =====================================================
      HEADER
-=====================================================वाडीनुसार बाकी
-   </button>
-</nav>
-
-
-
-<main class="container">
-
-<!-- =====================================================
-     WADI STATISTICS
 ===================================================== -->
 
-<section class="statistics-section">
+<header class="report-header">
 
-    <h2>
-        🏡 वाडीनुसार सांख्यिकी
-    </h2>
+    <h1>
+        🏡 मोर्डे ग्राम विकास मंडळ, मुंबई
+    </h1>
+
+    <p>
+        वाडीनुसार बाकी वर्गणी अहवाल
+    </p>
+
+</header>
 
 
-    <div id="wadiStatistics"
-         class="stats-grid">
+<!-- =====================================================
+     BACK BUTTON
+===================================================== -->
 
-    </div>
+<div class="back-container">
 
-</section>
+    <a href="index.html"
+       class="back-btn">
 
-<section>
-<div class="notice-card">
+        <i class="fa-solid fa-arrow-left"></i>
+
+        मागे जा
+
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="report-container">
+
+
+    <!-- =================================================
+         TITLE
+    ================================================== -->
+
+    <section class="title-card">
+
+        <h2>
+            🏡 वाडीनुसार बाकी वर्गणी
+        </h2>
 
         <p>
-            मोर्डे ग्राम विकास मंडळात आपले स्वागत आहे.
+            प्रत्येक वाडीतील सभासद संख्या व बाकी रक्कम
         </p>
 
-        <p>
-            वार्षिक वर्गणी ₹200 वेळेत भरण्याची सर्व सभासदांना विनंती.
-        </p>
+    </section>
 
-    </div>
 
-</section>
+    <!-- =================================================
+         WADI STATISTICS
+    ================================================== -->
+
+    <section>
+
+        <div id="wadiStatistics"
+             class="stats-grid">
+
+            <!-- JavaScript data will appear here -->
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         NOTICE
+    ================================================== -->
+
+    <section>
+
+        <div class="notice-card">
+
+            <p>
+                <strong>📢 सूचना:</strong>
+            </p>
+
+            <p>
+                मोर्डे ग्राम विकास मंडळात आपले स्वागत आहे.
+            </p>
+
+            <p>
+                वार्षिक वर्गणी ₹200 वेळेत भरण्याची
+                सर्व सभासदांना विनंती.
+            </p>
+
+        </div>
+
+    </section>
 
 
 </main>
-
 
 
 <!-- =====================================================
@@ -94,11 +532,11 @@
     </p>
 
     <p>
-        Developed for Digital Member Management System by Vaibhav Thombare
+        Developed for Digital Member Management System
+        by Vaibhav Thombare
     </p>
 
 </footer>
-
 
 
 <!-- =====================================================
@@ -110,6 +548,74 @@
 <script src="script.js"></script>
 
 
+<!-- =====================================================
+     REPORT FORMATTER
+===================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const container =
+        document.getElementById("wadiStatistics");
+
+    if (!container) return;
+
+
+    /*
+     * Existing script.js कडून data तयार झाल्यानंतर
+     * खालील formatter card format मध्ये दाखवेल.
+     */
+
+    setTimeout(function () {
+
+        const existingCards =
+            container.querySelectorAll(
+                ".wadi-card, .stat-card"
+            );
+
+
+        /*
+         * जर script.js ने आधीच .wadi-card तयार केले असतील
+         * तर त्यांना तसेच ठेवले जाईल.
+         */
+
+        if (existingCards.length > 0) {
+            return;
+        }
+
+
+        /*
+         * Data उपलब्ध नसेल तर message
+         */
+
+        if (
+            container.innerHTML.trim() === ""
+        ) {
+
+            container.innerHTML = `
+
+                <div class="empty-message">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <p>
+                        वाडीनुसार माहिती उपलब्ध नाही.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }, 500);
+
+});
+
+</script>
+
+
 </body>
 
-</html>. 
+</html>
