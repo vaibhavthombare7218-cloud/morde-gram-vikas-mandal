@@ -1,66 +1,200 @@
 <!DOCTYPE html>
 <html lang="mr">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>सभासद माहिती | मोर्डे ग्राम विकास मंडळ</title>
+
 <link rel="stylesheet" href="member-details.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
 </head>
+
 <body>
 
 <header class="page-header">
-<div class="header-content">
-<div class="header-icon"><i class="fa-solid fa-id-card"></i></div>
-<div><h1>सभासद माहिती</h1><p>मोर्डे ग्राम विकास मंडळ, मुंबई</p></div>
-</div>
+
+    <div class="header-content">
+
+        <div class="header-icon">
+            <i class="fa-solid fa-id-card"></i>
+        </div>
+
+        <div>
+            <h1>सभासद माहिती</h1>
+            <p>मोर्डे ग्राम विकास मंडळ, मुंबई</p>
+        </div>
+
+    </div>
+
 </header>
 
+
 <main class="container">
+
+<!-- ================= SEARCH ================= -->
+
 <section class="search-card">
-<div class="section-title"><i class="fa-solid fa-magnifying-glass"></i><span>सभासद शोधा</span></div>
-<div class="search-wrapper">
-<i class="fa-solid fa-search search-icon"></i>
-<input type="text" id="memberSearch" placeholder="नाव, Member ID, Mobile किंवा वाडी शोधा..." autocomplete="off">
-<button type="button" id="clearSearch" class="clear-search"><i class="fa-solid fa-xmark"></i></button>
-</div>
+
+    <div class="section-title">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <span>सभासद शोधा</span>
+
+    </div>
+
+
+    <div class="search-wrapper">
+
+        <i class="fa-solid fa-search search-icon"></i>
+
+        <input
+            type="text"
+            id="memberSearch"
+            placeholder="नाव, Member ID, Mobile किंवा वाडी शोधा..."
+            autocomplete="off"
+        >
+
+        <button
+            type="button"
+            id="clearSearch"
+            class="clear-search">
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+    </div>
+
 </section>
+
+
+<!-- ================= RESULT INFO ================= -->
 
 <div class="result-info">
-<span>एकूण सभासद: <strong id="memberCount">0</strong></span>
-<span id="searchStatus">सर्व सभासद</span>
+
+    <span>
+        एकूण सभासद:
+        <strong id="memberCount">0</strong>
+    </span>
+
+    <span id="searchStatus">
+        सर्व सभासद
+    </span>
+
 </div>
+
+
+<!-- ================= TABLE ================= -->
 
 <section class="table-card">
+
 <div class="table-wrapper">
+
 <table>
+
 <thead>
+
 <tr>
-<th>क्र.</th><th>सभासद नाव</th><th>ID</th><th>वाडी</th><th>Mobile</th>
-<th>बाकी वर्गणी</th><th>2026 पासून जमा वर्गणी</th><th>2026 पासून जमा देणगी</th><th>माहिती</th>
+
+<th>क्र.</th>
+
+<th>सभासद नाव</th>
+
+<th>ID</th>
+
+<th>वाडी</th>
+
+<th>Mobile</th>
+
+<th>बाकी वर्गणी</th>
+
+<th>2026 पासून जमा वर्गणी</th>
+
+<th>2026 पासून जमा देणगी</th>
+
+<th>माहिती</th>
+
 </tr>
+
 </thead>
+
+
 <tbody id="memberTableBody">
-<tr><td colspan="9" class="loading">Loading...</td></tr>
+
+<tr>
+
+<td colspan="9" class="loading">
+
+Loading...
+
+</td>
+
+</tr>
+
 </tbody>
+
 </table>
+
 </div>
+
 </section>
+
 </main>
 
+
+<!-- ================= MEMBER MODAL ================= -->
+
 <div id="memberModal" class="modal">
+
 <div class="modal-content">
+
 <div class="modal-header">
-<h2><i class="fa-solid fa-user"></i> सभासद माहिती</h2>
-<button type="button" id="closeModal" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
-</div>
-<div id="memberDetailsContent" class="member-details-content"></div>
-</div>
+
+<h2>
+
+<i class="fa-solid fa-user"></i>
+
+सभासद माहिती
+
+</h2>
+
+
+<button
+type="button"
+id="closeModal"
+class="modal-close">
+
+<i class="fa-solid fa-xmark"></i>
+
+</button>
+
 </div>
 
+
+<div
+id="memberDetailsContent"
+class="member-details-content">
+
+</div>
+
+</div>
+
+</div>
+
+
 <script src="member-details.js"></script>
+
 </body>
+
 </html>
