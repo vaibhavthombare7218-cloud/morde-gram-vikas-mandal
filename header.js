@@ -38,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "member-profile.html":
             "सभासद माहिती"
 
+       "dashboard.html":
+            "मुख्य माहिती फलक"
+   
     };
 
 
