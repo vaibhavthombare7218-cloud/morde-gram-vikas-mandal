@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const header = document.createElement("header");
 
     header.className = "mgvm-header";
-
+ ${pageTitle} / A
 
     header.innerHTML = `
 
