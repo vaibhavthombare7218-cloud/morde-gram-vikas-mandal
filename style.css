@@ -55,6 +55,114 @@ body{
     opacity:.9;
 }
 
+/* =====================================================
+   MGVM COMMON HEADER
+   index.html EXCLUDED
+===================================================== */
+
+.mgvm-header{
+    width:100%;
+    box-sizing:border-box;
+
+    background:linear-gradient(
+        135deg,
+        #0d6efd,
+        #0a58ca
+    );
+
+    color:#fff;
+
+    text-align:center;
+
+    padding:18px 15px;
+
+    margin:0;
+
+    box-shadow:
+        0 3px 10px rgba(0,0,0,.15);
+
+    font-family:'Noto Sans Devanagari',sans-serif;
+}
+
+
+/* ===============================
+   MAIN TITLE
+=============================== */
+
+.mgvm-title{
+    font-family:'Noto Sans Devanagari',sans-serif;
+
+    font-size:28px;
+
+    font-weight:700;
+
+    line-height:1.4;
+
+    margin:0 0 5px 0;
+
+    color:#fff;
+}
+
+
+/* ===============================
+   PAGE TITLE
+=============================== */
+
+.mgvm-subtitle{
+    font-family:'Noto Sans Devanagari',sans-serif;
+
+    font-size:15px;
+
+    font-weight:400;
+
+    line-height:1.4;
+
+    margin:0;
+
+    color:#fff;
+
+    opacity:.9;
+}
+
+
+/* ===============================
+   MOBILE
+=============================== */
+
+@media(max-width:600px){
+
+    .mgvm-header{
+        padding:15px 10px;
+    }
+
+    .mgvm-title{
+        font-size:22px;
+    }
+
+    .mgvm-subtitle{
+        font-size:14px;
+    }
+
+}
+
+
+/* ===============================
+   SMALL MOBILE
+=============================== */
+
+@media(max-width:400px){
+
+    .mgvm-title{
+        font-size:20px;
+    }
+
+    .mgvm-subtitle{
+        font-size:13px;
+    }
+
+}
+
+
 /* ================= NAVIGATION ================= */
 
 .main-nav{
@@ -188,7 +296,9 @@ body{
 .search-box input,
 .wadi-search select{
     width:100%;
-    padding:12px
+    padding:12px;
+}
+
 
 /* =====================================================
    style.css - Part 2A
@@ -429,94 +539,8 @@ textarea:focus{
     margin-bottom:10px;
 
 }
-/* =========================================
-   MGVM COMMON HEADER
-========================================= */
-
-.mgvm-header {
-    width: 100%;
-    box-sizing: border-box;
-
-    background: linear-gradient(
-        135deg,
-        #1976f3,
-        #06459f
-    );
-
-    color: #ffffff;
-
-    text-align: center;
-
-    padding: 28px 15px 26px;
-
-    margin: 0;
-
-    box-shadow:
-        0 3px 10px rgba(0, 0, 0, 0.18);
-
-    position: relative;
-}
 
 
-/* Main Title */
-
-.mgvm-title {
-    font-size: 29px;
-
-    font-weight: 800;
-
-    line-height: 1.3;
-
-    margin-bottom: 10px;
-
-    text-shadow:
-        1px 2px 3px rgba(0, 0, 0, 0.25);
-}
-
-
-/* Page Title */
-
-.mgvm-subtitle {
-    font-size: 19px;
-
-    font-weight: 400;
-
-    line-height: 1.4;
-
-    opacity: 0.95;
-}
-
-
-/* Mobile */
-
-@media (max-width: 600px) {
-
-    .mgvm-header {
-        padding: 27px 10px 25px;
-    }
-
-    .mgvm-title {
-        font-size: 27px;
-    }
-
-    .mgvm-subtitle {
-        font-size: 18px;
-    }
-}
-
-
-/* Small Mobile */
-
-@media (max-width: 400px) {
-
-    .mgvm-title {
-        font-size: 24px;
-    }
-
-    .mgvm-subtitle {
-        font-size: 17px;
-    }
-   }
 /* =======================
    STATISTICS CARDS
 ======================= */
@@ -612,32 +636,33 @@ textarea:focus{
 
 @media(max-width:768px){
 
-.form-row{
+    .form-row{
 
-grid-template-columns:1fr;
+        grid-template-columns:1fr;
+
+    }
+
+    .member-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .stats-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .btn{
+
+        width:100%;
+        margin-bottom:10px;
+
+    }
 
 }
 
-.member-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.stats-grid{
-
-grid-template-columns:1fr;
-
-}
-
-.btn{
-
-width:100%;
-margin-bottom:10px;
-
-}
-
-}
 
 /* =====================================================
    style.css - Part 2B
@@ -673,15 +698,15 @@ margin-bottom:10px;
 
 @keyframes popup{
 
-from{
-    opacity:0;
-    transform:scale(.90);
-}
+    from{
+        opacity:0;
+        transform:scale(.90);
+    }
 
-to{
-    opacity:1;
-    transform:scale(1);
-}
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
 
 }
 
@@ -748,9 +773,9 @@ to{
 
 @keyframes spin{
 
-100%{
-    transform:rotate(360deg);
-}
+    100%{
+        transform:rotate(360deg);
+    }
 
 }
 
@@ -902,30 +927,32 @@ to{
 
 @media print{
 
-body{
+    body{
 
-background:#fff;
-
-}
-
-.main-nav,
-.action-grid,
-footer,
-.btn{
-
-display:none !important;
-
-}
-
-.receipt{
-
-border:none;
-
-width:100%;
-
-}
+        background:#fff;
 
     }
+
+    .main-nav,
+    .action-grid,
+    footer,
+    .btn{
+
+        display:none !important;
+
+    }
+
+    .receipt{
+
+        border:none;
+
+        width:100%;
+
+    }
+
+}
+
+
 /* =====================================================
    style.css - Part 2C
    Dashboard Widgets, Timeline, Notification,
@@ -1244,33 +1271,32 @@ width:100%;
 
 @media(max-width:768px){
 
-.timeline{
+    .timeline{
 
-padding-left:22px;
+        padding-left:22px;
+
+    }
+
+    .timeline-item::before{
+
+        left:-19px;
+
+    }
+
+    .flex-between{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:10px;
+
+    }
+
+    .widget-grid{
+
+        grid-template-columns:1fr;
+
+    }
 
 }
-
-.timeline-item::before{
-
-left:-19px;
-
-}
-
-.flex-between{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-gap:10px;
-
-}
-
-.widget-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
-
