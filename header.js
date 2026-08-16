@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "देणगी व्यवस्थापन",
 
         "income.html":
-            "उत्पन्न व्यवस्थापन",
+            "जमा व्यवस्थापन",
 
         "expense.html":
             "खर्च व्यवस्थापन",
@@ -77,11 +77,12 @@ document.addEventListener("DOMContentLoaded", function () {
     header.innerHTML = `
 
         <div class="mgvm-title">
-            🏠 मोर्डे ग्राम विकास मंडळ, मुंबई
+        ${pageTitle}
+        
         </div>
 
         <div class="mgvm-subtitle">
-            ${pageTitle} | मोर्डे ग्राम विकास मंडळ
+                🏠 मोर्डे ग्राम विकास मंडळ, मुंबई
         </div>
 
     `;
