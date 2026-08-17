@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>सेटिंग - मोर्डे ग्राम विकास मंडळ, मुंबई</title>
+
+    <link rel="stylesheet" href="settings.css">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body>
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="main-header">
+
+    <div class="header-inner">
+
+        <div class="logo-wrap">
+            <img
+                src="logo.png"
+                class="mandir-logo"
+                alt="मोर्डे मंदिर लोगो"
+                onerror="this.style.display='none';"
+            >
+        </div>
+
+        <div class="header-text">
+
+            <h1>
+                मोर्डे ग्राम विकास<br class="mobile-break">
+                मंडळ, मुंबई
+            </h1>
+
+            <div class="header-divider">
+                <span></span>
+                <b>✦</b>
+                <span></span>
+            </div>
+
+            <p>सेटिंग आणि व्यवस्थापन</p>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     TOP NAVIGATION
+========================================================= -->
+
+<section class="top-navigation">
+
+    <button onclick="goBack()">
+        <i class="fa-solid fa-arrow-left"></i>
+        मागे
+    </button>
+
+    <button onclick="location.href='index.html'">
+        <i class="fa-solid fa-house"></i>
+        Dashboard
+    </button>
+
+</section>
+
+
+<!-- =========================================================
+     PAGE TITLE
+========================================================= -->
+
+<main class="settings-container">
+
+    <div class="page-title">
+
+        <div class="page-title-icon">
+            <i class="fa-solid fa-gear"></i>
+        </div>
+
+        <div>
+            <h2>Settings</h2>
+            <p>सिस्टम सेटिंग आणि व्यवस्थापन</p>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         1. ALL DATA BACKUP
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header backup-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-database"></i>
+            </div>
+
+            <div>
+                <h3>सर्व Data Backup</h3>
+                <p>सिस्टममधील सर्व LocalStorage Data चा Backup घ्या.</p>
+            </div>
+
+        </div>
+
+        <div class="backup-info">
+
+            <div class="info-box">
+                <span>सभासद</span>
+                <strong id="backupMembersCount">0</strong>
+            </div>
+
+            <div class="info-box">
+                <span>वर्गणी</span>
+                <strong id="backupSubscriptionCount">0</strong>
+            </div>
+
+            <div class="info-box">
+                <span>Data Keys</span>
+                <strong id="backupKeysCount">0</strong>
+            </div>
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="primary-btn"
+                id="downloadBackupBtn"
+            >
+                <i class="fa-solid fa-download"></i>
+                All Data Backup Download
+            </button>
+
+            <button
+                class="secondary-btn"
+                id="refreshBackupInfoBtn"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+
+        </div>
+
+        <div class="last-backup" id="lastBackupInfo">
+            शेवटचा Backup: उपलब्ध नाही
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         2. BACKUP UPLOAD / RESTORE
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header restore-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+
+            <div>
+                <h3>Backup Upload / Restore</h3>
+                <p>पूर्वी घेतलेला JSON Backup पुन्हा Restore करा.</p>
+            </div>
+
+        </div>
+
+        <div class="upload-area">
+
+            <label
+                for="backupFile"
+                class="file-select-btn"
+            >
+                <i class="fa-solid fa-file-arrow-up"></i>
+                Backup File निवडा
+            </label>
+
+            <input
+                type="file"
+                id="backupFile"
+                accept=".json,application/json"
+            >
+
+            <div
+                class="selected-file"
+                id="selectedBackupFile"
+            >
+                कोणतीही Backup file निवडलेली नाही.
+            </div>
+
+        </div>
+
+
+        <div
+            class="restore-preview"
+            id="restorePreview"
+        >
+
+            <div class="preview-title">
+                <i class="fa-solid fa-circle-info"></i>
+                Backup Preview
+            </div>
+
+            <div class="preview-grid">
+
+                <div>
+                    <span>Backup Date</span>
+                    <strong id="previewDate">-</strong>
+                </div>
+
+                <div>
+                    <span>Members</span>
+                    <strong id="previewMembers">0</strong>
+                </div>
+
+                <div>
+                    <span>Subscriptions</span>
+                    <strong id="previewSubscriptions">0</strong>
+                </div>
+
+                <div>
+                    <span>Data Keys</span>
+                    <strong id="previewKeys">0</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="warning-box">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <span>
+                Restore केल्यास सध्याचा LocalStorage Data
+                निवडलेल्या Backup Data ने replace होईल.
+            </span>
+
+        </div>
+
+
+        <button
+            class="danger-btn"
+            id="restoreBackupBtn"
+            disabled
+        >
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Restore Backup
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         3. ANNUAL SUBSCRIPTION AMOUNT
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header money-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+
+            <div>
+                <h3>वार्षिक वर्गणी रक्कम</h3>
+                <p>नवीन Annual Subscription Amount सेट करा.</p>
+            </div>
+
+        </div>
+
+
+        <div class="current-setting">
+
+            <span>सध्याची रक्कम</span>
+
+            <strong id="currentAnnualAmount">
+                ₹200
+            </strong>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="annualSubscriptionAmount">
+                नवीन वार्षिक वर्गणी
+            </label>
+
+            <div class="amount-input">
+
+                <span>₹</span>
+
+                <input
+                    type="number"
+                    id="annualSubscriptionAmount"
+                    min="0"
+                    step="1"
+                    placeholder="उदा. 200"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="info-note">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <span>
+                ही रक्कम नवीन वर्गणीसाठी वापरण्यासाठी Save केली जाईल.
+                जुने payment records बदलले जाणार नाहीत.
+            </span>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            id="saveAnnualAmountBtn"
+        >
+            <i class="fa-solid fa-floppy-disk"></i>
+            वर्गणी रक्कम Save करा
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         4. CHANGES LOG
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header log-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+
+            <div>
+                <h3>Overall Changes Log</h3>
+                <p>Settings मध्ये केलेल्या बदलांची नोंद.</p>
+            </div>
+
+        </div>
+
+
+        <div class="log-controls">
+
+            <input
+                type="text"
+                id="logSearch"
+                placeholder="Module / Action / Description शोधा..."
+            >
+
+            <button
+                class="secondary-btn"
+                id="refreshLogsBtn"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Refresh
+            </button>
+
+            <button
+                class="danger-outline-btn"
+                id="clearLogsBtn"
+            >
+                <i class="fa-solid fa-trash"></i>
+                Clear Log
+            </button>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="changes-table">
+
+                <thead>
+
+                    <tr>
+                        <th>दिनांक</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="changesLogBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            class="empty-log"
+            id="emptyLog"
+        >
+            <i class="fa-solid fa-clipboard-list"></i>
+            <p>अजून कोणतेही Changes Log उपलब्ध नाही.</p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         5. MEETING WHATSAPP INVITATION
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header whatsapp-header">
+
+            <div class="card-icon">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+
+            <div>
+                <h3>Meeting WhatsApp Invitation</h3>
+                <p>सभेचे WhatsApp Invitation तयार करा.</p>
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label for="meetingDate">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    सभा दिनांक
+                </label>
+
+                <input
+                    type="date"
+                    id="meetingDate"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="meetingTime">
+                    <i class="fa-solid fa-clock"></i>
+                    सभा वेळ
+                </label>
+
+                <input
+                    type="time"
+                    id="meetingTime"
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label for="meetingPlace">
+                    <i class="fa-solid fa-location-dot"></i>
+                    सभा ठिकाण
+                </label>
+
+                <input
+                    type="text"
+                    id="meetingPlace"
+                    placeholder="उदा. मोर्डे मंदिर सभागृह"
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label for="meetingSubject">
+                    <i class="fa-solid fa-list"></i>
+                    सभा विषय / Agenda
+                </label>
+
+                <textarea
+                    id="meetingSubject"
+                    rows="4"
+                    placeholder="सभेचे विषय येथे लिहा..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="message-preview">
+
+            <div class="preview-heading">
+                <i class="fa-brands fa-whatsapp"></i>
+                WhatsApp Message Preview
+            </div>
+
+            <textarea
+                id="meetingMessage"
+                readonly
+            ></textarea>
+
+        </div>
+
+
+        <div class="button-row">
+
+            <button
+                class="primary-btn"
+                id="generateMeetingBtn"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Message तयार करा
+            </button>
+
+            <button
+                class="secondary-btn"
+                id="copyMeetingBtn"
+            >
+                <i class="fa-solid fa-copy"></i>
+                Copy
+            </button>
+
+            <button
+                class="whatsapp-btn"
+                id="whatsappMeetingBtn"
+            >
+                <i class="fa-brands fa-whatsapp"></i>
+                WhatsApp
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         6. MEMBER-WISE PENDING WHATSAPP
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header pending-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-message"></i>
+            </div>
+
+            <div>
+                <h3>सभासदनुसार बाकी वर्गणी WhatsApp Message</h3>
+                <p>सभासदाची बाकी वर्गणी WhatsApp वर पाठवा.</p>
+            </div>
+
+        </div>
+
+
+        <div class="member-search-wrapper">
+
+            <label for="pendingMemberSearch">
+                सभासद शोधा
+            </label>
+
+            <input
+                type="text"
+                id="pendingMemberSearch"
+                placeholder="ID / नाव / वाडी / मोबाईल शोधा..."
+                autocomplete="off"
+            >
+
+            <div
+                class="member-suggestions"
+                id="pendingMemberSuggestions"
+            ></div>
+
+        </div>
+
+
+        <div
+            class="selected-member-card"
+            id="selectedPendingMember"
+        >
+
+            <div class="member-avatar">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="member-details">
+
+                <h4 id="pendingMemberName">
+                    सभासद निवडा
+                </h4>
+
+                <p>
+                    Member ID:
+                    <strong id="pendingMemberId">-</strong>
+                </p>
+
+                <p>
+                    वाडी:
+                    <strong id="pendingMemberWadi">-</strong>
+                </p>
+
+                <p>
+                    मोबाईल:
+                    <strong id="pendingMemberMobile">-</strong>
+                </p>
+
+            </div>
+
+            <div class="pending-amount-box">
+
+                <span>एकूण बाकी</span>
+
+                <strong id="pendingMemberAmount">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="message-preview">
+
+            <div class="preview-heading">
+                <i class="fa-brands fa-whatsapp"></i>
+                बाकी वर्गणी Message
+            </div>
+
+            <textarea
+                id="pendingMemberMessage"
+                readonly
+            ></textarea>
+
+        </div>
+
+
+        <div class="button-row">
+
+            <button
+                class="primary-btn"
+                id="generatePendingMessageBtn"
+            >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Message तयार करा
+            </button>
+
+            <button
+                class="secondary-btn"
+                id="copyPendingMessageBtn"
+            >
+                <i class="fa-solid fa-copy"></i>
+                Copy
+            </button>
+
+            <button
+                class="whatsapp-btn"
+                id="whatsappPendingBtn"
+            >
+                <i class="fa-brands fa-whatsapp"></i>
+                WhatsApp
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         7. CURRENT FINANCIAL YEAR
+    ====================================================== -->
+
+    <section class="settings-card">
+
+        <div class="card-header year-header">
+
+            <div class="card-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <div>
+                <h3>Current Financial Year</h3>
+                <p>सध्याचे आर्थिक वर्ष सेट करा.</p>
+            </div>
+
+        </div>
+
+
+        <div class="current-setting">
+
+            <span>सध्याचे आर्थिक वर्ष</span>
+
+            <strong id="currentFinancialYear">
+                -
+            </strong>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="financialYearSelect">
+                आर्थिक वर्ष निवडा
+            </label>
+
+            <select id="financialYearSelect">
+
+            </select>
+
+        </div>
+
+
+        <div class="info-note">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <span>
+                Financial Year Settings मध्ये Save केले जाईल.
+            </span>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            id="saveFinancialYearBtn"
+        >
+            <i class="fa-solid fa-floppy-disk"></i>
+            Financial Year Save करा
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         SYSTEM INFORMATION
+    ====================================================== -->
+
+    <section class="system-info">
+
+        <div>
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>LocalStorage Based System</span>
+        </div>
+
+        <div>
+            <i class="fa-solid fa-database"></i>
+            <span id="storageSizeInfo">Data Size: 0 KB</span>
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+<script src="settings.js"></script>
+
+</body>
+</html>
