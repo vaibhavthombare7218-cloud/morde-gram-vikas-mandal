@@ -1519,3 +1519,322 @@ textarea:focus{
     }
 
 }
+/* =====================================================
+   MGVM FINAL THEME
+   BLUE THEME → DARK MAROON
+   बाकी सर्व CSS / DESIGN unchanged
+===================================================== */
+
+:root{
+    --mgvm-maroon:#5b0b18;
+    --mgvm-maroon-dark:#430711;
+    --mgvm-maroon-light:#f7e9ec;
+    --mgvm-maroon-border:#ead0d5;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.top-header{
+    background:var(--mgvm-maroon) !important;
+}
+
+
+/* Common header on other pages */
+
+.mgvm-header{
+    background:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.logo-wrap{
+    width:75px !important;
+    height:75px !important;
+    min-width:75px !important;
+    min-height:75px !important;
+}
+
+.mandir-logo{
+    width:75px !important;
+    height:75px !important;
+    max-width:75px !important;
+    max-height:75px !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    object-fit:contain !important;
+    display:block;
+}
+
+
+/* =====================================================
+   MAIN NAVIGATION
+===================================================== */
+
+.main-nav button{
+    color:var(--mgvm-maroon) !important;
+}
+
+.main-nav button:hover{
+    background:var(--mgvm-maroon) !important;
+    color:#fff !important;
+}
+
+
+/* =====================================================
+   ALL MAIN HEADINGS
+===================================================== */
+
+.container h2,
+.section-title{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   PRIMARY BUTTON
+===================================================== */
+
+.btn-primary{
+    background:var(--mgvm-maroon) !important;
+    color:#fff !important;
+}
+
+.btn-primary:hover{
+    background:var(--mgvm-maroon-dark) !important;
+}
+
+
+/* =====================================================
+   QUICK ACTION BUTTON
+===================================================== */
+
+.action-btn{
+    background:var(--mgvm-maroon) !important;
+    color:#fff !important;
+}
+
+.action-btn:hover{
+    background:var(--mgvm-maroon-dark) !important;
+}
+
+
+/* =====================================================
+   DASHBOARD CARD NUMBERS
+===================================================== */
+
+.card h1{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   MEMBER CARD
+===================================================== */
+
+.member-card{
+    border-left-color:var(--mgvm-maroon) !important;
+}
+
+.member-card h3{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   MEMBER ID
+===================================================== */
+
+.member-id{
+    background:var(--mgvm-maroon-light) !important;
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   STATISTICS CARD
+===================================================== */
+
+.stat-card{
+    background:linear-gradient(
+        135deg,
+        var(--mgvm-maroon),
+        #7a1b2b
+    ) !important;
+
+    box-shadow:0 3px 15px rgba(91,11,24,.25) !important;
+}
+
+
+/* =====================================================
+   INPUT FOCUS
+===================================================== */
+
+input:focus,
+select:focus,
+textarea:focus{
+
+    border-color:var(--mgvm-maroon) !important;
+
+    box-shadow:
+        0 0 0 4px rgba(91,11,24,.12) !important;
+}
+
+
+/* =====================================================
+   WIDGET TITLE
+===================================================== */
+
+.widget-title{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   NOTICE
+===================================================== */
+
+.notice-card{
+    background:var(--mgvm-maroon-light) !important;
+    border-left-color:var(--mgvm-maroon) !important;
+}
+
+.notice-card h4{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   TIMELINE
+===================================================== */
+
+.timeline::before{
+    background:var(--mgvm-maroon) !important;
+}
+
+.timeline-item::before{
+    background:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   BALANCE CARD
+===================================================== */
+
+.balance-card{
+    background:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   SEARCH RESULT
+===================================================== */
+
+.search-item{
+    border-left-color:var(--mgvm-maroon) !important;
+}
+
+.search-item:hover{
+    background:var(--mgvm-maroon-light) !important;
+}
+
+
+/* =====================================================
+   RECEIPT TITLE
+===================================================== */
+
+.receipt h2{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+.pagination button:hover{
+    background:var(--mgvm-maroon) !important;
+    color:#fff !important;
+}
+
+.pagination .active{
+    background:var(--mgvm-maroon) !important;
+    color:#fff !important;
+}
+
+
+/* =====================================================
+   SPINNER
+===================================================== */
+
+.spinner{
+    border-top-color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   TEXT PRIMARY
+===================================================== */
+
+.text-primary{
+    color:var(--mgvm-maroon) !important;
+}
+
+
+/* =====================================================
+   MOBILE HEADER
+===================================================== */
+
+@media(max-width:600px){
+
+    .top-header{
+        background:var(--mgvm-maroon) !important;
+    }
+
+    .mgvm-header{
+        background:var(--mgvm-maroon) !important;
+    }
+
+    .logo-wrap{
+        width:65px !important;
+        height:65px !important;
+        min-width:65px !important;
+        min-height:65px !important;
+    }
+
+    .mandir-logo{
+        width:65px !important;
+        height:65px !important;
+        max-width:65px !important;
+        max-height:65px !important;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media(max-width:380px){
+
+    .logo-wrap{
+        width:58px !important;
+        height:58px !important;
+        min-width:58px !important;
+        min-height:58px !important;
+    }
+
+    .mandir-logo{
+        width:58px !important;
+        height:58px !important;
+        max-width:58px !important;
+        max-height:58px !important;
+    }
+
+   }
