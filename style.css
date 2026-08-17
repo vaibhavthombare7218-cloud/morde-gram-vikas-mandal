@@ -59,7 +59,24 @@ body{
    MGVM COMMON HEADER
    index.html EXCLUDED
 ===================================================== */
+/* ================= LOGO SIZE ================= */
 
+.logo-wrap{
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.mandir-logo{
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    display: block;
+}
 .mgvm-header{
     width:100%;
     box-sizing:border-box;
