@@ -27,7 +27,10 @@ let subscriptions = [];
 
 let selectedMember = null;
 
-const DEFAULT_ANNUAL_AMOUNT = 200;
+const DEFAULT_ANNUAL_AMOUNT =
+    Number(
+        localStorage.getItem("mgvm_annual_subscription_amount")
+    ) || 200;
 
 
 /*
