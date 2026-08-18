@@ -690,90 +690,181 @@
          ALL TRANSACTIONS
     ====================================================== -->
 
-    <div class="report-section">
+<!-- =====================================================
+     जमा TRANSACTIONS
+====================================================== -->
 
-        <h2>
-            <i class="fa fa-list"></i>
-            सर्व Transactions
-        </h2>
+<div class="report-section">
 
+    <h2>
+        <i class="fa fa-arrow-down"></i>
+        जमा Transactions
+    </h2>
 
-        <div class="report-table-wrapper">
+    <div class="report-table-wrapper">
 
-            <table
-                class="report-table"
-                id="allTransactionsTable">
+        <table
+            class="report-table"
+            id="incomeTransactionsTable">
 
-                <thead>
+            <thead>
+                <tr>
 
-                    <tr>
+                    <th>क्र.</th>
 
-                        <th>
-                            क्र.
-                        </th>
+                    <th>तारीख</th>
 
-                        <th>
-                            तारीख
-                        </th>
+                    <th>प्रकार</th>
 
-                        <th>
-                            प्रकार
-                        </th>
+                    <th>नाव / प्रकार</th>
 
-                        <th>
-                            नाव / प्रकार
-                        </th>
+                    <th>वाडी</th>
 
-                        <th>
-                            वाडी
-                        </th>
+                    <th>तपशील</th>
 
-                        <th>
-                            तपशील
-                        </th>
+                    <th>जमा</th>
 
-                        <th>
-                            जमा
-                        </th>
+                    <th>Receipt / Ref.</th>
 
-                        <th>
-                            खर्च
-                        </th>
+                    <th>Payment Mode</th>
 
-                        <th>
-                            Receipt / Ref.
-                        </th>
+                </tr>
+            </thead>
 
-                        <th>
-                            Payment Mode
-                        </th>
+            <tbody id="incomeTransactionsBody">
+            </tbody>
 
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="allTransactionsBody">
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <div
-            class="report-total"
-            id="allTransactionsTotal">
-
-            एकूण जमा: ₹0
-            |
-            एकूण खर्च: ₹0
-
-        </div>
+        </table>
 
     </div>
 
+    <div
+        class="report-total"
+        id="incomeTransactionsTotal">
 
+        एकूण जमा: ₹0
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     वर्गणी TRANSACTIONS
+====================================================== -->
+
+<div class="report-section">
+
+    <h2>
+        <i class="fa fa-users"></i>
+        वर्गणी Transactions
+    </h2>
+
+    <div class="report-table-wrapper">
+
+        <table
+            class="report-table"
+            id="subscriptionTransactionsTable">
+
+            <thead>
+                <tr>
+
+                    <th>क्र.</th>
+
+                    <th>तारीख</th>
+
+                    <th>वर्गणी वर्ष</th>
+
+                    <th>सभासदाचे नाव</th>
+
+                    <th>वाडी</th>
+
+                    <th>तपशील</th>
+
+                    <th>वर्गणी</th>
+
+                    <th>Receipt / Ref.</th>
+
+                    <th>Payment Mode</th>
+
+                </tr>
+            </thead>
+
+            <tbody id="subscriptionTransactionsBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div
+        class="report-total"
+        id="subscriptionTransactionsTotal">
+
+        एकूण वर्गणी: ₹0
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     खर्च TRANSACTIONS
+====================================================== -->
+
+<div class="report-section">
+
+    <h2>
+        <i class="fa fa-arrow-up"></i>
+        खर्च Transactions
+    </h2>
+
+    <div class="report-table-wrapper">
+
+        <table
+            class="report-table"
+            id="expenseTransactionsTable">
+
+            <thead>
+                <tr>
+
+                    <th>क्र.</th>
+
+                    <th>तारीख</th>
+
+                    <th>खर्च प्रकार</th>
+
+                    <th>नाव / प्रकार</th>
+
+                    <th>तपशील</th>
+
+                    <th>खर्च</th>
+
+                    <th>Payment Mode</th>
+
+                    <th>Receipt / Ref.</th>
+
+                </tr>
+            </thead>
+
+            <tbody id="expenseTransactionsBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div
+        class="report-total"
+        id="expenseTransactionsTotal">
+
+        एकूण खर्च: ₹0
+            |
+        एकूण खर्च: ₹0
+        
+    </div>
 
 </div>
 
