@@ -28,7 +28,7 @@ const MGVM_DASHBOARD_KEYS = {
         "mgvm_income",
 
     EXPENSE:
-        "mgvm_expense",
+        "mgvm_expenses",
 
     MEETINGS:
         "mgvm_meetings"
