@@ -4,6 +4,11 @@
 
    COMPLETE FINANCIAL REPORT
 
+   Transaction Sections:
+   ✅ जमा Transactions
+   ✅ वर्गणी Transactions
+   ✅ खर्च Transactions
+
    Sources:
    ✅ mgvm_income
    ✅ mgvm_expenses
@@ -24,7 +29,7 @@
    ✅ From-To Date
    ✅ Financial Year
    ✅ Transaction Type
-   ✅ All Transactions
+   ✅ Separate Transactions
    ✅ Print
    ✅ Excel
    ✅ CSV
@@ -78,17 +83,12 @@ let filteredTransactions = [];
    3. GET STORAGE
 ========================================================= */
 
-function reportGetStorage(
-    key
-) {
+function reportGetStorage(key) {
 
     try {
 
         const data =
-            localStorage.getItem(
-                key
-            );
-
+            localStorage.getItem(key);
 
         if (!data) {
 
@@ -96,20 +96,15 @@ function reportGetStorage(
 
         }
 
-
         const parsed =
-            JSON.parse(
-                data
-            );
+            JSON.parse(data);
 
-
-        return Array.isArray(
-            parsed
-        )
+        return Array.isArray(parsed)
             ? parsed
             : [];
 
     }
+
     catch (error) {
 
         console.error(
@@ -136,24 +131,20 @@ function loadReportData() {
             REPORT_INCOME_KEY
         );
 
-
     reportData.expenses =
         reportGetStorage(
             REPORT_EXPENSE_KEY
         );
-
 
     reportData.subscriptions =
         reportGetStorage(
             REPORT_SUBSCRIPTION_KEY
         );
 
-
     reportData.donations =
         reportGetStorage(
             REPORT_DONATION_KEY
         );
-
 
     reportData.members =
         reportGetStorage(
@@ -167,15 +158,10 @@ function loadReportData() {
    5. NUMBER
 ========================================================= */
 
-function reportNumber(
-    value
-) {
+function reportNumber(value) {
 
     const number =
-        Number(
-            value || 0
-        );
-
+        Number(value || 0);
 
     return number.toLocaleString(
         "en-IN"
@@ -188,15 +174,11 @@ function reportNumber(
    6. MONEY
 ========================================================= */
 
-function reportMoney(
-    value
-) {
+function reportMoney(value) {
 
     return (
         "₹" +
-        reportNumber(
-            value
-        )
+        reportNumber(value)
     );
 
 }
@@ -206,9 +188,7 @@ function reportMoney(
    7. ESCAPE HTML
 ========================================================= */
 
-function reportEscape(
-    value
-) {
+function reportEscape(value) {
 
     return String(
         value ?? ""
@@ -241,9 +221,7 @@ function reportEscape(
    8. DATE FORMAT
 ========================================================= */
 
-function reportFormatDate(
-    date
-) {
+function reportFormatDate(date) {
 
     if (!date) {
 
@@ -251,16 +229,11 @@ function reportFormatDate(
 
     }
 
-
     const value =
-        String(
-            date
-        );
-
+        String(date);
 
     const parts =
         value.split("-");
-
 
     if (
         parts.length === 3
@@ -276,7 +249,6 @@ function reportFormatDate(
 
     }
 
-
     return value;
 
 }
@@ -286,9 +258,7 @@ function reportFormatDate(
    9. FINANCIAL YEAR
 ========================================================= */
 
-function reportFinancialYear(
-    date
-) {
+function reportFinancialYear(date) {
 
     if (!date) {
 
@@ -296,12 +266,8 @@ function reportFinancialYear(
 
     }
 
-
     const parts =
-        String(
-            date
-        ).split("-");
-
+        String(date).split("-");
 
     if (
         parts.length !== 3
@@ -311,26 +277,17 @@ function reportFinancialYear(
 
     }
 
-
     const year =
-        Number(
-            parts[0]
-        );
-
+        Number(parts[0]);
 
     const month =
-        Number(
-            parts[1]
-        );
-
+        Number(parts[1]);
 
     /*
        April to March
     */
 
-    if (
-        month >= 4
-    ) {
+    if (month >= 4) {
 
         return (
             year +
@@ -341,7 +298,6 @@ function reportFinancialYear(
         );
 
     }
-
 
     return (
         year - 1 +
@@ -355,19 +311,16 @@ function reportFinancialYear(
 
 
 /* =========================================================
-   10. GET WADI
+   10. GET MEMBER WADI
 ========================================================= */
 
-function getMemberWadi(
-    memberId
-) {
+function getMemberWadi(memberId) {
 
     if (!memberId) {
 
         return "";
 
     }
-
 
     const member =
         reportData.members.find(
@@ -389,7 +342,6 @@ function getMemberWadi(
 
             }
         );
-
 
     return member
         ? (
@@ -426,13 +378,15 @@ function buildAllTransactions() {
                     "जमा",
 
                 name:
-                    item.category || "इतर जमा",
+                    item.category ||
+                    "इतर जमा",
 
                 wadi:
                     "",
 
                 description:
-                    item.description || "",
+                    item.description ||
+                    "",
 
                 income:
                     Number(
@@ -443,10 +397,12 @@ function buildAllTransactions() {
                     0,
 
                 reference:
-                    item.receiptNo || "",
+                    item.receiptNo ||
+                    "",
 
                 paymentMode:
-                    item.paymentMode || "",
+                    item.paymentMode ||
+                    "",
 
                 source:
                     "income"
@@ -473,13 +429,15 @@ function buildAllTransactions() {
                     "खर्च",
 
                 name:
-                    item.category || "",
+                    item.category ||
+                    "",
 
                 wadi:
                     "",
 
                 description:
-                    item.description || "",
+                    item.description ||
+                    "",
 
                 income:
                     0,
@@ -490,10 +448,12 @@ function buildAllTransactions() {
                     ),
 
                 reference:
-                    item.referenceNo || "",
+                    item.referenceNo ||
+                    "",
 
                 paymentMode:
-                    item.paymentMode || "",
+                    item.paymentMode ||
+                    "",
 
                 source:
                     "expense"
@@ -521,7 +481,8 @@ function buildAllTransactions() {
                     "वर्गणी",
 
                 name:
-                    item.memberName || "",
+                    item.memberName ||
+                    "",
 
                 wadi:
                     item.wadi ||
@@ -532,22 +493,26 @@ function buildAllTransactions() {
                 description:
                     "वर्गणी " +
                     (
-                        item.year || ""
+                        item.year ||
+                        ""
                     ),
 
                 income:
                     Number(
-                        item.paidAmount || 0
+                        item.paidAmount ||
+                        0
                     ),
 
                 expense:
                     0,
 
                 reference:
-                    item.receiptNo || "",
+                    item.receiptNo ||
+                    "",
 
                 paymentMode:
-                    item.paymentMode || "",
+                    item.paymentMode ||
+                    "",
 
                 source:
                     "subscription"
@@ -560,6 +525,8 @@ function buildAllTransactions() {
 
     /* =====================================================
        DONATION
+       Donation is income but kept separately as source
+       so donation filter and summary continue working.
     ===================================================== */
 
     reportData.donations.forEach(
@@ -575,9 +542,11 @@ function buildAllTransactions() {
                     "देणगी",
 
                 name:
-                    item.donorName || "",
+                    item.donorName ||
+                    "",
 
                 wadi:
+                    item.wadi ||
                     getMemberWadi(
                         item.memberId
                     ),
@@ -589,17 +558,20 @@ function buildAllTransactions() {
 
                 income:
                     Number(
-                        item.amount || 0
+                        item.amount ||
+                        0
                     ),
 
                 expense:
                     0,
 
                 reference:
-                    item.receiptNo || "",
+                    item.receiptNo ||
+                    "",
 
                 paymentMode:
-                    item.paymentMode || "",
+                    item.paymentMode ||
+                    "",
 
                 source:
                     "donation"
@@ -626,17 +598,14 @@ function loadFinancialYears() {
             "reportFinancialYear"
         );
 
-
     if (!select) {
 
         return;
 
     }
 
-
     const years =
         new Set();
-
 
     buildAllTransactions()
         .forEach(
@@ -647,12 +616,9 @@ function loadFinancialYears() {
                         item.date
                     );
 
-
                 if (fy) {
 
-                    years.add(
-                        fy
-                    );
+                    years.add(fy);
 
                 }
 
@@ -669,34 +635,29 @@ function loadFinancialYears() {
     `;
 
 
-    Array.from(
-        years
-    )
-    .sort()
-    .reverse()
-    .forEach(
-        function(year) {
+    Array.from(years)
+        .sort()
+        .reverse()
+        .forEach(
+            function(year) {
 
-            const option =
-                document.createElement(
-                    "option"
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    year;
+
+                option.textContent =
+                    year;
+
+                select.appendChild(
+                    option
                 );
 
-
-            option.value =
-                year;
-
-
-            option.textContent =
-                year;
-
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
+            }
+        );
 
 }
 
@@ -795,7 +756,7 @@ function applyReportFilter() {
                 }
 
 
-                /* TYPE */
+                /* TRANSACTION TYPE */
 
                 if (
                     transactionType !==
@@ -858,32 +819,28 @@ function resetReportFilter() {
 
     if (fromDate) {
 
-        fromDate.value =
-            "";
+        fromDate.value = "";
 
     }
 
 
     if (toDate) {
 
-        toDate.value =
-            "";
+        toDate.value = "";
 
     }
 
 
     if (financialYear) {
 
-        financialYear.value =
-            "";
+        financialYear.value = "";
 
     }
 
 
     if (type) {
 
-        type.value =
-            "all";
+        type.value = "all";
 
     }
 
@@ -930,7 +887,17 @@ function renderReport(
     );
 
 
-    renderAllTransactions(
+    renderIncomeTransactions(
+        transactions
+    );
+
+
+    renderSubscriptionTransactions(
+        transactions
+    );
+
+
+    renderExpenseTransactions(
         transactions
     );
 
@@ -1002,9 +969,9 @@ function renderSummary(
 
 
     /*
-       Other income =
-       Income transactions excluding
-       subscription and donation.
+       Other Income:
+       Only mgvm_income transactions.
+       Subscription and Donation excluded.
     */
 
     const otherIncome =
@@ -1102,9 +1069,7 @@ function setReportText(
 ) {
 
     const element =
-        document.getElementById(
-            id
-        );
+        document.getElementById(id);
 
 
     if (element) {
@@ -1144,8 +1109,7 @@ function renderExpenseCategories(
     }
 
 
-    const map =
-        {};
+    const map = {};
 
 
     transactions
@@ -1171,8 +1135,7 @@ function renderExpenseCategories(
                     !map[category]
                 ) {
 
-                    map[category] =
-                        0;
+                    map[category] = 0;
 
                 }
 
@@ -1187,9 +1150,7 @@ function renderExpenseCategories(
 
 
     const rows =
-        Object.entries(
-            map
-        )
+        Object.entries(map)
         .sort(
             function(a, b) {
 
@@ -1199,8 +1160,7 @@ function renderExpenseCategories(
         );
 
 
-    tbody.innerHTML =
-        "";
+    tbody.innerHTML = "";
 
 
     let total = 0;
@@ -1212,8 +1172,7 @@ function renderExpenseCategories(
             index
         ) {
 
-            total +=
-                row[1];
+            total += row[1];
 
 
             tbody.innerHTML += `
@@ -1272,9 +1231,7 @@ function renderExpenseCategories(
 
         totalElement.innerText =
             "एकूण: " +
-            reportMoney(
-                total
-            );
+            reportMoney(total);
 
     }
 
@@ -1308,8 +1265,7 @@ function renderWadiSubscriptions(
     }
 
 
-    const map =
-        {};
+    const map = {};
 
 
     transactions
@@ -1335,8 +1291,7 @@ function renderWadiSubscriptions(
                     !map[wadi]
                 ) {
 
-                    map[wadi] =
-                        0;
+                    map[wadi] = 0;
 
                 }
 
@@ -1351,9 +1306,7 @@ function renderWadiSubscriptions(
 
 
     const rows =
-        Object.entries(
-            map
-        )
+        Object.entries(map)
         .sort(
             function(a, b) {
 
@@ -1363,8 +1316,7 @@ function renderWadiSubscriptions(
         );
 
 
-    tbody.innerHTML =
-        "";
+    tbody.innerHTML = "";
 
 
     let total = 0;
@@ -1376,8 +1328,7 @@ function renderWadiSubscriptions(
             index
         ) {
 
-            total +=
-                row[1];
+            total += row[1];
 
 
             tbody.innerHTML += `
@@ -1436,9 +1387,7 @@ function renderWadiSubscriptions(
 
         totalElement.innerText =
             "एकूण: " +
-            reportMoney(
-                total
-            );
+            reportMoney(total);
 
     }
 
@@ -1472,8 +1421,7 @@ function renderWadiDonations(
     }
 
 
-    const map =
-        {};
+    const map = {};
 
 
     transactions
@@ -1499,8 +1447,7 @@ function renderWadiDonations(
                     !map[wadi]
                 ) {
 
-                    map[wadi] =
-                        0;
+                    map[wadi] = 0;
 
                 }
 
@@ -1515,9 +1462,7 @@ function renderWadiDonations(
 
 
     const rows =
-        Object.entries(
-            map
-        )
+        Object.entries(map)
         .sort(
             function(a, b) {
 
@@ -1527,8 +1472,7 @@ function renderWadiDonations(
         );
 
 
-    tbody.innerHTML =
-        "";
+    tbody.innerHTML = "";
 
 
     let total = 0;
@@ -1540,8 +1484,7 @@ function renderWadiDonations(
             index
         ) {
 
-            total +=
-                row[1];
+            total += row[1];
 
 
             tbody.innerHTML += `
@@ -1600,9 +1543,7 @@ function renderWadiDonations(
 
         totalElement.innerText =
             "एकूण: " +
-            reportMoney(
-                total
-            );
+            reportMoney(total);
 
     }
 
@@ -1610,28 +1551,14 @@ function renderWadiDonations(
 
 
 /* =========================================================
-   21. ALL TRANSACTIONS
+   21. SORT TRANSACTIONS
 ========================================================= */
 
-function renderAllTransactions(
+function sortReportTransactions(
     transactions
 ) {
 
-    const tbody =
-        document.getElementById(
-            "allTransactionsBody"
-        );
-
-
-    if (!tbody) {
-
-        return;
-
-    }
-
-
-    const data =
-        [...transactions]
+    return [...transactions]
         .sort(
             function(a, b) {
 
@@ -1649,14 +1576,146 @@ function renderAllTransactions(
             }
         );
 
-
-    tbody.innerHTML =
-        "";
+}
 
 
-    let totalIncome = 0;
+/* =========================================================
+   22. RENDER COMMON TABLE ROW
+========================================================= */
 
-    let totalExpense = 0;
+function buildTransactionRow(
+    item,
+    index
+) {
+
+    return `
+
+        <tr>
+
+            <td>
+                ${index + 1}
+            </td>
+
+            <td>
+                ${reportFormatDate(
+                    item.date
+                )}
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.type
+                )}
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.name
+                )}
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.wadi || "-"
+                )}
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.description ||
+                    "-"
+                )}
+            </td>
+
+            <td>
+                ${
+                    item.income > 0
+                    ?
+                    reportMoney(
+                        item.income
+                    )
+                    :
+                    "-"
+                }
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.reference ||
+                    "-"
+                )}
+            </td>
+
+            <td>
+                ${reportEscape(
+                    item.paymentMode ||
+                    "-"
+                )}
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+/* =========================================================
+   23. RENDER जमा TRANSACTIONS
+========================================================= */
+
+function renderIncomeTransactions(
+    transactions
+) {
+
+    const tbody =
+        document.getElementById(
+            "incomeTransactionsBody"
+        );
+
+
+    const totalElement =
+        document.getElementById(
+            "incomeTransactionsTotal"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    /*
+       जमा section मध्ये:
+       1. Normal Income
+       2. Donation
+
+       Subscription वेगळ्या section मध्ये.
+    */
+
+    const data =
+        sortReportTransactions(
+            transactions.filter(
+                function(item) {
+
+                    return (
+                        item.source ===
+                        "income" ||
+                        item.source ===
+                        "donation"
+                    );
+
+                }
+            )
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    let total = 0;
 
 
     data.forEach(
@@ -1665,13 +1724,279 @@ function renderAllTransactions(
             index
         ) {
 
-            totalIncome +=
+            total +=
                 Number(
                     item.income || 0
                 );
 
 
-            totalExpense +=
+            tbody.innerHTML +=
+                buildTransactionRow(
+                    item,
+                    index
+                );
+
+        }
+    );
+
+
+    if (
+        data.length === 0
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="empty-row"
+                >
+
+                    जमा Transaction उपलब्ध नाही.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    if (totalElement) {
+
+        totalElement.innerText =
+            "एकूण जमा: " +
+            reportMoney(total);
+
+    }
+
+}
+
+
+/* =========================================================
+   24. RENDER वर्गणी TRANSACTIONS
+========================================================= */
+
+function renderSubscriptionTransactions(
+    transactions
+) {
+
+    const tbody =
+        document.getElementById(
+            "subscriptionTransactionsBody"
+        );
+
+
+    const totalElement =
+        document.getElementById(
+            "subscriptionTransactionsTotal"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    const data =
+        sortReportTransactions(
+            transactions.filter(
+                function(item) {
+
+                    return (
+                        item.source ===
+                        "subscription"
+                    );
+
+                }
+            )
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    let total = 0;
+
+
+    data.forEach(
+        function(
+            item,
+            index
+        ) {
+
+            total +=
+                Number(
+                    item.income || 0
+                );
+
+
+            tbody.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${reportFormatDate(
+                            item.date
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.description
+                                .replace(
+                                    "वर्गणी ",
+                                    ""
+                                ) ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.name ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.wadi ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        वर्गणी
+
+                    </td>
+
+                    <td>
+                        ${reportMoney(
+                            item.income
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.reference ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.paymentMode ||
+                            "-"
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    if (
+        data.length === 0
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="empty-row"
+                >
+
+                    वर्गणी Transaction उपलब्ध नाही.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    if (totalElement) {
+
+        totalElement.innerText =
+            "एकूण वर्गणी: " +
+            reportMoney(total);
+
+    }
+
+}
+
+
+/* =========================================================
+   25. RENDER खर्च TRANSACTIONS
+========================================================= */
+
+function renderExpenseTransactions(
+    transactions
+) {
+
+    const tbody =
+        document.getElementById(
+            "expenseTransactionsBody"
+        );
+
+
+    const totalElement =
+        document.getElementById(
+            "expenseTransactionsTotal"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    const data =
+        sortReportTransactions(
+            transactions.filter(
+                function(item) {
+
+                    return (
+                        item.source ===
+                        "expense"
+                    );
+
+                }
+            )
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    let total = 0;
+
+
+    data.forEach(
+        function(
+            item,
+            index
+        ) {
+
+            total +=
                 Number(
                     item.expense || 0
                 );
@@ -1693,61 +2018,42 @@ function renderAllTransactions(
 
                     <td>
                         ${reportEscape(
-                            item.type
-                        )}
-                    </td>
-
-                    <td>
-                        ${reportEscape(
-                            item.name
-                        )}
-                    </td>
-
-                    <td>
-                        ${reportEscape(
-                            item.wadi || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${reportEscape(
-                            item.description || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${
-                            item.income > 0
-                            ?
-                            reportMoney(
-                                item.income
-                            )
-                            :
+                            item.name ||
                             "-"
-                        }
-                    </td>
-
-                    <td>
-                        ${
-                            item.expense > 0
-                            ?
-                            reportMoney(
-                                item.expense
-                            )
-                            :
-                            "-"
-                        }
-                    </td>
-
-                    <td>
-                        ${reportEscape(
-                            item.reference || "-"
                         )}
                     </td>
 
                     <td>
                         ${reportEscape(
-                            item.paymentMode || "-"
+                            item.name ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.description ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportMoney(
+                            item.expense
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.paymentMode ||
+                            "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${reportEscape(
+                            item.reference ||
+                            "-"
                         )}
                     </td>
 
@@ -1768,11 +2074,11 @@ function renderAllTransactions(
             <tr>
 
                 <td
-                    colspan="10"
+                    colspan="8"
                     class="empty-row"
                 >
 
-                    कोणतीही Transaction उपलब्ध नाही.
+                    खर्च Transaction उपलब्ध नाही.
 
                 </td>
 
@@ -1783,35 +2089,11 @@ function renderAllTransactions(
     }
 
 
-    const totalElement =
-        document.getElementById(
-            "allTransactionsTotal"
-        );
-
-
     if (totalElement) {
 
-        totalElement.innerHTML =
-
-            "एकूण जमा: " +
-            reportMoney(
-                totalIncome
-            ) +
-
-            " &nbsp; | &nbsp; " +
-
+        totalElement.innerText =
             "एकूण खर्च: " +
-            reportMoney(
-                totalExpense
-            ) +
-
-            " &nbsp; | &nbsp; " +
-
-            "शिल्लक: " +
-            reportMoney(
-                totalIncome -
-                totalExpense
-            );
+            reportMoney(total);
 
     }
 
@@ -1819,7 +2101,7 @@ function renderAllTransactions(
 
 
 /* =========================================================
-   22. REPORT PERIOD
+   26. REPORT PERIOD
 ========================================================= */
 
 function updateReportPeriod() {
@@ -1858,7 +2140,8 @@ function updateReportPeriod() {
     const type =
         document.getElementById(
             "reportTransactionType"
-        )?.value || "all";
+        )?.value ||
+        "all";
 
 
     let text =
@@ -1869,12 +2152,15 @@ function updateReportPeriod() {
 
         text =
             "कालावधी: " +
+
             (
                 from
                     ? reportFormatDate(from)
                     : "सुरुवातीपासून"
             ) +
+
             " ते " +
+
             (
                 to
                     ? reportFormatDate(to)
@@ -1931,7 +2217,7 @@ function updateReportPeriod() {
 
 
 /* =========================================================
-   23. PRINT
+   27. PRINT
 ========================================================= */
 
 function printReport() {
@@ -1942,12 +2228,10 @@ function printReport() {
 
 
 /* =========================================================
-   24. CSV ESCAPE
+   28. CSV ESCAPE
 ========================================================= */
 
-function csvValue(
-    value
-) {
+function csvValue(value) {
 
     const text =
         String(
@@ -1968,16 +2252,12 @@ function csvValue(
 
 
 /* =========================================================
-   25. CSV EXPORT
+   29. GET CSV ROWS
 ========================================================= */
 
-function exportReportCSV() {
-
-    const transactions =
-        filteredTransactions.length
-            ? filteredTransactions
-            : buildAllTransactions();
-
+function getCSVRows(
+    transactions
+) {
 
     const rows = [];
 
@@ -2007,61 +2287,71 @@ function exportReportCSV() {
     ]);
 
 
-    transactions
-        .sort(
-            function(a, b) {
+    sortReportTransactions(
+        transactions
+    )
+    .forEach(
+        function(
+            item,
+            index
+        ) {
 
-                return (
-                    String(
-                        b.date || ""
-                    )
-                    .localeCompare(
-                        String(
-                            a.date || ""
-                        )
-                    )
-                );
+            rows.push([
 
-            }
-        )
-        .forEach(
-            function(
-                item,
-                index
-            ) {
+                index + 1,
 
-                rows.push([
+                reportFormatDate(
+                    item.date
+                ),
 
-                    index + 1,
+                item.type,
 
-                    reportFormatDate(
-                        item.date
-                    ),
+                item.name,
 
-                    item.type,
+                item.wadi,
 
-                    item.name,
+                item.description,
 
-                    item.wadi,
+                item.income || 0,
 
-                    item.description,
+                item.expense || 0,
 
-                    item.income || 0,
+                item.reference,
 
-                    item.expense || 0,
+                item.paymentMode
 
-                    item.reference,
+            ]);
 
-                    item.paymentMode
+        }
+    );
 
-                ]);
 
-            }
+    return rows;
+
+}
+
+
+/* =========================================================
+   30. CSV EXPORT
+========================================================= */
+
+function exportReportCSV() {
+
+    const transactions =
+        filteredTransactions.length
+            ? filteredTransactions
+            : buildAllTransactions();
+
+
+    const rows =
+        getCSVRows(
+            transactions
         );
 
 
     const csv =
         "\uFEFF" +
+
         rows
             .map(
                 function(row) {
@@ -2096,15 +2386,10 @@ function exportReportCSV() {
 
 
 /* =========================================================
-   26. EXCEL EXPORT
+   31. EXCEL EXPORT
 ========================================================= */
 
 function exportReportExcel() {
-
-    /*
-       जर SheetJS library उपलब्ध असेल
-       तर proper .xlsx file तयार होईल.
-    */
 
     const transactions =
         filteredTransactions.length
@@ -2113,105 +2398,456 @@ function exportReportExcel() {
 
 
     if (
-        typeof XLSX !==
+        typeof XLSX ===
         "undefined"
     ) {
 
-        const rows =
-            transactions.map(
-                function(
-                    item,
-                    index
-                ) {
-
-                    return {
-
-                        "क्र.":
-                            index + 1,
-
-                        "तारीख":
-                            reportFormatDate(
-                                item.date
-                            ),
-
-                        "प्रकार":
-                            item.type,
-
-                        "नाव / प्रकार":
-                            item.name,
-
-                        "वाडी":
-                            item.wadi,
-
-                        "तपशील":
-                            item.description,
-
-                        "जमा":
-                            Number(
-                                item.income || 0
-                            ),
-
-                        "खर्च":
-                            Number(
-                                item.expense || 0
-                            ),
-
-                        "Receipt / Reference":
-                            item.reference,
-
-                        "Payment Mode":
-                            item.paymentMode
-
-                    };
-
-                }
-            );
-
-
-        const worksheet =
-            XLSX.utils.json_to_sheet(
-                rows
-            );
-
-
-        const workbook =
-            XLSX.utils.book_new();
-
-
-        XLSX.utils.book_append_sheet(
-            workbook,
-            worksheet,
-            "MGVM Report"
+        alert(
+            "Excel library उपलब्ध नाही. CSV Export केला जाईल."
         );
 
-
-        XLSX.writeFile(
-            workbook,
-            "MGVM_Report.xlsx"
-        );
-
+        exportReportCSV();
 
         return;
 
     }
 
 
-    /*
-       SheetJS नसेल तर CSV fallback.
-    */
+    /* =====================================================
+       SHEET 1 - जमा
+    ===================================================== */
 
-    alert(
-        "Excel library उपलब्ध नाही. CSV Export केला जाईल."
+    const incomeData =
+        transactions
+        .filter(
+            function(item) {
+
+                return (
+                    item.source ===
+                    "income" ||
+                    item.source ===
+                    "donation"
+                );
+
+            }
+        )
+        .map(
+            function(
+                item,
+                index
+            ) {
+
+                return {
+
+                    "क्र.":
+                        index + 1,
+
+                    "तारीख":
+                        reportFormatDate(
+                            item.date
+                        ),
+
+                    "प्रकार":
+                        item.type,
+
+                    "नाव / प्रकार":
+                        item.name,
+
+                    "वाडी":
+                        item.wadi,
+
+                    "तपशील":
+                        item.description,
+
+                    "जमा":
+                        Number(
+                            item.income || 0
+                        ),
+
+                    "Receipt / Reference":
+                        item.reference,
+
+                    "Payment Mode":
+                        item.paymentMode
+
+                };
+
+            }
+        );
+
+
+    /* =====================================================
+       SHEET 2 - वर्गणी
+    ===================================================== */
+
+    const subscriptionData =
+        transactions
+        .filter(
+            function(item) {
+
+                return (
+                    item.source ===
+                    "subscription"
+                );
+
+            }
+        )
+        .map(
+            function(
+                item,
+                index
+            ) {
+
+                return {
+
+                    "क्र.":
+                        index + 1,
+
+                    "तारीख":
+                        reportFormatDate(
+                            item.date
+                        ),
+
+                    "वर्गणी वर्ष":
+                        String(
+                            item.description ||
+                            ""
+                        )
+                        .replace(
+                            "वर्गणी ",
+                            ""
+                        ),
+
+                    "सभासदाचे नाव":
+                        item.name,
+
+                    "वाडी":
+                        item.wadi,
+
+                    "तपशील":
+                        "वर्गणी",
+
+                    "वर्गणी":
+                        Number(
+                            item.income || 0
+                        ),
+
+                    "Receipt / Reference":
+                        item.reference,
+
+                    "Payment Mode":
+                        item.paymentMode
+
+                };
+
+            }
+        );
+
+
+    /* =====================================================
+       SHEET 3 - खर्च
+    ===================================================== */
+
+    const expenseData =
+        transactions
+        .filter(
+            function(item) {
+
+                return (
+                    item.source ===
+                    "expense"
+                );
+
+            }
+        )
+        .map(
+            function(
+                item,
+                index
+            ) {
+
+                return {
+
+                    "क्र.":
+                        index + 1,
+
+                    "तारीख":
+                        reportFormatDate(
+                            item.date
+                        ),
+
+                    "खर्च प्रकार":
+                        item.name,
+
+                    "नाव / प्रकार":
+                        item.name,
+
+                    "तपशील":
+                        item.description,
+
+                    "खर्च":
+                        Number(
+                            item.expense || 0
+                        ),
+
+                    "Payment Mode":
+                        item.paymentMode,
+
+                    "Receipt / Reference":
+                        item.reference
+
+                };
+
+            }
+        );
+
+
+    /* =====================================================
+       CREATE WORKBOOK
+    ===================================================== */
+
+    const workbook =
+        XLSX.utils.book_new();
+
+
+    /* =====================================================
+       ADD जमा SHEET
+    ===================================================== */
+
+    const incomeSheet =
+        XLSX.utils.json_to_sheet(
+            incomeData
+        );
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        incomeSheet,
+        "जमा Transactions"
     );
 
 
-    exportReportCSV();
+    /* =====================================================
+       ADD वर्गणी SHEET
+    ===================================================== */
+
+    const subscriptionSheet =
+        XLSX.utils.json_to_sheet(
+            subscriptionData
+        );
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        subscriptionSheet,
+        "वर्गणी Transactions"
+    );
+
+
+    /* =====================================================
+       ADD खर्च SHEET
+    ===================================================== */
+
+    const expenseSheet =
+        XLSX.utils.json_to_sheet(
+            expenseData
+        );
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        expenseSheet,
+        "खर्च Transactions"
+    );
+
+
+    /* =====================================================
+       ADD SUMMARY SHEET
+    ===================================================== */
+
+    const totalIncome =
+        transactions.reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.income || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const totalExpense =
+        transactions.reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.expense || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const totalSubscription =
+        transactions
+        .filter(
+            function(item) {
+
+                return (
+                    item.source ===
+                    "subscription"
+                );
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.income || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const totalDonation =
+        transactions
+        .filter(
+            function(item) {
+
+                return (
+                    item.source ===
+                    "donation"
+                );
+
+            }
+        )
+        .reduce(
+            function(
+                total,
+                item
+            ) {
+
+                return (
+                    total +
+                    Number(
+                        item.income || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    const summaryData = [
+
+        {
+            "अहवाल":
+                "मोर्डे ग्राम विकास मंडळ, मुंबई"
+        },
+
+        {
+            "अहवाल":
+                "आर्थिक अहवाल"
+        },
+
+        {},
+
+        {
+            "अहवाल":
+                "एकूण जमा",
+
+            "रक्कम":
+                totalIncome
+        },
+
+        {
+            "अहवाल":
+                "एकूण वर्गणी",
+
+            "रक्कम":
+                totalSubscription
+        },
+
+        {
+            "अहवाल":
+                "एकूण देणगी",
+
+            "रक्कम":
+                totalDonation
+        },
+
+        {
+            "अहवाल":
+                "एकूण खर्च",
+
+            "रक्कम":
+                totalExpense
+        },
+
+        {
+            "अहवाल":
+                "शिल्लक रक्कम",
+
+            "रक्कम":
+                totalIncome -
+                totalExpense
+        }
+
+    ];
+
+
+    const summarySheet =
+        XLSX.utils.json_to_sheet(
+            summaryData
+        );
+
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        summarySheet,
+        "Summary"
+    );
+
+
+    /* =====================================================
+       SAVE EXCEL
+    ===================================================== */
+
+    XLSX.writeFile(
+        workbook,
+        "MGVM_Report.xlsx"
+    );
 
 }
 
 
 /* =========================================================
-   27. DOWNLOAD FILE
+   32. DOWNLOAD FILE
 ========================================================= */
 
 function downloadReportFile(
@@ -2267,7 +2903,7 @@ function downloadReportFile(
 
 
 /* =========================================================
-   28. DASHBOARD
+   33. DASHBOARD
 ========================================================= */
 
 function goToDashboard() {
@@ -2279,7 +2915,7 @@ function goToDashboard() {
 
 
 /* =========================================================
-   29. FILTER EVENTS
+   34. FILTER EVENTS
 ========================================================= */
 
 [
@@ -2292,9 +2928,7 @@ function goToDashboard() {
     function(id) {
 
         const element =
-            document.getElementById(
-                id
-            );
+            document.getElementById(id);
 
 
         if (!element) {
@@ -2314,12 +2948,13 @@ function goToDashboard() {
 
 
 /* =========================================================
-   30. INITIALIZE
+   35. INITIALIZE
 ========================================================= */
 
 function initializeReportsPage() {
 
     loadReportData();
+
 
     loadFinancialYears();
 
@@ -2336,7 +2971,7 @@ function initializeReportsPage() {
 
 
 /* =========================================================
-   31. DOM READY
+   36. DOM READY
 ========================================================= */
 
 if (
