@@ -4,11 +4,64 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Backup</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>MGVM Backup / Restore</title>
 
 <link rel="stylesheet" href="style.css">
+
+<style>
+
+.backup-info{
+    background:#fff7e6;
+    border-left:5px solid #5b0b18;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:8px;
+    line-height:1.7;
+}
+
+.backup-btn{
+    width:100%;
+    margin:8px 0;
+    padding:13px;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.download-btn{
+    background:#5b0b18;
+    color:white;
+}
+
+.restore-btn{
+    background:#198754;
+    color:white;
+}
+
+.dashboard-btn{
+    background:#555;
+    color:white;
+}
+
+#backupFile{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+}
+
+.status{
+    margin-top:15px;
+    padding:12px;
+    border-radius:8px;
+    display:none;
+}
+
+</style>
 
 </head>
 
@@ -23,205 +76,464 @@
 </header>
 
 
-
 <div class="container">
-
 
 <div class="card">
 
 
-<h3>📤 Backup घ्या</h3>
+<div class="backup-info">
+
+<strong>⚠️ महत्त्वाचे</strong><br>
+
+Backup मध्ये या App मधील सर्व LocalStorage data सुरक्षित केला जाईल.
+
+<br>
+
+Members, Subscription, Income, Expense, Donation,
+Reports, Settings, Meetings आणि भविष्यातील नवीन data
+देखील backup मध्ये समाविष्ट होईल.
+
+</div>
 
 
-<button onclick="backupData()">
-💾 Download Backup
+
+<!-- =====================================================
+     BACKUP
+===================================================== -->
+
+<h3>📤 पूर्ण Backup घ्या</h3>
+
+<p>
+तुमच्या App मधील सर्व data एका JSON file मध्ये save करा.
+</p>
+
+<button
+class="backup-btn download-btn"
+onclick="backupData()">
+
+💾 Download Full Backup
+
 </button>
 
 
-<br><br>
+
+<hr style="margin:25px 0;">
 
 
-<hr>
+
+<!-- =====================================================
+     RESTORE
+===================================================== -->
+
+<h3>📥 Backup Restore करा</h3>
+
+<p>
+पूर्वी घेतलेली MGVM Backup JSON file निवडा.
+</p>
+
+<input
+type="file"
+id="backupFile"
+accept=".json,application/json">
 
 
-<h3>📥 Restore करा</h3>
+<button
+class="backup-btn restore-btn"
+onclick="restoreData()">
 
+📥 Restore Full Data
 
-<input type="file" id="restoreFile"
-accept=".json">
-
-
-<br><br>
-
-
-<button onclick="restoreData()">
-📥 Restore Data
 </button>
 
 
 
-<br><br>
+<div
+id="status"
+class="status">
+</div>
 
 
-<button onclick="location.href='index.html'">
+
+<br>
+
+
+<button
+class="backup-btn dashboard-btn"
+onclick="location.href='index.html'">
+
 🏠 Dashboard
+
 </button>
 
 
 </div>
 
-
 </div>
-
 
 
 
 <script>
 
+/* =====================================================
+   MGVM FULL BACKUP SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   SHOW STATUS
+===================================================== */
+
+function showStatus(message, success = true){
+
+    const status =
+        document.getElementById("status");
+
+    status.style.display = "block";
+
+    status.style.background =
+        success ? "#d1e7dd" : "#f8d7da";
+
+    status.style.color =
+        success ? "#0f5132" : "#842029";
+
+    status.innerText = message;
+
+}
+
+
+
+/* =====================================================
+   BACKUP DATA
+===================================================== */
 
 function backupData(){
 
+    try{
+
+        const backup = {
+
+            appName:
+                "मोर्डे ग्राम विकास मंडळ, मुंबई",
+
+            backupVersion:
+                "2.0",
+
+            backupDate:
+                new Date().toISOString(),
+
+            localStorageData: {}
+
+        };
 
 
-let backup = {
+        /* ---------------------------------------------
+           GET ALL LOCAL STORAGE DATA
+        --------------------------------------------- */
+
+        for(
+            let i = 0;
+            i < localStorage.length;
+            i++
+        ){
+
+            const key =
+                localStorage.key(i);
+
+            const value =
+                localStorage.getItem(key);
+
+            backup.localStorageData[key] =
+                value;
+
+        }
 
 
-members:
-JSON.parse(localStorage.getItem("members")) || [],
+        /* ---------------------------------------------
+           CONVERT TO JSON
+        --------------------------------------------- */
+
+        const data =
+            JSON.stringify(
+                backup,
+                null,
+                2
+            );
 
 
-transactions:
-JSON.parse(localStorage.getItem("transactions")) || [],
+        /* ---------------------------------------------
+           CREATE FILE
+        --------------------------------------------- */
+
+        const blob =
+            new Blob(
+                [data],
+                {
+                    type:
+                    "application/json"
+                }
+            );
 
 
-pending:
-JSON.parse(localStorage.getItem("pending")) || [],
+        const url =
+            URL.createObjectURL(blob);
 
 
-meetings:
-JSON.parse(localStorage.getItem("meetings")) || []
-
-};
+        const a =
+            document.createElement("a");
 
 
-
-let data =
-JSON.stringify(backup);
-
+        const date =
+            new Date();
 
 
-let blob =
-new Blob([data],
-{type:"application/json"});
+        const fileDate =
+
+            date.getFullYear() +
+            "-" +
+            String(
+                date.getMonth() + 1
+            ).padStart(2,"0") +
+            "-" +
+            String(
+                date.getDate()
+            ).padStart(2,"0") +
+            "_" +
+            String(
+                date.getHours()
+            ).padStart(2,"0") +
+            "-" +
+            String(
+                date.getMinutes()
+            ).padStart(2,"0");
 
 
+        a.href = url;
 
-let url =
-URL.createObjectURL(blob);
-
-
-
-let a =
-document.createElement("a");
+        a.download =
+            "MGVM_Full_Backup_" +
+            fileDate +
+            ".json";
 
 
-a.href=url;
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
 
 
-a.download =
-"GramVikas_Backup.json";
+        URL.revokeObjectURL(url);
 
 
-a.click();
+        showStatus(
+            "✅ पूर्ण Backup यशस्वीपणे तयार झाला."
+        );
 
 
+        alert(
+            "✅ MGVM Full Backup तयार झाला."
+        );
 
-alert("Backup तयार झाला.");
+
+    }
+    catch(error){
+
+        console.error(
+            "Backup Error:",
+            error
+        );
 
 
+        showStatus(
+            "❌ Backup तयार करताना समस्या आली.",
+            false
+        );
+
+
+        alert(
+            "Backup तयार करताना समस्या आली."
+        );
+
+    }
 
 }
 
 
 
-
+/* =====================================================
+   RESTORE DATA
+===================================================== */
 
 function restoreData(){
 
+    const file =
+        document.getElementById(
+            "backupFile"
+        ).files[0];
 
-let file =
-document.getElementById("restoreFile")
-.files[0];
+
+    if(!file){
+
+        alert(
+            "⚠️ कृपया Backup JSON file निवडा."
+        );
+
+        return;
+
+    }
 
 
 
-if(!file){
+    /* =================================================
+       CONFIRM
+    ================================================= */
 
-alert("Backup File निवडा.");
+    const confirmRestore =
+        confirm(
 
-return;
+`⚠️ WARNING
+
+Restore केल्यावर सध्याचा LocalStorage data replace होईल.
+
+तुमच्याकडे सध्याच्या data चा Backup आहे का?
+
+Restore करायचा आहे का?`
+
+        );
+
+
+    if(!confirmRestore){
+
+        return;
+
+    }
+
+
+
+    const reader =
+        new FileReader();
+
+
+
+    reader.onload =
+        function(event){
+
+            try{
+
+                const backup =
+                    JSON.parse(
+                        event.target.result
+                    );
+
+
+                /* -----------------------------------------
+                   CHECK BACKUP FORMAT
+                ----------------------------------------- */
+
+                if(
+                    !backup.localStorageData ||
+                    typeof backup.localStorageData !== "object"
+                ){
+
+                    alert(
+                        "❌ ही वैध MGVM Full Backup file नाही."
+                    );
+
+                    return;
+
+                }
+
+
+
+                /* -----------------------------------------
+                   RESTORE ALL KEYS
+                ----------------------------------------- */
+
+                const data =
+                    backup.localStorageData;
+
+
+                Object.keys(data).forEach(
+                    function(key){
+
+                        localStorage.setItem(
+                            key,
+                            data[key]
+                        );
+
+                    }
+                );
+
+
+
+                /* -----------------------------------------
+                   SUCCESS
+                ----------------------------------------- */
+
+                alert(
+                    "✅ पूर्ण Data Restore झाला."
+                );
+
+
+                showStatus(
+                    "✅ Data Restore यशस्वी झाला."
+                );
+
+
+
+                /* -----------------------------------------
+                   RELOAD APP
+                ----------------------------------------- */
+
+                setTimeout(
+                    function(){
+
+                        location.href =
+                            "index.html";
+
+                    },
+                    1000
+                );
+
+
+            }
+            catch(error){
+
+                console.error(
+                    "Restore Error:",
+                    error
+                );
+
+
+                alert(
+                    "❌ Backup file चुकीची किंवा corrupt आहे."
+                );
+
+
+                showStatus(
+                    "❌ Restore करण्यात समस्या आली.",
+                    false
+                );
+
+            }
+
+        };
+
+
+
+    reader.onerror =
+        function(){
+
+            alert(
+                "❌ Backup file वाचता आली नाही."
+            );
+
+        };
+
+
+    reader.readAsText(file);
 
 }
-
-
-
-let reader =
-new FileReader();
-
-
-
-reader.onload=function(e){
-
-
-let data =
-JSON.parse(e.target.result);
-
-
-
-localStorage.setItem(
-"members",
-JSON.stringify(data.members || [])
-);
-
-
-
-localStorage.setItem(
-"transactions",
-JSON.stringify(data.transactions || [])
-);
-
-
-
-localStorage.setItem(
-"pending",
-JSON.stringify(data.pending || [])
-);
-
-
-
-localStorage.setItem(
-"meetings",
-JSON.stringify(data.meetings || [])
-);
-
-
-
-alert("Data Restore झाला.");
-
-location.href="index.html";
-
-
-};
-
-
-
-reader.readAsText(file);
-
-
-
-}
-
-
 
 </script>
 
