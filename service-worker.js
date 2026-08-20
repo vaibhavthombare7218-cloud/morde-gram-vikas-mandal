@@ -8,13 +8,36 @@ const CACHE_NAME = "mgvm-app-v1";
 const FILES_TO_CACHE = [
     "./",
     "./index.html",
+
     "./style.css",
+
     "./script.js",
+
     "./manifest.json",
-    "./logo.png"
+    "./logo.png",
+
+    "./members.html",
+    "./members.js",
+
+    "./subscription.html",
+    "./subscription.js",
+
+    "./income.html",
+    "./income.js",
+
+    "./expense.html",
+    "./expense.js",
+
+    "./donation.html",
+    "./donation.js",
+
+    "./reports.html",
+    "./reports.js",
+
+    "./settings.html",
+    "./settings.css",
+    "./settings.js"
 ];
-
-
 /* =====================================================
    INSTALL
 ===================================================== */
