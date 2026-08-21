@@ -11,7 +11,7 @@
    APP VERSION
 ========================================================= */
 
-const APP_VERSION = "v3";
+const APP_VERSION = "V4";
 
 const CACHE_NAME = "mgvm-app-" + APP_VERSION;
 
