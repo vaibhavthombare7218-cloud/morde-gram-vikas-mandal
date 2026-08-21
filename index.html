@@ -220,24 +220,92 @@
 <script src="database.js"></script>
 
 <script src="script.js"></script>
-<script>
+
+   <script>
+
 if ("serviceWorker" in navigator) {
 
     window.addEventListener("load", function () {
 
         navigator.serviceWorker
             .register("./service-worker.js")
-            .then(function () {
+            .then(function (registration) {
 
                 console.log(
-                    "MGVM Service Worker Registered Successfully"
+                    "MGVM Service Worker Registered"
+                );
+
+
+                /*
+                 * नवीन update तपासा
+                 */
+
+                registration.update();
+
+
+                /*
+                 * नवीन Service Worker waiting मध्ये आहे का?
+                 */
+
+                if (registration.waiting) {
+
+                    showMGVMUpdate();
+
+                }
+
+
+                /*
+                 * नवीन Service Worker install होताना
+                 */
+
+                registration.addEventListener(
+                    "updatefound",
+                    function () {
+
+                        const newWorker =
+                            registration.installing;
+
+
+                        if (!newWorker) {
+
+                            return;
+
+                        }
+
+
+                        newWorker.addEventListener(
+                            "statechange",
+                            function () {
+
+                                if (
+                                    newWorker.state ===
+                                    "installed"
+                                ) {
+
+                                    if (
+                                        navigator
+                                        .serviceWorker
+                                        .controller
+                                    ) {
+
+                                        showMGVMUpdate();
+
+                                    }
+
+                                }
+
+                            }
+                        );
+
+                    }
                 );
 
             })
+
             .catch(function (error) {
 
                 console.error(
-                    "MGVM Service Worker Registration Failed:",
+                    "MGVM Service Worker Error:",
                     error
                 );
 
@@ -246,7 +314,160 @@ if ("serviceWorker" in navigator) {
     });
 
 }
-            </script>
+
+
+/* =========================================================
+   SHOW UPDATE MESSAGE
+========================================================= */
+
+function showMGVMUpdate() {
+
+    /*
+     * आधीच message असेल तर पुन्हा दाखवू नका
+     */
+
+    if (
+        document.getElementById(
+            "mgvm-update-box"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const box =
+        document.createElement("div");
+
+
+    box.id =
+        "mgvm-update-box";
+
+
+    box.innerHTML = `
+
+        <div style="
+            position:fixed;
+            left:15px;
+            right:15px;
+            bottom:20px;
+            z-index:99999;
+            background:#5b0b18;
+            color:white;
+            padding:16px;
+            border-radius:12px;
+            box-shadow:0 5px 25px rgba(0,0,0,0.3);
+            text-align:center;
+            font-family:Arial,sans-serif;
+        ">
+
+            <div style="
+                font-size:18px;
+                font-weight:bold;
+                margin-bottom:8px;
+            ">
+
+                🔄 नवीन Update उपलब्ध आहे
+
+            </div>
+
+
+            <div style="
+                font-size:14px;
+                margin-bottom:12px;
+            ">
+
+                MGVM App ची नवीन आवृत्ती उपलब्ध आहे.
+
+            </div>
+
+
+            <button
+                onclick="updateMGVMApp()"
+                style="
+                    background:white;
+                    color:#5b0b18;
+                    border:none;
+                    padding:10px 20px;
+                    border-radius:7px;
+                    font-size:15px;
+                    font-weight:bold;
+                    cursor:pointer;
+                "
+            >
+
+                Update Now
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(box);
+
+}
+
+
+/* =========================================================
+   UPDATE APP
+========================================================= */
+
+function updateMGVMApp() {
+
+    navigator.serviceWorker
+        .getRegistration()
+        .then(function (registration) {
+
+            if (
+                registration &&
+                registration.waiting
+            ) {
+
+                /*
+                 * नवीन Service Worker ला
+                 * activate करण्यास सांगतो
+                 */
+
+                registration.waiting.postMessage({
+                    type: "SKIP_WAITING"
+                });
+
+            }
+
+        });
+
+
+    /*
+     * नवीन Service Worker activate झाल्यावर
+     * page reload करतो
+     */
+
+    let refreshing = false;
+
+
+    navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        function () {
+
+            if (refreshing) {
+
+                return;
+
+            }
+
+            refreshing = true;
+
+            window.location.reload();
+
+        }
+    );
+
+}
+
+</script> 
 
 </body>
 
