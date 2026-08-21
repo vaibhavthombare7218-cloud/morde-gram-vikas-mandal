@@ -3,9 +3,17 @@
    मोर्डे ग्राम विकास मंडळ, मुंबई
 
    PWA OFFLINE CACHE
+   AUTOMATIC UPDATE SYSTEM
 ========================================================= */
 
-const CACHE_NAME = "mgvm-app-v2";
+
+/* =========================================================
+   APP VERSION
+========================================================= */
+
+const APP_VERSION = "v3";
+
+const CACHE_NAME = "mgvm-app-" + APP_VERSION;
 
 
 /* =========================================================
@@ -118,7 +126,12 @@ const FILES_TO_CACHE = [
 
 self.addEventListener("install", event => {
 
-    console.log("MGVM Service Worker: Installing...");
+    console.log(
+        "MGVM Service Worker:",
+        APP_VERSION,
+        "Installing..."
+    );
+
 
     event.waitUntil(
 
@@ -127,18 +140,26 @@ self.addEventListener("install", event => {
         .then(cache => {
 
             console.log(
-                "MGVM Service Worker: Caching files..."
+                "MGVM: Caching new version..."
             );
 
-            return cache.addAll(FILES_TO_CACHE);
+            return cache.addAll(
+                FILES_TO_CACHE
+            );
 
         })
 
         .then(() => {
 
             console.log(
-                "MGVM Service Worker: All files cached."
+                "MGVM:",
+                APP_VERSION,
+                "Cached Successfully."
             );
+
+            /*
+             * नवीन Service Worker लगेच तयार ठेवतो
+             */
 
             return self.skipWaiting();
 
@@ -147,7 +168,7 @@ self.addEventListener("install", event => {
         .catch(error => {
 
             console.error(
-                "MGVM Service Worker Cache Error:",
+                "MGVM Cache Error:",
                 error
             );
 
@@ -158,13 +179,34 @@ self.addEventListener("install", event => {
 });
 
 
+
+/* =========================================================
+   UPDATE MESSAGE
+========================================================= */
+
+self.addEventListener("message", event => {
+
+    if (
+        event.data &&
+        event.data.type === "SKIP_WAITING"
+    ) {
+
+        self.skipWaiting();
+
+    }
+
+});
 /* =========================================================
    ACTIVATE
 ========================================================= */
-
 self.addEventListener("activate", event => {
 
-    console.log("MGVM Service Worker: Activated.");
+    console.log(
+        "MGVM Service Worker:",
+        APP_VERSION,
+        "Activated."
+    );
+
 
     event.waitUntil(
 
@@ -178,18 +220,27 @@ self.addEventListener("activate", event => {
 
                     .filter(cacheName => {
 
-                        return cacheName !== CACHE_NAME;
+                        /*
+                         * फक्त MGVM चे जुने cache delete करायचे
+                         */
+
+                        return (
+                            cacheName.startsWith("mgvm-app-") &&
+                            cacheName !== CACHE_NAME
+                        );
 
                     })
 
                     .map(cacheName => {
 
                         console.log(
-                            "Deleting old cache:",
+                            "MGVM: Removing old cache:",
                             cacheName
                         );
 
-                        return caches.delete(cacheName);
+                        return caches.delete(
+                            cacheName
+                        );
 
                     })
 
@@ -198,6 +249,11 @@ self.addEventListener("activate", event => {
         })
 
         .then(() => {
+
+            /*
+             * सर्व open pages ला नवीन
+             * Service Worker control देतो
+             */
 
             return self.clients.claim();
 
@@ -214,15 +270,26 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
 
+    /*
+     * फक्त GET requests handle करायच्या
+     */
+
+    if (event.request.method !== "GET") {
+
+        return;
+
+    }
+
+
     event.respondWith(
 
         caches.match(event.request)
 
         .then(cachedResponse => {
 
-            /* -------------------------------
+            /* ---------------------------------------------
                CACHE AVAILABLE
-            ------------------------------- */
+            --------------------------------------------- */
 
             if (cachedResponse) {
 
@@ -231,13 +298,41 @@ self.addEventListener("fetch", event => {
             }
 
 
-            /* -------------------------------
+            /* ---------------------------------------------
                INTERNET REQUEST
-            ------------------------------- */
+            --------------------------------------------- */
 
             return fetch(event.request)
 
                 .then(networkResponse => {
+
+                    /*
+                     * Valid response असल्यास
+                     * runtime cache मध्ये ठेवतो
+                     */
+
+                    if (
+                        networkResponse &&
+                        networkResponse.status === 200 &&
+                        networkResponse.type === "basic"
+                    ) {
+
+                        const responseClone =
+                            networkResponse.clone();
+
+
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+
+                                cache.put(
+                                    event.request,
+                                    responseClone
+                                );
+
+                            });
+
+                    }
+
 
                     return networkResponse;
 
@@ -245,9 +340,9 @@ self.addEventListener("fetch", event => {
 
                 .catch(() => {
 
-                    /* ---------------------------
+                    /* -------------------------------------
                        OFFLINE FALLBACK
-                    --------------------------- */
+                    ------------------------------------- */
 
                     if (
                         event.request.mode === "navigate"
